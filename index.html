@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script type="module" src="/src/main.js"></script>
+  <script>function toggleMenu(){var l=document.getElementById('navLinks');if(l)l.classList.toggle('open')}</script>
   <style>
     :root {
       --bg-page: #0C0A09; --bg-card: #1C1917; --bg-elevated: #292524;
@@ -34,7 +35,7 @@
     .nav-link:hover::after { width: 100%; }
     input, select, textarea { border-radius: 0; -webkit-appearance: none; }
     input:focus, select:focus, textarea:focus { outline: none; }
-    .desktop-nav { display: flex; align-items: center; }
+    .desktop-nav { display: flex; align-items: center; position: relative; }
     @media (min-width: 768px) { .md-hidden { display: none !important; } }
     .nav-links { display: flex; align-items: center; gap: 2rem; }
     .menu-btn { display: none; }
