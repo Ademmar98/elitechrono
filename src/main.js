@@ -19,7 +19,6 @@ const App = {
     about: 'renderAbout',
     contact: 'renderContact',
     admin: 'renderAdmin',
-    'admin-login': 'renderAdminLogin',
   },
 
   async init() {
@@ -71,8 +70,6 @@ const App = {
       route = 'product'; param = hash.slice(8);
     } else if (hash.startsWith('admin-orders') || hash.startsWith('admin-products')) {
       route = 'admin';
-    } else if (hash.startsWith('admin-login')) {
-      route = 'admin-login';
     } else if (hash.startsWith('admin')) {
       route = 'admin';
     }
@@ -654,32 +651,6 @@ const App = {
 
   // ─── ADMIN ────────────────────────────────────────────────────────────
 
-  renderAdminLogin() {
-    if (Auth.isAdmin()) { this.renderAdmin(); return; }
-    this.render(`
-      <div class="bg-page min-h-screen pt-32 pb-24 flex items-center justify-center">
-        <div class="max-w-md w-full mx-auto px-6">
-          <div class="text-center mb-10">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Restricted Access</p>
-            <h1 class="font-cormorant text-4xl text-primary">Admin Login</h1>
-          </div>
-          <div class="bg-card border border-subtle p-8 space-y-5">
-            <div>
-              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Email</label>
-              <input type="email" id="admin-email" class="admin-input" placeholder="admin@elitechrono.com">
-            </div>
-            <div>
-              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Password</label>
-              <input type="password" id="admin-password" class="admin-input" placeholder="••••••••">
-            </div>
-            <button onclick="App.adminLogin()" class="admin-btn admin-btn-primary w-full text-center">Sign In</button>
-            <p class="font-montserrat text-xs text-muted-c text-center mt-4">Demo: admin@elitechrono.com / admin123</p>
-          </div>
-        </div>
-      </div>
-    `);
-  },
-
   async adminLogin() {
     const email = document.getElementById('admin-email')?.value.trim();
     const pass = document.getElementById('admin-password')?.value.trim();
@@ -693,7 +664,26 @@ const App = {
   },
 
   renderAdmin() {
-    if (!Auth.isAdmin()) { this.renderAdminLogin(); return; }
+    if (!Auth.isAdmin()) {
+      this.render(`
+        <div class="bg-page min-h-screen pt-32 pb-24 flex items-center justify-center">
+          <div class="max-w-sm w-full mx-auto px-6">
+            <div class="bg-card border border-subtle p-8 space-y-5">
+              <div>
+                <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Email</label>
+                <input type="email" id="admin-email" class="admin-input" placeholder="admin@elitechrono.com">
+              </div>
+              <div>
+                <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Password</label>
+                <input type="password" id="admin-password" class="admin-input" placeholder="••••••••">
+              </div>
+              <button onclick="App.adminLogin()" class="admin-btn admin-btn-primary w-full text-center">Sign In</button>
+            </div>
+          </div>
+        </div>
+      `);
+      return;
+    }
     const hash = location.hash.slice(1);
     const tab = hash === 'admin-products' ? 'products' : 'orders';
     this.render(`
