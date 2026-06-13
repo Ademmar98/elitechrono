@@ -18,7 +18,7 @@ const App = {
     checkout: 'renderCheckout',
     about: 'renderAbout',
     contact: 'renderContact',
-    admin: 'renderAdmin',
+    'elite-zone': 'renderAdmin',
   },
 
   async init() {
@@ -51,7 +51,7 @@ const App = {
   setupRealtime() {
     subscribeOrders((payload) => {
       // If on admin orders tab, re-render
-      if (this.currentRoute === 'admin' && location.hash.includes('?status') || !location.hash.includes('elite-zone-products')) {
+      if (this.currentRoute === 'elite-zone' && location.hash.includes('?status') || !location.hash.includes('elite-zone-products')) {
         // Debounce re-render
         clearTimeout(this._realtimeDebounce);
         this._realtimeDebounce = setTimeout(() => this.renderAdmin(), 500);
@@ -69,9 +69,9 @@ const App = {
     } else if (hash.startsWith('product-')) {
       route = 'product'; param = hash.slice(8);
     } else if (hash.startsWith('elite-zone-orders') || hash.startsWith('elite-zone-products')) {
-      route = 'admin';
+      route = 'elite-zone';
     } else if (hash.startsWith('elite-zone')) {
-      route = 'admin';
+      route = 'elite-zone';
     }
 
     this.currentRoute = route;
@@ -735,7 +735,7 @@ const App = {
     // Fetch orders async
     getOrders().then(orders => {
       this._cachedOrders = orders;
-      if (this.currentRoute === 'admin') this.renderAdmin();
+      if (this.currentRoute === 'elite-zone') this.renderAdmin();
     });
 
     return `
@@ -841,7 +841,7 @@ const App = {
     // Fetch products async
     getProducts().then(products => {
       this._cachedAdminProducts = products;
-      if (this.currentRoute === 'admin') this.renderAdmin();
+      if (this.currentRoute === 'elite-zone') this.renderAdmin();
     });
 
     const brands = [...new Set(products.map(p => p.brand))];
