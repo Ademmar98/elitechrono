@@ -26,6 +26,23 @@ async function handleImageUpload(inputId) {
 }
 window.handleImageUpload = handleImageUpload;
 
+async function handleMultiUpload(inputId, targetId) {
+  const input = document.getElementById(inputId);
+  const files = input?.files;
+  if (!files || !files.length) return;
+  const existing = (() => { try { return JSON.parse(document.getElementById(targetId)?.value || '[]'); } catch { return []; } })();
+  App.showToast(`Uploading ${files.length} file(s)...`);
+  for (const file of files) {
+    const result = await uploadImage(file);
+    if (result.url) existing.push(result.url);
+  }
+  document.getElementById(targetId).value = JSON.stringify(existing);
+  document.getElementById(targetId).dispatchEvent(new Event('input'));
+  input.value = '';
+  App.showToast(`${existing.length} additional image(s) saved`);
+}
+window.handleMultiUpload = handleMultiUpload;
+
 const App = {
   currentRoute: 'home',
   watches: WATCHES,
@@ -913,7 +930,7 @@ const App = {
           </div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Description</label><textarea id="pf-desc" class="admin-input" rows="3" placeholder="Product description...">${existing ? existing.description : ''}</textarea></div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Main Image URL</label><div class="flex gap-2"><input id="pf-img" class="admin-input flex-1" value="${existing ? existing.img : ''}" placeholder="https://..."><label class="upload-btn cursor-pointer flex-shrink-0"><input type="file" id="pf-img-file" accept="image/*" onchange="handleImageUpload('pf-img-file')" hidden><span class="admin-btn admin-btn-ghost text-xs px-3">Upload</span></label></div></div>
-          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Additional Images (JSON array, optional)</label><input id="pf-images" class="admin-input" value="${existing && existing.images ? JSON.stringify(existing.images) : ''}" placeholder='["https://...", "https://..."]'></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Additional Images</label><div class="flex gap-2"><input id="pf-images" class="admin-input flex-1" value="${existing && existing.images ? JSON.stringify(existing.images) : ''}" placeholder='["https://..."]' readonly><label class="upload-btn cursor-pointer flex-shrink-0"><input type="file" id="pf-images-file" accept="image/*" multiple onchange="handleMultiUpload('pf-images-file','pf-images')" hidden><span class="admin-btn admin-btn-ghost text-xs px-3">Upload</span></label><button onclick="document.getElementById('pf-images').value='[]'" class="admin-btn admin-btn-ghost text-xs px-2">Clear</button></div><p class="font-montserrat text-[10px] text-muted-c mt-1">Choose multiple files at once — they upload and fill the list automatically</p></div>
           <div>
             <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Sections</label>
             <div class="flex flex-wrap gap-2">${sections.map(s => `<button type="button" class="section-toggle ${existing && (existing.sections || []).includes(s) ? 'active' : ''}" data-section="${s}" onclick="this.classList.toggle('active')">${s}</button>`).join('')}</div>
