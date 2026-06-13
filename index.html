@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script type="module" src="/src/main.js"></script>
-  <script>function toggleMenu(){var l=document.getElementById('navLinks');if(l)l.classList.toggle('open')}</script>
+  <script>function toggleMenu(){var l=document.getElementById('navLinks');if(l){var o=l.classList.toggle('open');var b=document.getElementById('menuToggle');if(b)b.textContent=o?'Close':'Menu';}}</script>
   <style>
     :root {
       --bg-page: #0C0A09; --bg-card: #1C1917; --bg-elevated: #292524;
@@ -37,12 +37,15 @@
     input:focus, select:focus, textarea:focus { outline: none; }
     .desktop-nav { display: flex; align-items: center; position: relative; }
     @media (min-width: 768px) { .md-hidden { display: none !important; } }
-    .nav-links { display: flex; align-items: center; gap: 2rem; }
+      .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .mobile-menu-close { display: none; }
     .menu-btn { display: none; }
     @media (max-width: 767px) {
-      .nav-links { display: none; position: fixed; inset: 0; top: 64px; background: rgba(12,10,9,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); flex-direction: column; align-items: center; justify-content: center; gap: 0; z-index: 100; }
-      .nav-links.open { display: flex; }
-      .nav-links a { padding: 16px 0; font-size: 13px; letter-spacing: 0.2em; }
+      .nav-links { display: none; position: fixed; inset: 0; top: 64px; background: rgba(12,10,9,0.97); flex-direction: column; align-items: center; justify-content: center; gap: 0; z-index: 100; opacity: 0; transition: opacity 0.25s ease; }
+      .nav-links.open { display: flex; opacity: 1; }
+      .nav-links a { padding: 18px 0; font-size: 14px; letter-spacing: 0.25em; min-height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+      .mobile-menu-close { display: block; position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 8px; }
+      .mobile-menu-close:hover { color: var(--text-primary); }
       .menu-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 0; font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.15em; text-transform: uppercase; }
       .menu-btn:hover { color: var(--text-primary); }
     }
@@ -150,6 +153,7 @@
 
         <div class="desktop-nav" id="mainNav">
           <div id="navLinks" class="nav-links">
+            <button onclick="toggleMenu()" class="mobile-menu-close" aria-label="Close menu"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
             <a href="#home" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">Home</a>
             <a href="#products" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">All Watches</a>
             <a href="#new-models" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">New Models</a>

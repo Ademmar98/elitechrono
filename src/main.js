@@ -6,7 +6,11 @@ import { isSupabaseReady } from './lib/supabaseClient.js';
 
 function toggleMenu() {
   var l = document.getElementById('navLinks');
-  if (l) l.classList.toggle('open');
+  if (l) {
+    var open = l.classList.toggle('open');
+    var btn = document.getElementById('menuToggle');
+    if (btn) btn.textContent = open ? 'Close' : 'Menu';
+  }
 }
 window.toggleMenu = toggleMenu;
 
@@ -65,11 +69,22 @@ const App = {
     if (isSupabaseReady()) {
       await bootstrapSupabaseTables();
     }
+    await this.syncProducts();
     this.populateBrands();
     window.addEventListener('hashchange', () => this.handleRoute());
     this.handleRoute();
     Cart.updateBadge();
     this.setupRealtime();
+  },
+
+  async syncProducts() {
+    const dbProducts = await getProducts();
+    if (dbProducts && dbProducts.length > 0) {
+      const merged = new Map();
+      for (const w of WATCHES) merged.set(w.id, w);
+      for (const p of dbProducts) merged.set(p.id, { ...merged.get(p.id), ...p });
+      this.watches = [...merged.values()];
+    }
   },
 
   populateBrands() {
@@ -562,7 +577,7 @@ const App = {
 
     const wilaya = WILAYAS.find(w => w.code === wilayaCode);
     const existingOrders = await getOrders();
-    const orderId = 'ORD-' + (1007 + existingOrders.length);
+    const orderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
     const order = {
       id: orderId,
       date: new Date().toISOString(),
@@ -697,7 +712,7 @@ const App = {
     }
   },
 
-  renderAdmin() {
+  async renderAdmin() {
     if (!Auth.isAdmin()) {
       this.render(`
         <div class="bg-page min-h-screen pt-32 pb-24 flex items-center justify-center">
@@ -718,6 +733,9 @@ const App = {
       `);
       return;
     }
+    // Pre-fetch data for admin tables
+    if (!this._cachedOrders || this._cachedOrders.length === 0) this._cachedOrders = await getOrders();
+    if (!this._cachedAdminProducts || this._cachedAdminProducts.length === 0) this._cachedAdminProducts = await getProducts();
     const hash = location.hash.slice(1);
     const tab = hash === 'elite-zone-products' ? 'products' : 'orders';
     this.render(`
@@ -758,18 +776,12 @@ const App = {
   },
 
   renderAdminOrders() {
-    // Render synchronously with cached data, fetch async
     const orders = this._cachedOrders || [];
     const statusFilter = new URLSearchParams(location.hash.slice(location.hash.indexOf('?'))).get('status') || '';
     const filtered = statusFilter ? orders.filter(o => o.status === statusFilter) : orders;
     const statuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
     const statusLabels = { pending: 'Pending', confirmed: 'Confirmed', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
     const statusBadge = { pending: 'admin-badge-pending', confirmed: 'admin-badge-confirmed', shipped: 'admin-badge-shipped', delivered: 'admin-badge-delivered', cancelled: 'admin-badge-cancelled' };
-
-    // Fetch orders async
-    getOrders().then(orders => {
-      this._cachedOrders = orders;
-    });
 
     return `
       <div>
@@ -793,7 +805,7 @@ const App = {
                   return p ? `${p.name} x${item.qty}` : `${item.id} x${item.qty}`;
                 }).join(', ');
                 const total = o.total || o.items.reduce((sum, item) => {
-                  const p = [...WATCHES, ...this._cachedAdminProducts || []].find(pr => pr.id === item.id);
+                  const p = [...this.watches, ...this._cachedAdminProducts || []].find(pr => pr.id === item.id);
                   return sum + (p ? p.price * item.qty : 0);
                 }, 0);
                 return `
@@ -871,11 +883,6 @@ const App = {
 
   renderAdminProducts() {
     const products = this._cachedAdminProducts || [];
-    // Fetch products async
-    getProducts().then(products => {
-      this._cachedAdminProducts = products;
-    });
-
     const brands = [...new Set(products.map(p => p.brand))];
     const sections = ['New Models', 'Curated Selection', 'Featured Timepieces'];
 
@@ -978,6 +985,7 @@ const App = {
       this.showToast(existingId ? 'Product updated' : 'Product created');
       document.querySelector('.product-overlay')?.remove();
       this._cachedAdminProducts = await getProducts();
+      await this.syncProducts();
       this.renderAdmin();
     } else {
       this.showToast('Failed to save product');
@@ -990,6 +998,7 @@ const App = {
     if (success) {
       this.showToast('Product deleted');
       this._cachedAdminProducts = await getProducts();
+      await this.syncProducts();
       this.renderAdmin();
     } else {
       this.showToast('Failed to delete product');
