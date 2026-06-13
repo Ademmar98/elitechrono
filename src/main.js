@@ -51,7 +51,7 @@ const App = {
   setupRealtime() {
     subscribeOrders((payload) => {
       // If on admin orders tab, re-render
-      if (this.currentRoute === 'admin' && location.hash.includes('?status') || !location.hash.includes('products')) {
+      if (this.currentRoute === 'admin' && location.hash.includes('?status') || !location.hash.includes('elite-zone-products')) {
         // Debounce re-render
         clearTimeout(this._realtimeDebounce);
         this._realtimeDebounce = setTimeout(() => this.renderAdmin(), 500);
@@ -68,9 +68,9 @@ const App = {
       route = 'brand'; param = hash.slice(6);
     } else if (hash.startsWith('product-')) {
       route = 'product'; param = hash.slice(8);
-    } else if (hash.startsWith('admin-orders') || hash.startsWith('admin-products')) {
+    } else if (hash.startsWith('elite-zone-orders') || hash.startsWith('elite-zone-products')) {
       route = 'admin';
-    } else if (hash.startsWith('admin')) {
+    } else if (hash.startsWith('elite-zone')) {
       route = 'admin';
     }
 
@@ -685,7 +685,7 @@ const App = {
       return;
     }
     const hash = location.hash.slice(1);
-    const tab = hash === 'admin-products' ? 'products' : 'orders';
+    const tab = hash === 'elite-zone-products' ? 'products' : 'orders';
     this.render(`
       <div class="bg-page min-h-screen pt-24">
         <div class="max-w-7xl mx-auto px-6 py-8">
@@ -698,10 +698,10 @@ const App = {
           </div>
           <div class="flex flex-col md:flex-row gap-8">
             <div class="admin-sidebar w-full md:w-56 flex-shrink-0">
-              <a href="#admin" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'orders' ? 'active' : ''}">
+              <a href="#elite-zone" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'orders' ? 'active' : ''}">
                 <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg> Orders</span>
               </a>
-              <a href="#admin-products" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'products' ? 'active' : ''}">
+              <a href="#elite-zone-products" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'products' ? 'active' : ''}">
                 <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg> Products</span>
               </a>
               <a href="#home" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle cursor-pointer hover-bg-hover transition-colors">
@@ -743,8 +743,8 @@ const App = {
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
           <h2 class="font-cormorant text-2xl text-primary">Order Management</h2>
           <div class="flex flex-wrap gap-2">
-            <a href="#admin" class="admin-btn admin-btn-ghost text-xs ${!statusFilter ? 'border-gold' : ''}">All</a>
-            ${statuses.map(s => `<a href="#admin?status=${s}" class="admin-btn admin-btn-ghost text-xs ${statusFilter === s ? 'border-gold' : ''}">${statusLabels[s]}</a>`).join('')}
+            <a href="#elite-zone" class="admin-btn admin-btn-ghost text-xs ${!statusFilter ? 'border-gold' : ''}">All</a>
+            ${statuses.map(s => `<a href="#elite-zone?status=${s}" class="admin-btn admin-btn-ghost text-xs ${statusFilter === s ? 'border-gold' : ''}">${statusLabels[s]}</a>`).join('')}
           </div>
         </div>
         <div class="overflow-x-auto border border-subtle">
