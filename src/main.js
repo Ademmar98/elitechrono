@@ -169,7 +169,7 @@ const App = {
                 'Jacob & Co.': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="3" fill="currentColor">JACOB</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="3" fill="currentColor" opacity="0.65">&amp; CO.</text></svg>',
               };
               const items = BRANDS.map(b =>
-                `<a href="#brand-${slug(b)}" class="brand-card"><div class="brand-card-inner text-stone-500 hover:text-gold">${svgs[b] || b}</div></a>`
+                `<a href="#brand-${slug(b)}" class="brand-card"><div class="brand-card-inner text-white/30 hover:text-gold">${svgs[b] || b}</div></a>`
               ).join('');
               return items + items;
             })()}
