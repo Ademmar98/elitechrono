@@ -227,3 +227,19 @@ export async function bootstrapSupabaseTables() {
     if (error) console.warn('[DB] Seed products failed:', error.message);
   }
 }
+
+// --- Image upload to Supabase Storage ---
+
+export async function uploadImage(file) {
+  if (!isSupabaseReady()) return { error: 'Supabase not connected' };
+  const ext = file.name.split('.').pop().toLowerCase();
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { data, error } = await supabase.storage
+    .from('product-images')
+    .upload(fileName, file, { contentType: file.type, upsert: false });
+  if (error) return { error: error.message };
+  const { data: urlData } = supabase.storage
+    .from('product-images')
+    .getPublicUrl(fileName);
+  return { url: urlData.publicUrl };
+}

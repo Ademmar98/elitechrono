@@ -1,14 +1,30 @@
 import { WATCHES, NEW_WATCHES, BRANDS, WILAYAS, slug } from './data.js';
 import { Cart } from './cart.js';
-import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders } from './services/db.js';
+import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders, uploadImage } from './services/db.js';
 import { Auth } from './services/auth.js';
 import { isSupabaseReady } from './lib/supabaseClient.js';
 
 function toggleMenu() {
-  const links = document.getElementById('navLinks');
-  if (links) links.classList.toggle('open');
+  var l = document.getElementById('navLinks');
+  if (l) l.classList.toggle('open');
 }
 window.toggleMenu = toggleMenu;
+
+async function handleImageUpload(inputId) {
+  const input = document.getElementById(inputId);
+  const file = input?.files?.[0];
+  if (!file) return;
+  const result = await uploadImage(file);
+  if (result.url) {
+    document.getElementById('pf-img').value = result.url;
+    document.getElementById('pf-img').dispatchEvent(new Event('input'));
+    App.showToast('Image uploaded');
+  } else {
+    App.showToast('Upload failed: ' + (result.error || 'unknown error'));
+  }
+  input.value = '';
+}
+window.handleImageUpload = handleImageUpload;
 
 const App = {
   currentRoute: 'home',
@@ -896,7 +912,7 @@ const App = {
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Price (DZD)</label><input id="pf-price" class="admin-input" type="number" value="${existing ? existing.price : ''}" placeholder="e.g. 14500"></div>
           </div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Description</label><textarea id="pf-desc" class="admin-input" rows="3" placeholder="Product description...">${existing ? existing.description : ''}</textarea></div>
-          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Main Image URL</label><input id="pf-img" class="admin-input" value="${existing ? existing.img : ''}" placeholder="https://..."></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Main Image URL</label><div class="flex gap-2"><input id="pf-img" class="admin-input flex-1" value="${existing ? existing.img : ''}" placeholder="https://..."><label class="upload-btn cursor-pointer flex-shrink-0"><input type="file" id="pf-img-file" accept="image/*" onchange="handleImageUpload('pf-img-file')" hidden><span class="admin-btn admin-btn-ghost text-xs px-3">Upload</span></label></div></div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Additional Images (JSON array, optional)</label><input id="pf-images" class="admin-input" value="${existing && existing.images ? JSON.stringify(existing.images) : ''}" placeholder='["https://...", "https://..."]'></div>
           <div>
             <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Sections</label>
