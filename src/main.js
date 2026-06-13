@@ -8,6 +8,7 @@ function toggleMenu() {
   const links = document.getElementById('navLinks');
   if (links) links.classList.toggle('open');
 }
+window.toggleMenu = toggleMenu;
 
 const App = {
   currentRoute: 'home',
