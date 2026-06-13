@@ -96,7 +96,7 @@
     .brand-card:hover .brand-card-inner::after { opacity: 1; }
     .brand-card:hover .brand-card-inner svg { filter: drop-shadow(0 0 8px rgba(202,138,4,0.2)); }
     .brand-card-inner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(202,138,4,0.08) 0%, transparent 50%, rgba(202,138,4,0.04) 100%); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
-    @media (max-width: 767px) { .brand-card { perspective: none; } .brand-card-inner { transform-style: flat; transition: none; background: none; border-color: transparent; } .brand-card-inner svg { transition: none; height: 36px; width: auto; color: #E7E5E4 !important; } .brand-card-inner::after { display: none; } }
+    @media (max-width: 767px) { .brand-card { perspective: none; width: 300px; height: 140px; } .brand-card-inner { transform-style: flat; transition: none; } .brand-card-inner svg { transition: none; } .brand-card-inner::after { display: none; } }
     .admin-sidebar { min-width: 240px; }
     .admin-tab { transition: all 0.2s ease; }
     .admin-tab.active { background: var(--gold); color: #1C1917; border-color: var(--gold); }
@@ -156,11 +156,11 @@
         </div>
 
         <div class="flex items-center gap-2 md:gap-3">
-          <button id="menuToggle" class="md-hidden menu-btn font-montserrat text-[11px] text-secondary tracking-[0.15em] uppercase cursor-pointer">Menu</button>
           <a href="#cart" class="relative cursor-pointer">
             <svg class="w-5 h-5 text-secondary hover-text-gold transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-gold text-primary text-[9px] font-montserrat font-bold w-4 h-4 flex items-center justify-center hidden">0</span>
           </a>
+          <button id="menuToggle" class="md-hidden menu-btn font-montserrat text-[11px] text-secondary tracking-[0.15em] uppercase cursor-pointer">Menu</button>
         </div>
       </div>
     </div>
