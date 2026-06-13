@@ -4,6 +4,11 @@ import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, get
 import { Auth } from './services/auth.js';
 import { isSupabaseReady } from './lib/supabaseClient.js';
 
+function toggleMenu() {
+  const links = document.getElementById('navLinks');
+  if (links) links.classList.toggle('open');
+}
+
 const App = {
   currentRoute: 'home',
   watches: WATCHES,
@@ -38,7 +43,7 @@ const App = {
     const footerContainer = document.getElementById('footer-brands');
     if (mobileContainer) {
       mobileContainer.innerHTML = BRANDS.map(b =>
-        `<a href="#brand-${slug(b)}" class="font-cormorant text-lg text-white/70 hover:text-[#CA8A04] transition-colors duration-200 cursor-pointer" onclick="document.getElementById('mobile-menu').classList.remove('open')">${b}</a>`
+        `<a href="#brand-${slug(b)}" class="font-montserrat text-sm text-white/70 hover:text-gold transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">${b}</a>`
       ).join('');
     }
     if (footerContainer) {

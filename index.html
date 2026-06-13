@@ -34,10 +34,20 @@
     .nav-link:hover::after { width: 100%; }
     input, select, textarea { border-radius: 0; -webkit-appearance: none; }
     input:focus, select:focus, textarea:focus { outline: none; }
-    .mobile-nav { transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .mobile-nav.open { transform: translateX(0); }
-    @media (max-width: 767px) { .desktop-nav { display: none; } }
-    @media (min-width: 768px) { .mobile-toggle { display: none; } }
+    .desktop-nav { display: flex; align-items: center; }
+    @media (min-width: 768px) { .md-hidden { display: none !important; } }
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .menu-btn { display: none; }
+    @media (max-width: 767px) {
+      .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--navbar-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); flex-direction: column; align-items: stretch; padding: 16px 24px; gap: 0; border-bottom: 1px solid var(--border-subtle); z-index: 60; }
+      .nav-links.open { display: flex; }
+      .nav-links a { padding: 12px 0; border-bottom: 1px solid var(--border-subtle); }
+      .nav-links a:last-of-type { border-bottom: none; }
+      .mobile-brands-section { padding: 12px 0; border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px; }
+      .menu-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 0; font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.15em; text-transform: uppercase; }
+      .menu-btn:hover { color: var(--text-primary); }
+    }
+    @media (min-width: 768px) { .mobile-brands-section { display: none; } }
     .bg-page { background: var(--bg-page); }
     .bg-card { background: var(--bg-card); }
     .bg-elevated { background: var(--bg-elevated); }
@@ -88,6 +98,7 @@
     .brand-card:hover .brand-card-inner::after { opacity: 1; }
     .brand-card:hover .brand-card-inner svg { filter: drop-shadow(0 0 8px rgba(202,138,4,0.2)); }
     .brand-card-inner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(202,138,4,0.08) 0%, transparent 50%, rgba(202,138,4,0.04) 100%); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+    @media (max-width: 767px) { .brand-card { perspective: none; } .brand-card-inner { transform-style: flat; transition: none; } .brand-card-inner svg { transition: none; } .brand-card-inner::after { display: none; } }
     .admin-sidebar { min-width: 240px; }
     .admin-tab { transition: all 0.2s ease; }
     .admin-tab.active { background: var(--gold); color: #1C1917; border-color: var(--gold); }
@@ -123,7 +134,6 @@
     @keyframes escapeTick { 0% { transform: rotate(0deg); } 50% { transform: rotate(8deg); } 100% { transform: rotate(0deg); } }
     @media (prefers-reduced-motion: reduce) { .hero-gear { animation: none !important; } }
     @media (max-width: 767px) { .hero-gear-complex { display: none; } }
-    @media (max-width: 370px) { header .max-w-7xl { padding-left: 10px; padding-right: 10px; } header .font-cormorant.text-xl { font-size: 1.125rem; } header .gap-2 { gap: 6px; } }
     .hero-gear { will-change: transform; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
@@ -137,46 +147,30 @@
       <div class="flex items-center justify-between h-16 md:h-20">
         <a href="#home" class="font-cormorant text-xl md:text-3xl text-primary tracking-wide cursor-pointer whitespace-nowrap">Elite <span class="text-gold">Chrono</span></a>
 
-        <nav class="desktop-nav flex items-center gap-8">
-          <a href="#home" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer">Home</a>
-          <a href="#products" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer">All Watches</a>
-          <a href="#new-models" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer">New Models</a>
-          <a href="#about" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer">About</a>
-          <a href="#contact" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer">Contact</a>
-        </nav>
+        <div class="desktop-nav" id="mainNav">
+          <button id="menuToggle" class="md-hidden menu-btn font-montserrat text-[11px] text-secondary tracking-[0.15em] uppercase cursor-pointer">Menu</button>
+          <div id="navLinks" class="nav-links">
+            <a href="#home" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">Home</a>
+            <a href="#products" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">All Watches</a>
+            <a href="#new-models" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">New Models</a>
+            <div class="mobile-brands-section">
+              <span class="font-montserrat text-[10px] text-white/30 tracking-[0.2em] uppercase">Brands</span>
+              <div id="mobile-brands"></div>
+            </div>
+            <a href="#about" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">About</a>
+            <a href="#contact" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">Contact</a>
+          </div>
+        </div>
 
         <div class="flex items-center gap-2 md:gap-3">
           <a href="#cart" class="relative cursor-pointer">
             <svg class="w-5 h-5 text-secondary hover-text-gold transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-gold text-primary text-[9px] font-montserrat font-bold w-4 h-4 flex items-center justify-center hidden">0</span>
           </a>
-          <button class="mobile-toggle" onclick="document.getElementById('mobile-menu').classList.toggle('open')" aria-label="Menu">
-            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
-          </button>
         </div>
       </div>
     </div>
   </header>
-
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="mobile-nav fixed top-0 right-0 w-72 h-full bg-overlay z-[60] pt-24 px-8 shadow-2xl">
-    <button class="absolute top-6 right-6 text-white/60 hover:text-white cursor-pointer" onclick="document.getElementById('mobile-menu').classList.remove('open')">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
-    <nav class="flex flex-col gap-6">
-      <a href="#home" class="font-montserrat text-sm text-white/80 hover-text-gold tracking-wider uppercase transition-colors duration-200 cursor-pointer" onclick="document.getElementById('mobile-menu').classList.remove('open')">Home</a>
-      <a href="#products" class="font-montserrat text-sm text-white/80 hover-text-gold tracking-wider uppercase transition-colors duration-200 cursor-pointer" onclick="document.getElementById('mobile-menu').classList.remove('open')">All Watches</a>
-      <a href="#new-models" class="font-montserrat text-sm text-white/80 hover-text-gold tracking-wider uppercase transition-colors duration-200 cursor-pointer" onclick="document.getElementById('mobile-menu').classList.remove('open')">New Models</a>
-      <div class="border-t border-white/10 pt-6">
-        <p class="font-montserrat text-[10px] text-white/30 tracking-[0.2em] uppercase mb-4">Brands</p>
-        <div class="nav flex flex-col gap-3" id="mobile-brands"></div>
-      </div>
-      <div class="border-t border-white/10 pt-6 flex flex-col gap-4">
-        <a href="#about" class="font-montserrat text-sm text-white/80 hover-text-gold tracking-wider uppercase transition-colors duration-200 cursor-pointer" onclick="document.getElementById('mobile-menu').classList.remove('open')">About</a>
-        <a href="#contact" class="font-montserrat text-sm text-white/80 hover-text-gold tracking-wider uppercase transition-colors duration-200 cursor-pointer" onclick="document.getElementById('mobile-menu').classList.remove('open')">Contact</a>
-      </div>
-    </nav>
-  </div>
 
   <!-- Main Content -->
   <main id="main-content"></main>
