@@ -123,6 +123,7 @@
     @keyframes escapeTick { 0% { transform: rotate(0deg); } 50% { transform: rotate(8deg); } 100% { transform: rotate(0deg); } }
     @media (prefers-reduced-motion: reduce) { .hero-gear { animation: none !important; } }
     @media (max-width: 767px) { .hero-gear-complex { display: none; } }
+    @media (max-width: 370px) { header .max-w-7xl { padding-left: 10px; padding-right: 10px; } header .font-cormorant.text-xl { font-size: 1.125rem; } header .gap-2 { gap: 6px; } }
     .hero-gear { will-change: transform; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
@@ -144,10 +145,10 @@
           <a href="#contact" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer">Contact</a>
         </nav>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 md:gap-3">
           <a href="#cart" class="relative cursor-pointer">
             <svg class="w-5 h-5 text-secondary hover-text-gold transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-            <span id="cart-badge" class="absolute -top-2 -right-2 bg-gold text-primary text-[9px] font-montserrat font-bold w-4 h-4 flex items-center justify-center hidden">0</span>
+            <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-gold text-primary text-[9px] font-montserrat font-bold w-4 h-4 flex items-center justify-center hidden">0</span>
           </a>
           <button class="mobile-toggle" onclick="document.getElementById('mobile-menu').classList.toggle('open')" aria-label="Menu">
             <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
