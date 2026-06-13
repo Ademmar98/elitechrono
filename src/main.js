@@ -735,7 +735,6 @@ const App = {
     // Fetch orders async
     getOrders().then(orders => {
       this._cachedOrders = orders;
-      if (this.currentRoute === 'elite-zone') this.renderAdmin();
     });
 
     return `
@@ -841,7 +840,6 @@ const App = {
     // Fetch products async
     getProducts().then(products => {
       this._cachedAdminProducts = products;
-      if (this.currentRoute === 'elite-zone') this.renderAdmin();
     });
 
     const brands = [...new Set(products.map(p => p.brand))];
