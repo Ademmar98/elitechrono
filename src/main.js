@@ -18,7 +18,6 @@ const App = {
     checkout: 'renderCheckout',
     about: 'renderAbout',
     contact: 'renderContact',
-    'elite-zone': 'renderAdmin',
   },
 
   async init() {
@@ -68,10 +67,6 @@ const App = {
       route = 'brand'; param = hash.slice(6);
     } else if (hash.startsWith('product-')) {
       route = 'product'; param = hash.slice(8);
-    } else if (hash.startsWith('elite-zone-orders') || hash.startsWith('elite-zone-products')) {
-      route = 'elite-zone';
-    } else if (hash.startsWith('elite-zone')) {
-      route = 'elite-zone';
     }
 
     this.currentRoute = route;
