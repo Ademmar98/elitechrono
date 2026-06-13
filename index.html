@@ -40,10 +40,9 @@
     .nav-links { display: flex; align-items: center; gap: 2rem; }
     .menu-btn { display: none; }
     @media (max-width: 767px) {
-      .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--navbar-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); flex-direction: column; align-items: stretch; padding: 16px 24px; gap: 0; border-bottom: 1px solid var(--border-subtle); z-index: 60; }
+      .nav-links { display: none; position: fixed; inset: 0; top: 64px; background: rgba(12,10,9,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); flex-direction: column; align-items: center; justify-content: center; gap: 0; z-index: 100; }
       .nav-links.open { display: flex; }
-      .nav-links a { padding: 12px 0; border-bottom: 1px solid var(--border-subtle); }
-      .nav-links a:last-of-type { border-bottom: none; }
+      .nav-links a { padding: 16px 0; font-size: 13px; letter-spacing: 0.2em; }
       .menu-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 0; font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.15em; text-transform: uppercase; }
       .menu-btn:hover { color: var(--text-primary); }
     }
