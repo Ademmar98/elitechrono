@@ -5,11 +5,13 @@ const ADMIN_EMAIL = 'admin@elitechrono.com';
 
 export const Auth = {
   async signIn(email, password) {
+    // Try Supabase first if ready
     if (isSupabaseReady()) {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return { success: false, error: error.message };
-      localStorage.setItem(ADMIN_STORAGE_KEY, 'true');
-      return { success: true, user: data.user };
+      if (!error) {
+        localStorage.setItem(ADMIN_STORAGE_KEY, 'true');
+        return { success: true, user: data.user };
+      }
     }
     // Fallback: localStorage-based admin
     if (email === ADMIN_EMAIL && password === 'admin123') {
