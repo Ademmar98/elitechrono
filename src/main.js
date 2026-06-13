@@ -49,9 +49,8 @@ const App = {
 
   setupRealtime() {
     subscribeOrders((payload) => {
-      // If on admin orders tab, re-render
-      if (this.currentRoute === 'elite-zone') {
-        // Debounce re-render
+      // Only re-render if actually logged into the admin dashboard
+      if (this.currentRoute === 'elite-zone' && Auth.isAdmin()) {
         clearTimeout(this._realtimeDebounce);
         this._realtimeDebounce = setTimeout(() => this.renderAdmin(), 500);
       }
