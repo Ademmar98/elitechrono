@@ -59,6 +59,7 @@ const App = {
   },
 
   handleRoute() {
+    document.querySelectorAll('.product-overlay').forEach(el => el.remove());
     const hash = location.hash.slice(1) || 'home';
     let route = hash;
     let param = null;
@@ -880,7 +881,7 @@ const App = {
     const sections = ['New Models', 'Curated Selection', 'Featured Timepieces'];
 
     const overlay = document.createElement('div');
-    overlay.className = 'admin-overlay';
+    overlay.className = 'product-overlay';
     overlay.innerHTML = `
       <div class="admin-modal">
         <div class="flex items-center justify-between mb-6">
