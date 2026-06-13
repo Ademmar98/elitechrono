@@ -39,13 +39,7 @@ const App = {
   },
 
   populateBrands() {
-    const mobileContainer = document.getElementById('mobile-brands');
     const footerContainer = document.getElementById('footer-brands');
-    if (mobileContainer) {
-      mobileContainer.innerHTML = BRANDS.map(b =>
-        `<a href="#brand-${slug(b)}" class="font-montserrat text-sm text-white/70 hover:text-gold transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">${b}</a>`
-      ).join('');
-    }
     if (footerContainer) {
       footerContainer.innerHTML = BRANDS.slice(0, 6).map(b =>
         `<a href="#brand-${slug(b)}" class="font-montserrat text-sm text-stone-400 hover:text-white transition-colors duration-200 cursor-pointer">${b}</a>`

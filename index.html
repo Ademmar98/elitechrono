@@ -43,11 +43,9 @@
       .nav-links.open { display: flex; }
       .nav-links a { padding: 12px 0; border-bottom: 1px solid var(--border-subtle); }
       .nav-links a:last-of-type { border-bottom: none; }
-      .mobile-brands-section { padding: 12px 0; border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px; }
       .menu-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 0; font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.15em; text-transform: uppercase; }
       .menu-btn:hover { color: var(--text-primary); }
     }
-    @media (min-width: 768px) { .mobile-brands-section { display: none; } }
     .bg-page { background: var(--bg-page); }
     .bg-card { background: var(--bg-card); }
     .bg-elevated { background: var(--bg-elevated); }
@@ -98,7 +96,7 @@
     .brand-card:hover .brand-card-inner::after { opacity: 1; }
     .brand-card:hover .brand-card-inner svg { filter: drop-shadow(0 0 8px rgba(202,138,4,0.2)); }
     .brand-card-inner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(202,138,4,0.08) 0%, transparent 50%, rgba(202,138,4,0.04) 100%); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
-    @media (max-width: 767px) { .brand-card { perspective: none; } .brand-card-inner { transform-style: flat; transition: none; } .brand-card-inner svg { transition: none; } .brand-card-inner::after { display: none; } }
+    @media (max-width: 767px) { .brand-card { perspective: none; } .brand-card-inner { transform-style: flat; transition: none; background: none; border-color: transparent; } .brand-card-inner svg { transition: none; height: 36px; width: auto; color: #E7E5E4 !important; } .brand-card-inner::after { display: none; } }
     .admin-sidebar { min-width: 240px; }
     .admin-tab { transition: all 0.2s ease; }
     .admin-tab.active { background: var(--gold); color: #1C1917; border-color: var(--gold); }
@@ -148,21 +146,17 @@
         <a href="#home" class="font-cormorant text-xl md:text-3xl text-primary tracking-wide cursor-pointer whitespace-nowrap">Elite <span class="text-gold">Chrono</span></a>
 
         <div class="desktop-nav" id="mainNav">
-          <button id="menuToggle" class="md-hidden menu-btn font-montserrat text-[11px] text-secondary tracking-[0.15em] uppercase cursor-pointer">Menu</button>
           <div id="navLinks" class="nav-links">
             <a href="#home" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">Home</a>
             <a href="#products" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">All Watches</a>
             <a href="#new-models" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">New Models</a>
-            <div class="mobile-brands-section">
-              <span class="font-montserrat text-[10px] text-white/30 tracking-[0.2em] uppercase">Brands</span>
-              <div id="mobile-brands"></div>
-            </div>
             <a href="#about" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">About</a>
             <a href="#contact" class="nav-link font-montserrat text-[11px] text-secondary hover-text-primary tracking-[0.15em] uppercase transition-colors duration-200 cursor-pointer" onclick="toggleMenu()">Contact</a>
           </div>
         </div>
 
         <div class="flex items-center gap-2 md:gap-3">
+          <button id="menuToggle" class="md-hidden menu-btn font-montserrat text-[11px] text-secondary tracking-[0.15em] uppercase cursor-pointer">Menu</button>
           <a href="#cart" class="relative cursor-pointer">
             <svg class="w-5 h-5 text-secondary hover-text-gold transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-gold text-primary text-[9px] font-montserrat font-bold w-4 h-4 flex items-center justify-center hidden">0</span>
