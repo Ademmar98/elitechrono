@@ -1,0 +1,125 @@
+const WATCHES = [
+  // Rolex
+  { id: 'rolex-submariner', brand: 'Rolex', name: 'Submariner Date', price: 14500, originalPrice: 15500, new: false, img: 'https://picsum.photos/seed/rolex-sub/400/500', description: 'The quintessential dive watch since 1953. Water-resistant to 300 meters with a unidirectional rotatable bezel and Oystersteel construction.', specs: { Movement: 'Perpetual Calibre 3235', 'Power Reserve': '70 hours', Case: '41mm Oystersteel', Crystal: 'Sapphire', 'Water Resistance': '300m' } },
+  { id: 'rolex-daytona', brand: 'Rolex', name: 'Cosmograph Daytona', price: 28500, originalPrice: 29500, new: true, img: 'https://picsum.photos/seed/rolex-daytona/400/500', description: 'The ultimate chronograph, born for racing. Features a tachymetric bezel and three counters for precise timing.', specs: { Movement: 'Calibre 4131', 'Power Reserve': '72 hours', Case: '40mm Oystersteel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'rolex-datejust', brand: 'Rolex', name: 'Datejust 41', price: 12500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/rolex-dj/400/500', description: 'The classic date watch with a Cyclops lens. Available in a range of dials and bezel options.', specs: { Movement: 'Calibre 3235', 'Power Reserve': '70 hours', Case: '41mm Oystersteel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'rolex-gmt', brand: 'Rolex', name: 'GMT-Master II', price: 16500, originalPrice: 17500, new: false, img: 'https://picsum.photos/seed/rolex-gmt/400/500', description: 'The pilots\' watch with dual time zone function. Iconic Cerachrom bezel in blue and black.', specs: { Movement: 'Calibre 3285', 'Power Reserve': '70 hours', Case: '40mm Oystersteel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'rolex-daydate', brand: 'Rolex', name: 'Day-Date 40', price: 42500, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/rolex-dd/400/500', description: 'The President\'s watch. Available in 18k gold with a President bracelet and day-date display.', specs: { Movement: 'Calibre 3255', 'Power Reserve': '70 hours', Case: '40mm 18k Gold', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+
+  // Omega
+  { id: 'omega-speedmaster', brand: 'Omega', name: 'Speedmaster Moonwatch', price: 7200, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/omega-speed/400/500', description: 'The first watch worn on the moon. Legendary chronograph with hesalite crystal and manual-winding movement.', specs: { Movement: 'Calibre 3861', 'Power Reserve': '50 hours', Case: '42mm Stainless Steel', Crystal: 'Hesalite', 'Water Resistance': '50m' } },
+  { id: 'omega-seamaster', brand: 'Omega', name: 'Seamaster Diver 300M', price: 5800, originalPrice: 6200, new: false, img: 'https://picsum.photos/seed/omega-seam/400/500', description: 'James Bond\'s choice. Wave-edged dial and helium escape valve for professional diving.', specs: { Movement: 'Calibre 8800', 'Power Reserve': '55 hours', Case: '42mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '300m' } },
+  { id: 'omega-constellation', brand: 'Omega', name: 'Constellation Globemaster', price: 6800, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/omega-const/400/500', description: 'The first Master Chronometer. Fluted bezel and star emblem on a refined dress watch.', specs: { Movement: 'Calibre 8900', 'Power Reserve': '60 hours', Case: '39mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'omega-aqua-terra', brand: 'Omega', name: 'Aqua Terra 150M', price: 6100, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/omega-at/400/500', description: 'Elegant sport watch with teak-concept dial inspired by luxury yacht decks.', specs: { Movement: 'Calibre 8900', 'Power Reserve': '60 hours', Case: '41mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '150m' } },
+
+  // Cartier
+  { id: 'cartier-tank', brand: 'Cartier', name: 'Tank Louis Cartier', price: 11500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/cartier-tank/400/500', description: 'An icon of watchmaking since 1917. Inspired by the Renault tank, its clean lines define timeless elegance.', specs: { Movement: 'Calibre 1917 MC', 'Power Reserve': '36 hours', Case: '33.7mm x 25.5mm Gold', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+  { id: 'cartier-santos', brand: 'Cartier', name: 'Santos de Cartier', price: 9200, originalPrice: 9800, new: false, img: 'https://picsum.photos/seed/cartier-santos/400/500', description: 'The first pilot\'s watch. Square case with exposed screws and a sleek integrated bracelet.', specs: { Movement: 'Calibre 1847 MC', 'Power Reserve': '42 hours', Case: '39.8mm Steel/Gold', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'cartier-ballon', brand: 'Cartier', name: 'Ballon Bleu de Cartier', price: 7800, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/cartier-ballon/400/500', description: 'A round watch with a distinctive blue cabochon crown guard. Perfectly balanced curves.', specs: { Movement: 'Calibre 1847 MC', 'Power Reserve': '42 hours', Case: '42mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'cartier-panthere', brand: 'Cartier', name: 'Panthère de Cartier', price: 10500, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/cartier-panthere/400/500', description: 'A supple, sculptural timepiece. The panther motif captures Cartier\'s jewelry-making heritage.', specs: { Movement: 'Quartz 157', 'Power Reserve': '8 years', Case: '29mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+
+  // Hublot
+  { id: 'hublot-bigbang', brand: 'Hublot', name: 'Big Bang Unico', price: 22500, originalPrice: 24500, new: false, img: 'https://picsum.photos/seed/hublot-bb/400/500', description: 'The art of fusion. A bold skeleton chronograph with ceramic bezel and rubber strap.', specs: { Movement: 'HUB1280 Unico', 'Power Reserve': '72 hours', Case: '45mm Ceramic/Steel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'hublot-classic', brand: 'Hublot', name: 'Classic Fusion', price: 12500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/hublot-cf/400/500', description: 'Understated elegance with Hublot DNA. A thinner profile with signature bezel screws.', specs: { Movement: 'HUB1110', 'Power Reserve': '42 hours', Case: '45mm Titanium', Crystal: 'Sapphire', 'Water Resistance': '50m' } },
+  { id: 'hublot-spirit', brand: 'Hublot', name: 'Spirit of Big Bang', price: 26500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/hublot-spirit/400/500', description: 'A tonneau-shaped masterpiece. Skeleton movement visible through both sides.', specs: { Movement: 'HUB4700', 'Power Reserve': '50 hours', Case: '42mm King Gold', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'hublot-mp11', brand: 'Hublot', name: 'MP-11 Magic Gold', price: 89500, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/hublot-mp11/400/500', description: 'A 14-day power reserve displayed through seven series-coupled barrels. Scratch-resistant Magic Gold.', specs: { Movement: 'HUB9011', 'Power Reserve': '14 days', Case: '45mm Magic Gold', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+
+  // Audemars Piguet
+  { id: 'ap-royal-oak', brand: 'Audemars Piguet', name: 'Royal Oak Jumbo', price: 58500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/ap-ro/400/500', description: 'The watch that changed everything in 1972. An octagonal bezel with exposed screws and integrated bracelet.', specs: { Movement: 'Calibre 7121', 'Power Reserve': '55 hours', Case: '39mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '50m' } },
+  { id: 'ap-offshore', brand: 'Audemars Piguet', name: 'Royal Oak Offshore', price: 32500, originalPrice: 35000, new: false, img: 'https://picsum.photos/seed/ap-offshore/400/500', description: 'The Beast. A bold, larger Royal Oak with rubber-clad push-pieces and a mega-tapisserie dial.', specs: { Movement: 'Calibre 4309', 'Power Reserve': '70 hours', Case: '43mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'ap-code1159', brand: 'Audemars Piguet', name: 'Code 11.59', price: 34500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/ap-code/400/500', description: 'A contemporary design with a double-curved crystal and openworked movement.', specs: { Movement: 'Calibre 4401', 'Power Reserve': '70 hours', Case: '41mm 18k Rose Gold', Crystal: 'Sapphire (double)', 'Water Resistance': '30m' } },
+  { id: 'ap-millenary', brand: 'Audemars Piguet', name: 'Millenary Frosted Gold', price: 42000, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/ap-millenary/400/500', description: 'An oval case with off-center dial displaying the balance wheel at 6 o\'clock.', specs: { Movement: 'Calibre 5201', 'Power Reserve': '72 hours', Case: '47mm x 42mm Gold', Crystal: 'Sapphire', 'Water Resistance': '20m' } },
+
+  // Patek Philippe
+  { id: 'patek-nautilus', brand: 'Patek Philippe', name: 'Nautilus 5711', price: 134000, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/patek-nautilus/400/500', description: 'The holy grail of steel sports watches. A porthole-inspired design by Gérald Genta.', specs: { Movement: 'Calibre 26-330 S C', 'Power Reserve': '45 hours', Case: '40mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '120m' } },
+  { id: 'patek-calatrava', brand: 'Patek Philippe', name: 'Calatrava 5227', price: 32500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/patek-calatrava/400/500', description: 'Pure, round, timeless. The quintessential dress watch with a hinged dust cover.', specs: { Movement: 'Calibre 26-330 S C', 'Power Reserve': '45 hours', Case: '39mm 18k Rose Gold', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+  { id: 'patek-aquanaut', brand: 'Patek Philippe', name: 'Aquanaut 5167A', price: 34500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/patek-aquanaut/400/500', description: 'A sporty luxury watch with a textured dial and tropical composite strap.', specs: { Movement: 'Calibre 26-330 S C', 'Power Reserve': '45 hours', Case: '40.8mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '120m' } },
+  { id: 'patek-grand', brand: 'Patek Philippe', name: 'Grand Complications 5327', price: 182000, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/patek-grand/400/500', description: 'A masterpiece of haute horlogerie with perpetual calendar, moon phase, and minute repeater.', specs: { Movement: 'Calibre 240 Q', 'Power Reserve': '48 hours', Case: '40mm 18k White Gold', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+
+  // Richard Mille
+  { id: 'rm-011', brand: 'Richard Mille', name: 'RM 011 Felipe Massa', price: 185000, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/rm-011/400/500', description: 'A racing-inspired flyback chronograph with annual calendar in a tonneau-shaped titanium case.', specs: { Movement: 'RMAC3', 'Power Reserve': '55 hours', Case: '50mm x 40mm Titanium', Crystal: 'Sapphire', 'Water Resistance': '50m' } },
+  { id: 'rm-035', brand: 'Richard Mille', name: 'RM 035 Rafael Nadal', price: 225000, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/rm-035/400/500', description: 'Worn by Rafael Nadal during matches. Ultra-light and virtually indestructible.', specs: { Movement: 'RMUL3', 'Power Reserve': '55 hours', Case: '49.9mm x 44.5mm Quartz TPT', Crystal: 'Sapphire', 'Water Resistance': '50m' } },
+  { id: 'rm-055', brand: 'Richard Mille', name: 'RM 055 Bubba Watson', price: 195000, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/rm-055/400/500', description: 'Designed for golf. Shock-resistant skeleton movement in a lightweight carbon case.', specs: { Movement: 'RMUL2', 'Power Reserve': '55 hours', Case: '49.9mm x 44.5mm Carbon TPT', Crystal: 'Sapphire', 'Water Resistance': '50m' } },
+  { id: 'rm-0701', brand: 'Richard Mille', name: 'RM 07-01 Crystal', price: 165000, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/rm-0701/400/500', description: 'A feminine skeleton with a sapphire crystal case. The ultimate luxury timepiece for women.', specs: { Movement: 'CRMA2', 'Power Reserve': '50 hours', Case: '45.2mm x 32.2mm Sapphire', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+
+  // Hugo Boss
+  { id: 'boss-heritage', brand: 'Hugo Boss', name: 'Heritage Chronograph', price: 495, originalPrice: 595, new: false, img: 'https://picsum.photos/seed/boss-heritage/400/500', description: 'A refined chronograph with a sunray-brushed dial and premium stainless steel bracelet.', specs: { Movement: 'Quartz Ronda 5030.D', 'Power Reserve': 'Battery', Case: '43mm Stainless Steel', Crystal: 'Mineral', 'Water Resistance': '50m' } },
+  { id: 'boss-navigator', brand: 'Hugo Boss', name: 'Navigator GMT', price: 595, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/boss-navigator/400/500', description: 'A dual-time zone watch with a striking blue dial and Super-LumiNova hands.', specs: { Movement: 'Quartz Ronda 515.24D', 'Power Reserve': 'Battery', Case: '44mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'boss-timer', brand: 'Hugo Boss', name: 'Timer Chronograph', price: 450, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/boss-timer/400/500', description: 'A sporty chronograph with carbon-fibre dial and tachymeter bezel.', specs: { Movement: 'Quartz Miyota 6S20', 'Power Reserve': 'Battery', Case: '43mm Stainless Steel', Crystal: 'Mineral', 'Water Resistance': '50m' } },
+
+  // Emporio Armani
+  { id: 'armani-classic', brand: 'Emporio Armani', name: 'Classic Chronograph', price: 395, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/armani-classic/400/500', description: 'A timeless chronograph with a sunray dial and three sub-dials.', specs: { Movement: 'Quartz', 'Power Reserve': 'Battery', Case: '42mm Stainless Steel', Crystal: 'Mineral', 'Water Resistance': '50m' } },
+  { id: 'armani-skeleton', brand: 'Emporio Armani', name: 'Skeleton Automatic', price: 695, originalPrice: 795, new: false, img: 'https://picsum.photos/seed/armani-skeleton/400/500', description: 'An open-heart automatic with visible movement through the dial and case back.', specs: { Movement: 'Automatic', 'Power Reserve': '40 hours', Case: '43mm Stainless Steel', Crystal: 'Mineral', 'Water Resistance': '50m' } },
+  { id: 'armani-connected', brand: 'Emporio Armani', name: 'Connected Hybrid', price: 495, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/armani-connected/400/500', description: 'A smart hybrid watch that combines analog elegance with activity tracking.', specs: { Movement: 'Hybrid (Analog + Smart)', 'Power Reserve': '7 days', Case: '44mm Stainless Steel', Crystal: 'Mineral', 'Water Resistance': '50m' } },
+
+  // Jacob & Co.
+  { id: 'jacob-astronomia', brand: 'Jacob & Co.', name: 'Astronomia Revolution', price: 980000, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/jacob-astro/400/500', description: 'A celestial dance of diamonds and movement. Four-arm module with orbiting tourbillon.', specs: { Movement: 'JCAM09', 'Power Reserve': '48 hours', Case: '47mm 18k Rose Gold', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+  { id: 'jacob-epicx', brand: 'Jacob & Co.', name: 'Epic X Chrono', price: 48500, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/jacob-epicx/400/500', description: 'A skeleton chronograph with an X-shaped bridge and bold architectural design.', specs: { Movement: 'JCAA02', 'Power Reserve': '48 hours', Case: '44mm Stainless Steel', Crystal: 'Sapphire', 'Water Resistance': '100m' } },
+  { id: 'jacob-bugatti', brand: 'Jacob & Co.', name: 'Bugatti Chiron Tourbillon', price: 340000, originalPrice: 0, new: false, img: 'https://picsum.photos/seed/jacob-bugatti/400/500', description: 'A collaboration with Bugatti. The movement mimics a W16 engine block.', specs: { Movement: 'JCAM52', 'Power Reserve': '60 hours', Case: '57mm x 52mm Titanium', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+  { id: 'jacob-opera', brand: 'Jacob & Co.', name: 'Opera Godfather', price: 580000, originalPrice: 0, new: true, img: 'https://picsum.photos/seed/jacob-opera/400/500', description: 'A musical watch that plays The Godfather theme. Three-dimensional miniature scene.', specs: { Movement: 'JCAM61', 'Power Reserve': '72 hours', Case: '50mm 18k Rose Gold', Crystal: 'Sapphire', 'Water Resistance': '30m' } },
+];
+
+const BRANDS = [...new Set(WATCHES.map(w => w.brand))];
+
+const NEW_WATCHES = WATCHES.filter(w => w.new);
+
+const WILAYAS = [
+  { code: 1, name: 'Adrar', communes: ['Adrar', 'Fenoughil', 'Reggane', 'Timimoun', 'Aoulef'] },
+  { code: 2, name: 'Chlef', communes: ['Chlef', 'Oued Fodda', 'Ténès', 'Boukadir', 'Sobha'] },
+  { code: 3, name: 'Laghouat', communes: ['Laghouat', 'Aflou', 'Brida', 'Ksar El Hirane', 'Sidi Makhlouf'] },
+  { code: 4, name: 'Oum El Bouaghi', communes: ['Oum El Bouaghi', 'Aïn Béida', 'Aïn M\'lila', 'Fkirina', 'Souk Naamane'] },
+  { code: 5, name: 'Batna', communes: ['Batna', 'Tazoult', 'N\'Gaous', 'Barika', 'Menaâ'] },
+  { code: 6, name: 'Béjaïa', communes: ['Béjaïa', 'Akbou', 'Kherrata', 'Tichy', 'Amizour'] },
+  { code: 7, name: 'Biskra', communes: ['Biskra', 'Sidi Okba', 'Tolga', 'Ourlal', 'El Kantara'] },
+  { code: 8, name: 'Béchar', communes: ['Béchar', 'Kenadsa', 'Abadla', 'Taghit', 'Béni Abbès'] },
+  { code: 9, name: 'Blida', communes: ['Blida', 'Boufarik', 'Bouinan', 'El Affroun', 'Oued El Alleug'] },
+  { code: 10, name: 'Bouira', communes: ['Bouira', 'Lakhdaria', 'Kadiria', 'Sour El Ghozlane', 'Aïn Bessem'] },
+  { code: 11, name: 'Tamanrasset', communes: ['Tamanrasset', 'Abalessa', 'In Salah', 'Tazrouk', 'Idlès'] },
+  { code: 12, name: 'Tébessa', communes: ['Tébessa', 'Cheria', 'El Ogla', 'El Malabiod', 'Morsott'] },
+  { code: 13, name: 'Tlemcen', communes: ['Tlemcen', 'Ghazaouet', 'Maghnia', 'Nedroma', 'Remchi'] },
+  { code: 14, name: 'Tiaret', communes: ['Tiaret', 'Frenda', 'Sougueur', 'Mahdia', 'Ksar Chellala'] },
+  { code: 15, name: 'Tizi Ouzou', communes: ['Tizi Ouzou', 'Azazga', 'Draâ El Mizan', 'Larbaâ Nath Irathen', 'Boghni'] },
+  { code: 16, name: 'Alger', communes: ['Alger Centre', 'Bab El Oued', 'El Harrach', 'Hussein Dey', 'Birkhadem', 'Dar El Beïda', 'Sidi M\'hamed', 'Bouzareah', 'Chéraga', 'Draria'] },
+  { code: 17, name: 'Djelfa', communes: ['Djelfa', 'Aïn Oussera', 'Messaâd', 'Hassi Bahbah', 'Aïn El Ibel'] },
+  { code: 18, name: 'Jijel', communes: ['Jijel', 'El Milia', 'Taher', 'Sidi Abdelaziz', 'El Aouana'] },
+  { code: 19, name: 'Sétif', communes: ['Sétif', 'El Eulma', 'Aïn Azel', 'Bougaâ', 'Salah Bey'] },
+  { code: 20, name: 'Saïda', communes: ['Saïda', 'Doui Thabet', 'Aïn El Hadjar', 'Sidi Boubekeur', 'Hounet'] },
+  { code: 21, name: 'Skikda', communes: ['Skikda', 'El Harrouch', 'Azzaba', 'Collo', 'Ramdane Djamel'] },
+  { code: 22, name: 'Sidi Bel Abbès', communes: ['Sidi Bel Abbès', 'Sfisef', 'Télagh', 'Zerouala', 'Boukhanafis'] },
+  { code: 23, name: 'Annaba', communes: ['Annaba', 'El Bouni', 'El Hadjar', 'Seraïdi', 'Berrahal'] },
+  { code: 24, name: 'Guelma', communes: ['Guelma', 'Guelât Bou Sbaâ', 'Aïn Makhlouf', 'Hammam Debagh', 'Bouchegouf'] },
+  { code: 25, name: 'Constantine', communes: ['Constantine', 'El Khroub', 'Zighoud Youcef', 'Hamma Bouziane', 'Aïn Smara'] },
+  { code: 26, name: 'Médéa', communes: ['Médéa', 'Berrouaghia', 'Ksar El Boukhari', 'Souagui', 'Chellalet El Adhaoura'] },
+  { code: 27, name: 'Mostaganem', communes: ['Mostaganem', 'Hassi Mamèche', 'Aïn Tédelès', 'Achaâcha', 'Sidi Lakhdar'] },
+  { code: 28, name: 'M\'Sila', communes: ['M\'Sila', 'Bou Saâda', 'Chellal', 'Hammam Dalaâ', 'Ouled Derradj'] },
+  { code: 29, name: 'Mascara', communes: ['Mascara', 'Sig', 'Oued El Abtal', 'Mohammadia', 'Tizi'] },
+  { code: 30, name: 'Ouargla', communes: ['Ouargla', 'Rouissat', 'N\'Goussa', 'Hassi Messaoud', 'El Borma'] },
+  { code: 31, name: 'Oran', communes: ['Oran', 'Es Senia', 'Bir El Djir', 'Aïn El Turk', 'Mers El Kébir'] },
+  { code: 32, name: 'El Bayadh', communes: ['El Bayadh', 'Brézina', 'Rogassa', 'Bougtob', 'El Abiodh Sidi Cheikh'] },
+  { code: 33, name: 'Illizi', communes: ['Illizi', 'Djanet', 'In Amenas', 'Debdeb'] },
+  { code: 34, name: 'Bordj Bou Arréridj', communes: ['Bordj Bou Arréridj', 'El Achir', 'Bordj Zemoura', 'Ras El Oued', 'Mansoura'] },
+  { code: 35, name: 'Boumerdès', communes: ['Boumerdès', 'Bordj Menaïel', 'Dellys', 'Corso', 'Boudouaou'] },
+  { code: 36, name: 'El Tarf', communes: ['El Tarf', 'Besbes', 'Drean', 'Ben M\'hidi', 'El Kala'] },
+  { code: 37, name: 'Tindouf', communes: ['Tindouf', 'Oum El Assel'] },
+  { code: 38, name: 'Tissemsilt', communes: ['Tissemsilt', 'Bordj Bounaama', 'Theniet El Had', 'Lazharya', 'Khemisti'] },
+  { code: 39, name: 'El Oued', communes: ['El Oued', 'Magrane', 'Débila', 'Hassi Khalifa', 'Bayadha'] },
+  { code: 40, name: 'Khenchela', communes: ['Khenchela', 'Babar', 'Kaïs', 'Chechar', 'El Mahmal'] },
+  { code: 41, name: 'Souk Ahras', communes: ['Souk Ahras', 'Sedrata', 'M\'daourouch', 'Ouled Driss', 'Hanancha'] },
+  { code: 42, name: 'Tipaza', communes: ['Tipaza', 'Cherchell', 'Aïn Tagourait', 'Bou Haroun', 'Ahmer El Aïn'] },
+  { code: 43, name: 'Mila', communes: ['Mila', 'Ferdjioua', 'Chelghoum Laïd', 'Tadjenanet', 'Oued Endja'] },
+  { code: 44, name: 'Aïn Defla', communes: ['Aïn Defla', 'Khemis Miliana', 'El Attaf', 'Djelida', 'Rouina'] },
+  { code: 45, name: 'Naâma', communes: ['Naâma', 'Mécheria', 'Aïn Sefra', 'Moghrar', 'Asla'] },
+  { code: 46, name: 'Aïn Témouchent', communes: ['Aïn Témouchent', 'Hammam Bou Hadjar', 'Sidi Ben Adda', 'Oulhaça El Gheraba', 'Malakoff'] },
+  { code: 47, name: 'Ghardaïa', communes: ['Ghardaïa', 'Beni Isguen', 'El Guerrara', 'Berriane', 'Metlili'] },
+  { code: 48, name: 'Relizane', communes: ['Relizane', 'Oued Rhiou', 'Mazouna', 'Ammi Moussa', 'Zemmoura'] },
+  { code: 49, name: 'Timimoun', communes: ['Timimoun', 'Charouine', 'Ouled Saïd', 'Tinerkouk'] },
+  { code: 50, name: 'Bordj Badji Mokhtar', communes: ['Bordj Badji Mokhtar', 'Timiaouine'] },
+  { code: 51, name: 'Ouled Djellal', communes: ['Ouled Djellal', 'Ouled Ameur', 'Bouchagroune'] },
+  { code: 52, name: 'Béni Abbès', communes: ['Béni Abbès', 'Igli', 'El Ouata', 'Timoudi'] },
+  { code: 53, name: 'In Salah', communes: ['In Salah', 'Foggaret Ezzaouia'] },
+  { code: 54, name: 'In Guezzam', communes: ['In Guezzam', 'Tin Zaouatine'] },
+  { code: 55, name: 'Touggourt', communes: ['Touggourt', 'Temacine', 'El Khobna', 'Nezla'] },
+  { code: 56, name: 'Djanet', communes: ['Djanet', 'Bordj El Houas'] },
+  { code: 57, name: 'El M\'Ghair', communes: ['El M\'Ghair', 'Djamaa', 'Tendla', 'Oum Touyour'] },
+  { code: 58, name: 'El Menia', communes: ['El Menia', 'Hassi Gara', 'Bel Bachir'] },
+];
