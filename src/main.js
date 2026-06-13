@@ -234,7 +234,7 @@ const App = {
             </div>
             <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5">View All</a>
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">${newModels.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${newModels.map(w => this.productCard(w)).join('')}</div>
           <div class="mt-8 text-center md:hidden">
             <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5">View All New Models</a>
           </div>
@@ -250,7 +250,7 @@ const App = {
             </div>
             <a href="#products" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5">All Products</a>
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">${featured.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${featured.map(w => this.productCard(w)).join('')}</div>
           <div class="mt-12 text-center">
             <a href="#products" class="inline-flex items-center gap-2 border-2 border-inverse text-primary px-10 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer">View All Timepieces</a>
           </div>
@@ -295,7 +295,7 @@ const App = {
               <a href="#products?brand=${encodeURIComponent(b)}" class="px-5 py-2 font-montserrat text-xs tracking-wider uppercase border transition-all duration-300 cursor-pointer ${filterBrand === b ? activeClasses : inactiveClasses}">${b}</a>
             `).join('')}
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">${filtered.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${filtered.map(w => this.productCard(w)).join('')}</div>
         </div>
       </div>
     `);
@@ -310,7 +310,7 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary">New Models</h1>
             <p class="font-montserrat text-muted-c mt-4">The latest additions to our collection</p>
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">${NEW_WATCHES.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${NEW_WATCHES.map(w => this.productCard(w)).join('')}</div>
         </div>
       </div>
     `);
@@ -330,7 +330,7 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary">${actualBrand}</h1>
             <p class="font-montserrat text-muted-c mt-4">${filtered.length} timepieces</p>
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">${filtered.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${filtered.map(w => this.productCard(w)).join('')}</div>
         </div>
       </div>
     `);
@@ -1009,18 +1009,18 @@ const App = {
 
   productCard(w) {
     return `
-      <a href="#product-${w.id}" class="group bg-card border border-subtle overflow-hidden flex flex-col transition-all duration-300 hover-border-gold hover:shadow-lg cursor-pointer">
-        <div class="aspect-square bg-stone-100 overflow-hidden relative">
-          <img src="${w.img}" alt="${w.brand} ${w.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
-          ${w.new ? '<span class="absolute top-3 left-3 bg-gold text-primary px-3 py-1 font-montserrat text-[10px] tracking-wider uppercase font-semibold">New</span>' : ''}
-          ${w.originalPrice ? '<span class="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 font-montserrat text-[10px] tracking-wider uppercase font-semibold">Sale</span>' : ''}
+      <a href="#product-${w.id}" class="product-card">
+        <div class="relative overflow-hidden">
+          <img src="${w.img}" alt="${w.brand} ${w.name}" loading="lazy">
+          ${w.new ? '<span class="badge-new">New</span>' : ''}
+          ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
         </div>
-        <div class="p-5 flex flex-col flex-1">
-          <p class="font-montserrat text-[10px] text-gold tracking-[0.2em] uppercase mb-1">${w.brand}</p>
-          <h3 class="font-cormorant text-lg text-primary mb-2 group-hover:text-gold transition-colors duration-300">${w.name}</h3>
-          <div class="flex items-center gap-2 mt-auto">
-            <span class="font-cormorant text-xl text-primary">$${w.price.toLocaleString()}</span>
-            ${w.originalPrice ? `<span class="font-montserrat text-xs text-stone-400 line-through">$${w.originalPrice.toLocaleString()}</span>` : ''}
+        <div class="product-info">
+          <div class="brand-tag">${w.brand}</div>
+          <h3>${w.name}</h3>
+          <div class="flex items-center mt-auto">
+            <span class="price">$${w.price.toLocaleString()}</span>
+            ${w.originalPrice ? `<span class="original-price">$${w.originalPrice.toLocaleString()}</span>` : ''}
           </div>
         </div>
       </a>
