@@ -910,7 +910,7 @@ const App = {
   showProductForm(productId) {
     const products = this._cachedAdminProducts || [];
     const existing = productId ? products.find(p => p.id === productId) : null;
-    const brands = [...new Set(products.map(p => p.brand))].sort();
+    const brands = [...new Set([...BRANDS, ...products.map(p => p.brand)])].sort();
     const sections = ['New Models', 'Curated Selection', 'Featured Timepieces'];
 
     const overlay = document.createElement('div');
