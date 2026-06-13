@@ -886,7 +886,7 @@ const App = {
       <div class="admin-modal">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-cormorant text-2xl text-primary">${existing ? 'Edit Product' : 'Add Product'}</h3>
-          <button onclick="this.closest('.admin-overlay').remove()" class="text-muted-c hover:text-primary cursor-pointer"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+          <button onclick="this.closest('.product-overlay').remove()" class="text-muted-c hover:text-primary cursor-pointer"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
         <div class="space-y-4">
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Product ID</label><input id="pf-id" class="admin-input" value="${existing ? existing.id : ''}" placeholder="e.g. rolex-daytona-2026" ${existing ? 'readonly style="opacity:0.6"' : ''}></div>
@@ -900,7 +900,7 @@ const App = {
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Additional Images (JSON array, optional)</label><input id="pf-images" class="admin-input" value="${existing && existing.images ? JSON.stringify(existing.images) : ''}" placeholder='["https://...", "https://..."]'></div>
           <div>
             <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Sections</label>
-            <div class="admin-checkbox-group flex flex-wrap gap-4">${sections.map(s => `<label><input type="checkbox" value="${s}" ${existing && (existing.sections || []).includes(s) ? 'checked' : ''}> ${s}</label>`).join('')}</div>
+            <div class="flex flex-wrap gap-2">${sections.map(s => `<button type="button" class="section-toggle ${existing && (existing.sections || []).includes(s) ? 'active' : ''}" data-section="${s}" onclick="this.classList.toggle('active')">${s}</button>`).join('')}</div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Availability</label><select id="pf-stock" class="admin-select"><option value="in" ${existing && existing.inStock !== false ? 'selected' : ''}>In Stock</option><option value="out" ${existing && existing.inStock === false ? 'selected' : ''}>Out of Stock</option></select></div>
@@ -908,7 +908,7 @@ const App = {
           </div>
           <div class="flex gap-3 pt-2">
             <button onclick="App.saveProduct('${existing ? existing.id : ''}')" class="admin-btn admin-btn-primary flex-1">${existing ? 'Update Product' : 'Create Product'}</button>
-            <button onclick="this.closest('.admin-overlay').remove()" class="admin-btn admin-btn-ghost">Cancel</button>
+            <button onclick="this.closest('.product-overlay').remove()" class="admin-btn admin-btn-ghost">Cancel</button>
           </div>
         </div>
       </div>
@@ -926,7 +926,7 @@ const App = {
     const img = document.getElementById('pf-img')?.value?.trim();
     const imagesRaw = document.getElementById('pf-images')?.value?.trim();
     const sections = [];
-    document.querySelectorAll('.admin-checkbox-group input[type="checkbox"]').forEach(cb => { if (cb.checked) sections.push(cb.value); });
+    document.querySelectorAll('.section-toggle.active').forEach(btn => sections.push(btn.dataset.section));
     const stock = document.getElementById('pf-stock')?.value;
     const visible = document.getElementById('pf-visible')?.value;
 
@@ -943,7 +943,7 @@ const App = {
     const result = await saveProduct(productData);
     if (result) {
       this.showToast(existingId ? 'Product updated' : 'Product created');
-      document.querySelector('.admin-overlay')?.remove();
+      document.querySelector('.product-overlay')?.remove();
       this._cachedAdminProducts = await getProducts();
       this.renderAdmin();
     } else {
