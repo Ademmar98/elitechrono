@@ -51,7 +51,7 @@ const App = {
   setupRealtime() {
     subscribeOrders((payload) => {
       // If on admin orders tab, re-render
-      if (this.currentRoute === 'elite-zone' && location.hash.includes('?status') || !location.hash.includes('elite-zone-products')) {
+      if (this.currentRoute === 'elite-zone') {
         // Debounce re-render
         clearTimeout(this._realtimeDebounce);
         this._realtimeDebounce = setTimeout(() => this.renderAdmin(), 500);
