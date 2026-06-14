@@ -41,13 +41,14 @@
     .mobile-menu-close { display: none; }
     .menu-btn { display: none; }
     @media (max-width: 767px) {
-      .nav-links { display: none; position: fixed; inset: 0; top: 64px; background: rgba(12,10,9,0.97); flex-direction: column; align-items: center; justify-content: center; gap: 0; z-index: 100; opacity: 0; transition: opacity 0.25s ease; }
+      .nav-links { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(12,10,9,0.98); flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem; z-index: 9999; opacity: 0; transition: opacity 0.25s ease; }
       .nav-links.open { display: flex; opacity: 1; }
-      .nav-links a { padding: 18px 0; font-size: 14px; letter-spacing: 0.25em; min-height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+      .nav-links a { font-size: 14px; letter-spacing: 0.25em; min-height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-primary); }
+      .nav-links a:hover { color: var(--gold); }
       .mobile-menu-close { display: block; position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 8px; }
       .mobile-menu-close:hover { color: var(--text-primary); }
-      .menu-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 0; font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.15em; text-transform: uppercase; }
-      .menu-btn:hover { color: var(--text-primary); }
+      .menu-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--gold); cursor: pointer; padding: 8px 16px; font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; transition: background 0.3s ease; }
+      .menu-btn:hover { background: rgba(202,138,4,0.1); }
     }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
     .product-card { background: var(--bg-card); border: 1px solid var(--border-subtle); overflow: hidden; transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column; }
