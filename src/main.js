@@ -673,15 +673,15 @@ const App = {
               <div class="space-y-8">
                 <div>
                   <h3 class="font-cormorant text-2xl text-primary mb-2">Boutique</h3>
-                  <p class="font-montserrat text-stone-600">47 Rue de la Paix<br>75002 Paris, France</p>
+                  <p class="font-montserrat text-stone-600">Coming soon</p>
                 </div>
                 <div>
                   <h3 class="font-cormorant text-2xl text-primary mb-2">Hours</h3>
-                  <p class="font-montserrat text-stone-600">Monday — Saturday: 10:00 — 19:00<br>Sunday: By appointment</p>
+                  <p class="font-montserrat text-stone-600">Coming soon</p>
                 </div>
                 <div>
                   <h3 class="font-cormorant text-2xl text-primary mb-2">Concierge</h3>
-                  <p class="font-montserrat text-stone-600">+33 1 23 45 67 89<br>concierge@elitechrono.com</p>
+                  <p class="font-montserrat text-stone-600">Coming soon</p>
                 </div>
               </div>
             </div>
