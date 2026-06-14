@@ -1,4 +1,4 @@
-import { WATCHES, NEW_WATCHES, BRANDS, WILAYAS, slug } from './data.js';
+import { WATCHES, BRANDS, WILAYAS, slug } from './data.js';
 import { Cart } from './cart.js';
 import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders, uploadImage } from './services/db.js';
 import { Auth } from './services/auth.js';
@@ -80,10 +80,9 @@ const App = {
   async syncProducts() {
     const dbProducts = await getProducts();
     if (dbProducts && dbProducts.length > 0) {
-      const merged = new Map();
-      for (const w of WATCHES) merged.set(w.id, w);
-      for (const p of dbProducts) merged.set(p.id, { ...merged.get(p.id), ...p });
-      this.watches = [...merged.values()];
+      this.watches = dbProducts;
+    } else {
+      this.watches = [...WATCHES];
     }
   },
 
@@ -167,7 +166,7 @@ const App = {
 
   renderHome() {
     const featured = this.watches.slice(0, 8);
-    const newModels = NEW_WATCHES.slice(0, 4);
+    const newModels = this.watches.filter(w => w.new).slice(0, 4);
 
     this.render(`
       <section class="relative w-full min-h-[80vh] flex items-center overflow-hidden bg-black">
@@ -310,7 +309,7 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary">New Models</h1>
             <p class="font-montserrat text-muted-c mt-4">The latest additions to our collection</p>
           </div>
-          <div class="product-grid">${NEW_WATCHES.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${this.watches.filter(w => w.new).map(w => this.productCard(w)).join('')}</div>
         </div>
       </div>
     `);
@@ -320,7 +319,7 @@ const App = {
     const brand = BRANDS.find(b => slug(b) === brandSlug) || brandSlug;
     const watches = this.watches.filter(w => slug(w.brand) === slug(brand));
     const actualBrand = watches.length > 0 ? watches[0].brand : brand;
-    const filtered = watches.length > 0 ? watches : WATCHES.filter(w => w.brand.toLowerCase().includes(brand.toLowerCase()));
+    const filtered = watches.length > 0 ? watches : this.watches.filter(w => w.brand.toLowerCase().includes(brand.toLowerCase()));
 
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
