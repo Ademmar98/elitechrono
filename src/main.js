@@ -629,8 +629,70 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-7xl text-primary" data-i18n-html="about-title">About Elite Chrono</h1>
           </div>
           <div class="prose max-w-none">
-            <div class="aspect-[21/9] mb-16 flex items-center justify-center" style="background: linear-gradient(135deg, var(--hero-from), var(--hero-via));">
-              <span class="font-cormorant text-6xl md:text-8xl text-white/20">EC</span>
+            <div class="aspect-[21/9] mb-16 flex items-center justify-center" style="background: linear-gradient(135deg, #000, var(--hero-via));">
+              <svg viewBox="0 0 400 160" class="w-full max-w-3xl h-auto px-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="logoGold" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#CA8A04"/>
+                    <stop offset="50%" stop-color="#EBB93E"/>
+                    <stop offset="100%" stop-color="#CA8A04"/>
+                  </linearGradient>
+                  <linearGradient id="logoGoldDim" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#CA8A04" stop-opacity="0.15"/>
+                    <stop offset="50%" stop-color="#EBB93E" stop-opacity="0.1"/>
+                    <stop offset="100%" stop-color="#CA8A04" stop-opacity="0.15"/>
+                  </linearGradient>
+                </defs>
+                <!-- Outer gear ring -->
+                <g opacity="0.12">
+                  <circle cx="80" cy="80" r="64" stroke="url(#logoGold)" stroke-width="0.5"/>
+                  <circle cx="80" cy="80" r="54" stroke="url(#logoGold)" stroke-width="0.3" stroke-dasharray="2 4"/>
+                  <circle cx="80" cy="80" r="16" stroke="url(#logoGold)" stroke-width="0.5"/>
+                  <circle cx="80" cy="80" r="6" fill="url(#logoGold)" opacity="0.3"/>
+                  <g stroke="url(#logoGold)" stroke-width="0.8">
+                    <line x1="80" y1="16" x2="80" y2="144"/>
+                    <line x1="16" y1="80" x2="144" y2="80"/>
+                    <line x1="35" y1="35" x2="125" y2="125"/>
+                    <line x1="125" y1="35" x2="35" y2="125"/>
+                  </g>
+                  <g stroke="url(#logoGold)" stroke-width="0.6" stroke-linecap="round">
+                    <line x1="80" y1="10" x2="80" y2="4"/>
+                    <line x1="120" y1="18" x2="125" y2="12"/>
+                    <line x1="148" y1="40" x2="154" y2="36"/>
+                    <line x1="150" y1="80" x2="156" y2="80"/>
+                    <line x1="148" y1="120" x2="154" y2="124"/>
+                    <line x1="120" y1="142" x2="125" y2="148"/>
+                    <line x1="80" y1="150" x2="80" y2="156"/>
+                    <line x1="40" y1="142" x2="35" y2="148"/>
+                    <line x1="12" y1="120" x2="6" y2="124"/>
+                    <line x1="10" y1="80" x2="4" y2="80"/>
+                    <line x1="12" y1="40" x2="6" y2="36"/>
+                    <line x1="40" y1="18" x2="35" y2="12"/>
+                  </g>
+                </g>
+                <!-- EC Monogram -->
+                <text x="80" y="94" font-family="'Cormorant',Georgia,serif" font-size="58" font-weight="600" fill="url(#logoGold)" text-anchor="middle" letter-spacing="2">EC</text>
+                <!-- Decorative line -->
+                <rect x="155" y="78" width="90" height="0.5" fill="url(#logoGold)" opacity="0.3"/>
+                <!-- Brand name -->
+                <text x="290" y="78" font-family="'Cormorant',Georgia,serif" font-size="26" font-weight="500" fill="#FAFAF9" text-anchor="middle" letter-spacing="4">ELITE</text>
+                <text x="290" y="102" font-family="'Cormorant',Georgia,serif" font-size="26" font-weight="500" fill="url(#logoGold)" text-anchor="middle" letter-spacing="4">CHRONO</text>
+                <!-- Decorative line -->
+                <rect x="155" y="98" width="90" height="0.5" fill="url(#logoGold)" opacity="0.3"/>
+                <!-- Tagline -->
+                <text x="290" y="120" font-family="'Montserrat',sans-serif" font-size="7" font-weight="300" fill="#A8A29E" text-anchor="middle" letter-spacing="3">LUXURY TIMEPIECES</text>
+                <!-- Right gear -->
+                <g opacity="0.08">
+                  <circle cx="320" cy="80" r="40" stroke="url(#logoGold)" stroke-width="0.4"/>
+                  <circle cx="320" cy="80" r="10" stroke="url(#logoGold)" stroke-width="0.3"/>
+                  <g stroke="url(#logoGold)" stroke-width="0.4">
+                    <line x1="320" y1="40" x2="320" y2="120"/>
+                    <line x1="280" y1="80" x2="360" y2="80"/>
+                    <line x1="292" y1="52" x2="348" y2="108"/>
+                    <line x1="348" y1="52" x2="292" y2="108"/>
+                  </g>
+                </g>
+              </svg>
             </div>
             <div class="grid md:grid-cols-2 gap-12 mb-16">
               <div>
