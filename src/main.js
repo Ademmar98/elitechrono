@@ -3,6 +3,7 @@ import { Cart } from './cart.js';
 import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders, uploadImage } from './services/db.js';
 import { Auth } from './services/auth.js';
 import { isSupabaseReady } from './lib/supabaseClient.js';
+import './services/i18n.js';
 
 function toggleMenu() {
   var l = document.getElementById('navLinks');
@@ -71,6 +72,8 @@ const App = {
     }
     await this.syncProducts();
     this.populateBrands();
+    if (window.buildSwitcher) window.buildSwitcher();
+    if (window.applyTranslations) window.applyTranslations();
     window.addEventListener('hashchange', () => this.handleRoute());
     this.handleRoute();
     Cart.updateBadge();
@@ -152,6 +155,7 @@ const App = {
   render(html) {
     document.querySelectorAll('.admin-overlay').forEach(el => el.remove());
     document.getElementById('main-content').innerHTML = html;
+    if (window.applyTranslations) window.applyTranslations();
   },
 
   showLoading(msg = 'Loading...') {
@@ -184,11 +188,11 @@ const App = {
         </div>
         <div class="relative z-10 max-w-7xl mx-auto px-6 py-32 w-full">
           <div class="max-w-3xl">
-            <p class="text-gold font-montserrat text-sm tracking-[0.3em] uppercase mb-6">Since 2024</p>
-            <h1 class="font-cormorant text-6xl md:text-8xl text-white leading-tight mb-6">Time is the<br><span class="text-gold">Ultimate Luxury</span></h1>
-            <p class="font-montserrat text-stone-300 text-lg max-w-xl mb-10 leading-relaxed">Discover an extraordinary collection of the world's finest timepieces. From heritage classics to avant-garde masterpieces.</p>
+            <p class="text-gold font-montserrat text-sm tracking-[0.3em] uppercase mb-6" data-i18n="hero-badge">Since 2024</p>
+            <h1 class="font-cormorant text-6xl md:text-8xl text-white leading-tight mb-6" data-i18n-html="hero-title">Time is the<br><span class="text-gold">Ultimate Luxury</span></h1>
+            <p class="font-montserrat text-stone-300 text-lg max-w-xl mb-10 leading-relaxed" data-i18n="hero-desc">Discover an extraordinary collection of the world's finest timepieces. From heritage classics to avant-garde masterpieces.</p>
             <div class="flex flex-wrap gap-4">
-              <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="inline-flex items-center gap-2 bg-gold text-primary px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer">Discover Our New Arrivals</a>
+              <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="inline-flex items-center gap-2 bg-gold text-primary px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="hero-cta">Discover Our New Arrivals</a>
             </div>
           </div>
         </div>
@@ -197,8 +201,8 @@ const App = {
 
       <section class="py-24 bg-page overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 mb-16 text-center">
-          <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Maisons</p>
-          <h2 class="font-cormorant text-4xl md:text-5xl text-primary">Our Brands</h2>
+          <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="footer-brands">Maisons</p>
+          <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-brands">Our <span class="text-gold">Brands</span></h2>
         </div>
         <div class="brand-ticker-wrap">
           <div class="brand-ticker" id="brandTicker">
@@ -228,14 +232,14 @@ const App = {
         <div class="max-w-7xl mx-auto px-6">
           <div class="flex items-end justify-between mb-16">
             <div>
-              <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">New Arrivals</p>
-              <h2 class="font-cormorant text-4xl md:text-5xl text-primary">Latest Models</h2>
+              <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-new-arrivals">New Arrivals</p>
+              <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-new-arrivals-title">Latest <span class="text-gold">Models</span></h2>
             </div>
-            <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5">View All</a>
+            <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
           <div class="product-grid">${newModels.map(w => this.productCard(w)).join('')}</div>
           <div class="mt-8 text-center md:hidden">
-            <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5">View All New Models</a>
+            <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
           </div>
         </div>
       </section>
@@ -244,14 +248,14 @@ const App = {
         <div class="max-w-7xl mx-auto px-6">
           <div class="flex items-end justify-between mb-16">
             <div>
-              <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Curated Selection</p>
-              <h2 class="font-cormorant text-4xl md:text-5xl text-primary">Featured Timepieces</h2>
+              <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Curated Selection</p>
+              <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-featured-title">Featured <span class="text-gold">Timepieces</span></h2>
             </div>
-            <a href="#products" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5">All Products</a>
+            <a href="#products" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all-products">All Products</a>
           </div>
           <div class="product-grid">${featured.map(w => this.productCard(w)).join('')}</div>
           <div class="mt-12 text-center">
-            <a href="#products" class="inline-flex items-center gap-2 border-2 border-inverse text-primary px-10 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer">View All Timepieces</a>
+            <a href="#products" class="inline-flex items-center gap-2 border-2 border-inverse text-primary px-10 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="view-all-products">View All Timepieces</a>
           </div>
         </div>
       </section>
@@ -260,10 +264,10 @@ const App = {
         <div class="absolute inset-0" style="background: linear-gradient(to right, var(--hero-from), var(--hero-via));"></div>
         <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 75% 50%, var(--gold) 2px, transparent 2px); background-size: 30px 30px;"></div>
         <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-6">The Elite Chrono Journal</p>
-          <h2 class="font-cormorant text-4xl md:text-6xl text-white mb-8">The Art of Fine<br>Watchmaking</h2>
-          <p class="font-montserrat text-stone-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">Explore our curated stories on horological masterpieces, craftsmanship, and the stories behind the world's most coveted timepieces.</p>
-          <a href="#about" class="inline-flex items-center gap-2 border border-white/20 text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover:bg-white/10 transition-colors duration-300 cursor-pointer">Read More</a>
+          <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-6" data-i18n="section-journal">The Elite Chrono Journal</p>
+          <h2 class="font-cormorant text-4xl md:text-6xl text-white mb-8" data-i18n-html="section-journal-title">The Art of Fine<br><span class="text-gold">Watchmaking</span></h2>
+          <p class="font-montserrat text-stone-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed" data-i18n="section-journal-desc">Explore our curated stories on horological masterpieces, craftsmanship, and the stories behind the world's most coveted timepieces.</p>
+          <a href="#about" class="inline-flex items-center gap-2 border border-white/20 text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover:bg-white/10 transition-colors duration-300 cursor-pointer" data-i18n="read-more">Read More</a>
         </div>
       </section>
     `);
@@ -284,12 +288,12 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <div class="mb-12">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Our Collection</p>
-            <h1 class="font-cormorant text-5xl md:text-6xl text-primary">All Timepieces</h1>
-            <p class="font-montserrat text-muted-c mt-4">${filtered.length} watches</p>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Our Collection</p>
+            <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="view-all-products">All Timepieces</h1>
+            <p class="font-montserrat text-muted-c mt-4">${filtered.length} <span data-i18n="products">watches</span></p>
           </div>
           <div class="flex flex-wrap gap-3 mb-12">
-            <a href="#products" class="px-5 py-2 font-montserrat text-xs tracking-wider uppercase border transition-all duration-300 cursor-pointer ${!filterBrand ? activeClasses : inactiveClasses}">All</a>
+            <a href="#products" class="px-5 py-2 font-montserrat text-xs tracking-wider uppercase border transition-all duration-300 cursor-pointer ${!filterBrand ? activeClasses : inactiveClasses}" data-i18n="view-all">All</a>
             ${BRANDS.map(b => `
               <a href="#products?brand=${encodeURIComponent(b)}" class="px-5 py-2 font-montserrat text-xs tracking-wider uppercase border transition-all duration-300 cursor-pointer ${filterBrand === b ? activeClasses : inactiveClasses}">${b}</a>
             `).join('')}
@@ -305,9 +309,9 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <div class="mb-12">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Fresh Arrivals</p>
-            <h1 class="font-cormorant text-5xl md:text-6xl text-primary">New Models</h1>
-            <p class="font-montserrat text-muted-c mt-4">The latest additions to our collection</p>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-new-arrivals">Fresh Arrivals</p>
+            <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="nav-new-models">New Models</h1>
+            <p class="font-montserrat text-muted-c mt-4" data-i18n="section-new-arrivals-desc">The latest additions to our collection</p>
           </div>
           <div class="product-grid">${this.watches.filter(w => w.new).map(w => this.productCard(w)).join('')}</div>
         </div>
@@ -325,9 +329,9 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <div class="mb-12">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Maison</p>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="brand-collection">Maison</p>
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary">${actualBrand}</h1>
-            <p class="font-montserrat text-muted-c mt-4">${filtered.length} timepieces</p>
+            <p class="font-montserrat text-muted-c mt-4">${filtered.length} <span data-i18n="products">timepieces</span></p>
           </div>
           <div class="product-grid">${filtered.map(w => this.productCard(w)).join('')}</div>
         </div>
@@ -343,7 +347,7 @@ const App = {
     this.render(`
       <div class="bg-page min-h-screen pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-6">
-          <a href="#products" class="inline-flex items-center gap-2 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mb-10">&larr; Back to Collection</a>
+          <a href="#products" class="inline-flex items-center gap-2 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mb-10" data-i18n="product-back">&larr; Back to Collection</a>
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="aspect-[4/5] bg-card border border-subtle overflow-hidden">
@@ -360,11 +364,11 @@ const App = {
               </div>
               <p class="font-montserrat text-stone-600 leading-relaxed mb-8">${watch.description}</p>
               <div class="flex gap-3 mb-6">
-                <button onclick="App.addToCartAndGo('${watch.id}')" class="flex-[7] bg-gold text-primary py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer">Order Now</button>
-                <button onclick="App.addToCart('${watch.id}')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer">+ Cart</button>
+                <button onclick="App.addToCartAndGo('${watch.id}')" class="flex-[7] bg-gold text-primary py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer" data-i18n="product-order">Order Now</button>
+                <button onclick="App.addToCart('${watch.id}')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-add-cart">+ Cart</button>
               </div>
               <div class="border-t border-subtle pt-8">
-                <h3 class="font-cormorant text-xl text-primary mb-4">Technical Specifications</h3>
+                <h3 class="font-cormorant text-xl text-primary mb-4" data-i18n="product-specs">Technical Specifications</h3>
                 <div class="space-y-3">
                   ${Object.entries(watch.specs).map(([key, val]) =>
                     `<div class="flex justify-between font-montserrat text-sm border-b border-stone-100 pb-2"><span class="text-stone-500">${key}</span><span class="text-primary font-medium">${val}</span></div>`
@@ -372,7 +376,7 @@ const App = {
                 </div>
               </div>
               <div class="mt-8 flex gap-3">
-                <a href="#cart" class="flex-1 border border-inverse text-primary py-3 text-center font-montserrat text-sm tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer">View Cart (${Cart.getCount()})</a>
+                <a href="#cart" class="flex-1 border border-inverse text-primary py-3 text-center font-montserrat text-sm tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-view-cart">View Cart (${Cart.getCount()})</a>
               </div>
             </div>
           </div>
@@ -383,7 +387,7 @@ const App = {
 
   addToCart(id) {
     Cart.add(id);
-    this.showToast('Added to cart');
+    this.showToast(window.__('toast-added-cart'));
   },
 
   addToCartAndGo(id) {
@@ -399,9 +403,9 @@ const App = {
         <div class="bg-page min-h-screen pt-32 pb-24">
           <div class="max-w-3xl mx-auto px-6 text-center">
             <div class="mb-8"><svg class="w-24 h-24 mx-auto text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></div>
-            <h1 class="font-cormorant text-4xl text-primary mb-4">Your Cart is Empty</h1>
-            <p class="font-montserrat text-muted-c mb-8">Discover our collection of exceptional timepieces.</p>
-            <a href="#products" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer">Browse Collection</a>
+            <h1 class="font-cormorant text-4xl text-primary mb-4" data-i18n="cart-empty-title">Your Cart is Empty</h1>
+            <p class="font-montserrat text-muted-c mb-8" data-i18n="cart-empty-desc">Discover our collection of exceptional timepieces.</p>
+            <a href="#products" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer" data-i18n="cart-browse">Browse Collection</a>
           </div>
         </div>
       `);
@@ -414,8 +418,8 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-5xl mx-auto px-6">
           <div class="mb-12">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Shopping Bag</p>
-            <h1 class="font-cormorant text-5xl md:text-6xl text-primary">Your Cart</h1>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="cart-title">Shopping Bag</p>
+            <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n-html="cart-title">Your Cart</h1>
             <p class="font-montserrat text-muted-c mt-2">${Cart.getCount()} item${Cart.getCount() !== 1 ? 's' : ''}</p>
           </div>
           <div class="space-y-6">
@@ -447,8 +451,8 @@ const App = {
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Subtotal</span><span>$${total.toLocaleString()}</span></div>
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Shipping</span><span class="text-green-600">Free</span></div>
             <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span>Total</span><span>$${total.toLocaleString()}</span></div>
-            <a href="#checkout" class="block w-full bg-gold text-primary text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer">Proceed to Checkout</a>
-            <a href="#products" class="block w-full text-center py-3 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mt-2">Continue Shopping</a>
+            <a href="#checkout" class="block w-full bg-gold text-primary text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="cart-proceed">Proceed to Checkout</a>
+            <a href="#products" class="block w-full text-center py-3 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mt-2" data-i18n="checkout-continue">Continue Shopping</a>
           </div>
         </div>
       </div>
@@ -472,48 +476,48 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-4xl mx-auto px-6">
           <div class="mb-12">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Checkout</p>
-            <h1 class="font-cormorant text-5xl md:text-6xl text-primary">Complete Your Order</h1>
-            <p class="font-montserrat text-muted-c mt-3">Pay on delivery — cash payment</p>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="checkout-title">Checkout</p>
+            <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="checkout-title">Complete Your Order</h1>
+            <p class="font-montserrat text-muted-c mt-3" data-i18n="checkout-place-order">Pay on delivery — cash payment</p>
           </div>
           <div class="grid md:grid-cols-5 gap-10">
             <div class="md:col-span-3 space-y-6">
               <div class="bg-card border border-subtle p-8">
-                <h2 class="font-cormorant text-2xl text-primary mb-6">Personal Details</h2>
+                <h2 class="font-cormorant text-2xl text-primary mb-6" data-i18n="checkout-shipping">Personal Details</h2>
                 <div class="grid grid-cols-2 gap-4">
-                  <input type="text" id="checkout-firstname" placeholder="First name *" class="col-span-2 sm:col-span-1 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200">
-                  <input type="text" id="checkout-lastname" placeholder="Last name *" class="col-span-2 sm:col-span-1 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200">
-                  <input type="tel" id="checkout-phone" placeholder="Phone number *" class="col-span-2 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200">
+                  <input type="text" id="checkout-firstname" placeholder="First name *" class="col-span-2 sm:col-span-1 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200" data-i18n-placeholder="checkout-name-placeholder">
+                  <input type="text" id="checkout-lastname" placeholder="Last name *" class="col-span-2 sm:col-span-1 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200" data-i18n-placeholder="checkout-name-placeholder">
+                  <input type="tel" id="checkout-phone" placeholder="Phone number *" class="col-span-2 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200" data-i18n-placeholder="checkout-phone-placeholder">
                 </div>
               </div>
               <div class="bg-card border border-subtle p-8">
-                <h2 class="font-cormorant text-2xl text-primary mb-6">Delivery Address</h2>
+                <h2 class="font-cormorant text-2xl text-primary mb-6" data-i18n="checkout-shipping">Delivery Address</h2>
                 <div class="grid grid-cols-2 gap-4">
                   <select id="checkout-wilaya" onchange="App.updateCommunes()" class="col-span-2 sm:col-span-1 border border-medium px-4 py-3 font-montserrat text-sm bg-card focus:outline-none focus:border-gold transition-colors duration-200">
-                    <option value="">Select Wilaya</option>
+                    <option value="" data-i18n="checkout-wilaya">Select Wilaya</option>
                     ${wilayaOptions}
                   </select>
                   <select id="checkout-commune" class="col-span-2 sm:col-span-1 border border-medium px-4 py-3 font-montserrat text-sm bg-card focus:outline-none focus:border-gold transition-colors duration-200">
-                    <option value="">Select Commune</option>
+                    <option value="" data-i18n="checkout-commune">Select Commune</option>
                   </select>
-                  <textarea id="checkout-address" placeholder="Street address / Building *" rows="3" class="col-span-2 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200 resize-none"></textarea>
+                  <textarea id="checkout-address" placeholder="Street address / Building *" rows="3" class="col-span-2 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200 resize-none" data-i18n-placeholder="checkout-address-placeholder"></textarea>
                 </div>
               </div>
               <div class="bg-card border border-subtle p-8">
-                <h2 class="font-cormorant text-2xl text-primary mb-6">Payment Method</h2>
+                <h2 class="font-cormorant text-2xl text-primary mb-6" data-i18n="checkout-title">Payment Method</h2>
                 <div class="flex items-center gap-4 p-4 border border-gold bg-gold-bg">
                   <svg class="w-6 h-6 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                   <div>
-                    <p class="font-montserrat text-sm text-primary font-semibold">Cash on Delivery</p>
-                    <p class="font-montserrat text-xs text-muted-c">Pay in cash when your order arrives</p>
+                    <p class="font-montserrat text-sm text-primary font-semibold" data-i18n="checkout-place-order">Cash on Delivery</p>
+                    <p class="font-montserrat text-xs text-muted-c" data-i18n="checkout-place-order">Pay in cash when your order arrives</p>
                   </div>
                 </div>
               </div>
-              <button onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer">Confirm Order &mdash; $${total.toLocaleString()}</button>
+              <button onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; $${total.toLocaleString()}</button>
             </div>
             <div class="md:col-span-2">
               <div class="bg-card border border-subtle p-8 sticky top-32">
-                <h2 class="font-cormorant text-2xl text-primary mb-6">Order Summary</h2>
+                <h2 class="font-cormorant text-2xl text-primary mb-6" data-i18n="checkout-order-summary">Order Summary</h2>
                 <div class="space-y-4">
                   ${Cart.items.map(item => {
                     const w = this.watches.find(w => w.id === item.id);
@@ -532,9 +536,9 @@ const App = {
                   }).join('')}
                 </div>
                 <div class="border-t border-subtle mt-6 pt-6 space-y-2">
-                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span>Subtotal</span><span>$${total.toLocaleString()}</span></div>
-                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span>Shipping</span><span class="text-green-600">Free</span></div>
-                  <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span>Total</span><span>$${total.toLocaleString()}</span></div>
+                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-order-summary">Subtotal</span><span>$${total.toLocaleString()}</span></div>
+                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-shipping">Shipping</span><span class="text-green-600" data-i18n="checkout-place-order">Free</span></div>
+                  <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span data-i18n="checkout-total">Total</span><span>$${total.toLocaleString()}</span></div>
                 </div>
               </div>
             </div>
@@ -594,7 +598,7 @@ const App = {
 
     const saved = await saveOrder(order);
     if (!saved) {
-      this.showToast('Failed to place order. Please try again.');
+      this.showToast(window.__('checkout-failed'));
       return;
     }
 
@@ -605,10 +609,10 @@ const App = {
           <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
             <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
           </div>
-          <h1 class="font-cormorant text-5xl text-primary mb-4">Order Confirmed</h1>
-          <p class="font-montserrat text-muted-c mb-2">Thank you for your purchase.</p>
-          <p class="font-montserrat text-muted-c mb-8">Order <strong class="text-primary">${orderId}</strong> — You will be contacted at <strong class="text-primary">${phone}</strong> for delivery.</p>
-          <a href="#home" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer">Return Home</a>
+          <h1 class="font-cormorant text-5xl text-primary mb-4" data-i18n="checkout-success-title">Order Confirmed</h1>
+          <p class="font-montserrat text-muted-c mb-2" data-i18n="checkout-success-thanks">Thank you for your purchase.</p>
+          <p class="font-montserrat text-muted-c mb-8"><span data-i18n="checkout-success-id">Order</span> <strong class="text-primary">${orderId}</strong> — <span data-i18n="checkout-success-contact">You will be contacted at</span> <strong class="text-primary">${phone}</strong></p>
+          <a href="#home" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer" data-i18n="checkout-continue">Return Home</a>
         </div>
       </div>
     `);
@@ -621,8 +625,8 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-4xl mx-auto px-6">
           <div class="mb-16 text-center">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Our Story</p>
-            <h1 class="font-cormorant text-5xl md:text-7xl text-primary">About Elite Chrono</h1>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-journal">Our Story</p>
+            <h1 class="font-cormorant text-5xl md:text-7xl text-primary" data-i18n-html="about-title">About Elite Chrono</h1>
           </div>
           <div class="prose max-w-none">
             <div class="aspect-[21/9] mb-16 flex items-center justify-center" style="background: linear-gradient(135deg, var(--hero-from), var(--hero-via));">
@@ -661,8 +665,8 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-4xl mx-auto px-6">
           <div class="mb-16 text-center">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">Get in Touch</p>
-            <h1 class="font-cormorant text-5xl md:text-7xl text-primary">Contact Us</h1>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="page-contact-label">Get in Touch</p>
+            <h1 class="font-cormorant text-5xl md:text-7xl text-primary" data-i18n="contact-title">Contact Us</h1>
           </div>
           <div class="grid md:grid-cols-2 gap-12">
             <div>
