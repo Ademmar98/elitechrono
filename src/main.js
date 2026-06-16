@@ -1020,7 +1020,7 @@ const App = {
     let images = [img];
     try { if (imagesRaw) { const parsed = JSON.parse(imagesRaw); if (Array.isArray(parsed)) images = parsed; } } catch(e) {}
 
-    const productData = { id, name, brand, price, description: desc, img, images, sections, inStock: stock === 'in', visible: visible !== '0' };
+    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0' };
 
     const result = await saveProduct(productData);
     if (result) {
