@@ -182,8 +182,8 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
               <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">${e.brand}</p>
               <h1 class="font-cormorant text-4xl md:text-5xl text-primary mb-4">${e.name}</h1>
               <div class="flex items-baseline gap-3 mb-8">
-                <span class="font-cormorant text-3xl text-primary">$${e.price.toLocaleString()}</span>
-                ${e.originalPrice?`<span class="font-montserrat text-lg text-stone-400 line-through">$${e.originalPrice.toLocaleString()}</span><span class="font-montserrat text-sm text-red-500">Save ${Math.round((1-e.price/e.originalPrice)*100)}%</span>`:""}
+                <span class="font-cormorant text-3xl text-primary">DA${e.price.toLocaleString()}</span>
+                ${e.originalPrice?`<span class="font-montserrat text-lg text-stone-400 line-through">DA${e.originalPrice.toLocaleString()}</span><span class="font-montserrat text-sm text-red-500">Save ${Math.round((1-e.price/e.originalPrice)*100)}%</span>`:""}
               </div>
               <p class="font-montserrat text-stone-600 leading-relaxed mb-8">${e.description}</p>
               <div class="flex gap-3 mb-6">
@@ -227,7 +227,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
                   <div class="flex-1 min-w-0">
                     <p class="font-montserrat text-xs text-gold tracking-wider uppercase mb-1">${r.brand}</p>
                     <h3 class="font-cormorant text-xl text-primary">${r.name}</h3>
-                    <p class="font-montserrat text-sm text-muted-c mt-1">$${r.price.toLocaleString()} each</p>
+                    <p class="font-montserrat text-sm text-muted-c mt-1">DA${r.price.toLocaleString()} each</p>
                   </div>
                   <div class="flex items-center gap-3">
                     <button onclick="App.updateCartQty('${r.id}', ${e.qty-1})" class="w-8 h-8 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat">&minus;</button>
@@ -235,16 +235,16 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
                     <button onclick="App.updateCartQty('${r.id}', ${e.qty+1})" class="w-8 h-8 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat">+</button>
                   </div>
                   <div class="text-right">
-                    <p class="font-cormorant text-xl text-primary">$${(r.price*e.qty).toLocaleString()}</p>
+                    <p class="font-cormorant text-xl text-primary">DA${(r.price*e.qty).toLocaleString()}</p>
                     <button onclick="Cart.remove('${r.id}'); App.renderCart();" class="font-montserrat text-xs text-stone-400 hover:text-red-500 transition-colors duration-200 cursor-pointer mt-2">Remove</button>
                   </div>
                 </div>
               `:""}).join("")}
           </div>
           <div class="mt-10 bg-card border border-subtle p-8 ml-auto max-w-md">
-            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Subtotal</span><span>$${t.toLocaleString()}</span></div>
+            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Subtotal</span><span>DA${t.toLocaleString()}</span></div>
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Shipping</span><span class="text-green-600">Free</span></div>
-            <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span>Total</span><span>$${t.toLocaleString()}</span></div>
+            <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span>Total</span><span>DA${t.toLocaleString()}</span></div>
             <a href="#checkout" class="block w-full bg-gold text-primary text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="cart-proceed">Proceed to Checkout</a>
             <a href="#products" class="block w-full text-center py-3 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mt-2" data-i18n="checkout-continue">Continue Shopping</a>
           </div>
@@ -291,7 +291,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
                   </div>
                 </div>
               </div>
-              <button onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; $${t.toLocaleString()}</button>
+              <button onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; DA${t.toLocaleString()}</button>
             </div>
             <div class="md:col-span-2">
               <div class="bg-card border border-subtle p-8 sticky top-32">
@@ -305,14 +305,14 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
                           <p class="font-cormorant text-sm text-primary">${s.name}</p>
                           <p class="font-montserrat text-xs text-muted-c">Qty: ${r.qty}</p>
                         </div>
-                        <p class="font-cormorant text-sm text-primary">$${(s.price*r.qty).toLocaleString()}</p>
+                        <p class="font-cormorant text-sm text-primary">DA${(s.price*r.qty).toLocaleString()}</p>
                       </div>
                     `:""}).join("")}
                 </div>
                 <div class="border-t border-subtle mt-6 pt-6 space-y-2">
-                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-order-summary">Subtotal</span><span>$${t.toLocaleString()}</span></div>
+                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-order-summary">Subtotal</span><span>DA${t.toLocaleString()}</span></div>
                   <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-shipping">Shipping</span><span class="text-green-600" data-i18n="checkout-place-order">Free</span></div>
-                  <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span data-i18n="checkout-total">Total</span><span>$${t.toLocaleString()}</span></div>
+                  <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span data-i18n="checkout-total">Total</span><span>DA${t.toLocaleString()}</span></div>
                 </div>
               </div>
             </div>
@@ -532,7 +532,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
                     <td class="font-montserrat text-xs text-muted-c">${new Date(i.date).toLocaleDateString()}</td>
                     <td><div class="font-montserrat text-sm">${i.firstName||""} ${i.lastName||""}</div><div class="font-montserrat text-xs text-muted-c">${i.phone}</div></td>
                     <td class="font-montserrat text-xs text-muted-c max-w-[200px] truncate">${a}</td>
-                    <td class="font-cormorant text-sm">$${o.toLocaleString()}</td>
+                    <td class="font-cormorant text-sm">DA${o.toLocaleString()}</td>
                     <td><select onchange="event.stopPropagation(); App.updateOrderStatus('${i.id}', this.value)" class="admin-select text-xs py-1 px-2 w-auto">${s.map(l=>`<option value="${l}" ${i.status===l?"selected":""}>${n[l]}</option>`).join("")}</select></td>
                   </tr>
                 `}).join("")}
@@ -563,8 +563,8 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
           </div>
           <div class="border-t border-subtle pt-4">
             <h4 class="text-xs uppercase tracking-wider text-muted-c mb-2">Products</h4>
-            ${r.items.map(a=>{const o=this.watches.find(l=>l.id===a.id);return`<div class="flex justify-between py-1"><span class="text-primary">${o?o.name:a.id} x${a.qty}</span><span class="font-cormorant">$${((o?o.price:0)*a.qty).toLocaleString()}</span></div>`}).join("")}
-            <div class="flex justify-between border-t border-subtle pt-2 mt-2 font-cormorant text-lg text-primary"><span>Total</span><span>$${r.total.toLocaleString()}</span></div>
+            ${r.items.map(a=>{const o=this.watches.find(l=>l.id===a.id);return`<div class="flex justify-between py-1"><span class="text-primary">${o?o.name:a.id} x${a.qty}</span><span class="font-cormorant">DA${((o?o.price:0)*a.qty).toLocaleString()}</span></div>`}).join("")}
+            <div class="flex justify-between border-t border-subtle pt-2 mt-2 font-cormorant text-lg text-primary"><span>Total</span><span>DA${r.total.toLocaleString()}</span></div>
           </div>
         </div>
       </div>
@@ -583,7 +583,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
               <tr>
                 <td><div class="flex items-center gap-3"><div class="w-10 h-10 bg-stone-100 flex-shrink-0 overflow-hidden"><img src="${e.img}" alt="${e.name}" class="w-full h-full object-cover"></div><div><div class="font-montserrat text-sm text-primary">${e.name}</div><div class="font-montserrat text-xs text-muted-c">${e.id}</div></div></div></td>
                 <td class="font-montserrat text-sm">${e.brand}</td>
-                <td class="font-cormorant text-sm">$${e.price.toLocaleString()}</td>
+                <td class="font-cormorant text-sm">DA${e.price.toLocaleString()}</td>
                 <td><div class="flex flex-wrap gap-1">${(e.sections||[]).length===0?'<span class="text-muted-c text-xs font-montserrat">—</span>':""}${(e.sections||[]).map(r=>`<span class="admin-section-tag">${r}</span>`).join("")}</div></td>
                 <td class="font-montserrat text-xs"><span class="${e.inStock===!1?"text-red-500":"text-green-600"}">${e.inStock===!1?"Out of Stock":"In Stock"}</span></td>
                 <td class="font-montserrat text-xs"><span class="${e.visible===!1?"text-muted-c":"text-green-600"}">${e.visible===!1?"Private":"Public"}</span></td>
@@ -650,8 +650,8 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
           <div class="brand-tag">${t.brand}</div>
           <h3>${t.name}</h3>
           <div class="flex items-center mt-auto">
-            <span class="price">$${t.price.toLocaleString()}</span>
-            ${t.originalPrice?`<span class="original-price">$${t.originalPrice.toLocaleString()}</span>`:""}
+            <span class="price">DA${t.price.toLocaleString()}</span>
+            ${t.originalPrice?`<span class="original-price">DA${t.originalPrice.toLocaleString()}</span>`:""}
           </div>
         </div>
       </a>

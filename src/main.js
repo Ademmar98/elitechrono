@@ -342,8 +342,8 @@ const App = {
               <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">${watch.brand}</p>
               <h1 class="font-cormorant text-4xl md:text-5xl text-primary mb-4">${watch.name}</h1>
               <div class="flex items-baseline gap-3 mb-8">
-                <span class="font-cormorant text-3xl text-primary">$${watch.price.toLocaleString()}</span>
-                ${watch.originalPrice ? `<span class="font-montserrat text-lg text-stone-400 line-through">$${watch.originalPrice.toLocaleString()}</span><span class="font-montserrat text-sm text-red-500">Save ${Math.round((1 - watch.price/watch.originalPrice)*100)}%</span>` : ''}
+                <span class="font-cormorant text-3xl text-primary">DA${watch.price.toLocaleString()}</span>
+                ${watch.originalPrice ? `<span class="font-montserrat text-lg text-stone-400 line-through">DA${watch.originalPrice.toLocaleString()}</span><span class="font-montserrat text-sm text-red-500">Save ${Math.round((1 - watch.price/watch.originalPrice)*100)}%</span>` : ''}
               </div>
               <p class="font-montserrat text-stone-600 leading-relaxed mb-8">${watch.description}</p>
               <div class="flex gap-3 mb-6">
@@ -415,7 +415,7 @@ const App = {
                   <div class="flex-1 min-w-0">
                     <p class="font-montserrat text-xs text-gold tracking-wider uppercase mb-1">${w.brand}</p>
                     <h3 class="font-cormorant text-xl text-primary">${w.name}</h3>
-                    <p class="font-montserrat text-sm text-muted-c mt-1">$${w.price.toLocaleString()} each</p>
+                    <p class="font-montserrat text-sm text-muted-c mt-1">DA${w.price.toLocaleString()} each</p>
                   </div>
                   <div class="flex items-center gap-3">
                     <button onclick="App.updateCartQty('${w.id}', ${item.qty - 1})" class="w-8 h-8 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat">&minus;</button>
@@ -423,7 +423,7 @@ const App = {
                     <button onclick="App.updateCartQty('${w.id}', ${item.qty + 1})" class="w-8 h-8 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat">+</button>
                   </div>
                   <div class="text-right">
-                    <p class="font-cormorant text-xl text-primary">$${(w.price * item.qty).toLocaleString()}</p>
+                    <p class="font-cormorant text-xl text-primary">DA${(w.price * item.qty).toLocaleString()}</p>
                     <button onclick="Cart.remove('${w.id}'); App.renderCart();" class="font-montserrat text-xs text-stone-400 hover:text-red-500 transition-colors duration-200 cursor-pointer mt-2">Remove</button>
                   </div>
                 </div>
@@ -431,9 +431,9 @@ const App = {
             }).join('')}
           </div>
           <div class="mt-10 bg-card border border-subtle p-8 ml-auto max-w-md">
-            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Subtotal</span><span>$${total.toLocaleString()}</span></div>
+            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Subtotal</span><span>DA${total.toLocaleString()}</span></div>
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Shipping</span><span class="text-green-600">Free</span></div>
-            <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span>Total</span><span>$${total.toLocaleString()}</span></div>
+            <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span>Total</span><span>DA${total.toLocaleString()}</span></div>
             <a href="#checkout" class="block w-full bg-gold text-primary text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="cart-proceed">Proceed to Checkout</a>
             <a href="#products" class="block w-full text-center py-3 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mt-2" data-i18n="checkout-continue">Continue Shopping</a>
           </div>
@@ -496,7 +496,7 @@ const App = {
                   </div>
                 </div>
               </div>
-              <button onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; $${total.toLocaleString()}</button>
+              <button onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; DA${total.toLocaleString()}</button>
             </div>
             <div class="md:col-span-2">
               <div class="bg-card border border-subtle p-8 sticky top-32">
@@ -513,15 +513,15 @@ const App = {
                           <p class="font-cormorant text-sm text-primary">${w.name}</p>
                           <p class="font-montserrat text-xs text-muted-c">Qty: ${item.qty}</p>
                         </div>
-                        <p class="font-cormorant text-sm text-primary">$${(w.price * item.qty).toLocaleString()}</p>
+                        <p class="font-cormorant text-sm text-primary">DA${(w.price * item.qty).toLocaleString()}</p>
                       </div>
                     `;
                   }).join('')}
                 </div>
                 <div class="border-t border-subtle mt-6 pt-6 space-y-2">
-                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-order-summary">Subtotal</span><span>$${total.toLocaleString()}</span></div>
+                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-order-summary">Subtotal</span><span>DA${total.toLocaleString()}</span></div>
                   <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-shipping">Shipping</span><span class="text-green-600" data-i18n="checkout-place-order">Free</span></div>
-                  <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span data-i18n="checkout-total">Total</span><span>$${total.toLocaleString()}</span></div>
+                  <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span data-i18n="checkout-total">Total</span><span>DA${total.toLocaleString()}</span></div>
                 </div>
               </div>
             </div>
@@ -862,7 +862,7 @@ const App = {
                     <td class="font-montserrat text-xs text-muted-c">${new Date(o.date).toLocaleDateString()}</td>
                     <td><div class="font-montserrat text-sm">${o.firstName || ''} ${o.lastName || ''}</div><div class="font-montserrat text-xs text-muted-c">${o.phone}</div></td>
                     <td class="font-montserrat text-xs text-muted-c max-w-[200px] truncate">${items}</td>
-                    <td class="font-cormorant text-sm">$${total.toLocaleString()}</td>
+                    <td class="font-cormorant text-sm">DA${total.toLocaleString()}</td>
                     <td><select onchange="event.stopPropagation(); App.updateOrderStatus('${o.id}', this.value)" class="admin-select text-xs py-1 px-2 w-auto">${statuses.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${statusLabels[s]}</option>`).join('')}</select></td>
                   </tr>
                 `;
@@ -918,9 +918,9 @@ const App = {
             <h4 class="text-xs uppercase tracking-wider text-muted-c mb-2">Products</h4>
             ${o.items.map(item => {
               const p = this.watches.find(pr => pr.id === item.id);
-              return `<div class="flex justify-between py-1"><span class="text-primary">${p ? p.name : item.id} x${item.qty}</span><span class="font-cormorant">$${((p ? p.price : 0) * item.qty).toLocaleString()}</span></div>`;
+              return `<div class="flex justify-between py-1"><span class="text-primary">${p ? p.name : item.id} x${item.qty}</span><span class="font-cormorant">DA${((p ? p.price : 0) * item.qty).toLocaleString()}</span></div>`;
             }).join('')}
-            <div class="flex justify-between border-t border-subtle pt-2 mt-2 font-cormorant text-lg text-primary"><span>Total</span><span>$${o.total.toLocaleString()}</span></div>
+            <div class="flex justify-between border-t border-subtle pt-2 mt-2 font-cormorant text-lg text-primary"><span>Total</span><span>DA${o.total.toLocaleString()}</span></div>
           </div>
         </div>
       </div>
@@ -949,7 +949,7 @@ const App = {
               <tr>
                 <td><div class="flex items-center gap-3"><div class="w-10 h-10 bg-stone-100 flex-shrink-0 overflow-hidden"><img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover"></div><div><div class="font-montserrat text-sm text-primary">${p.name}</div><div class="font-montserrat text-xs text-muted-c">${p.id}</div></div></div></td>
                 <td class="font-montserrat text-sm">${p.brand}</td>
-                <td class="font-cormorant text-sm">$${p.price.toLocaleString()}</td>
+                <td class="font-cormorant text-sm">DA${p.price.toLocaleString()}</td>
                 <td><div class="flex flex-wrap gap-1">${(p.sections || []).length === 0 ? '<span class="text-muted-c text-xs font-montserrat">—</span>' : ''}${(p.sections || []).map(s => `<span class="admin-section-tag">${s}</span>`).join('')}</div></td>
                 <td class="font-montserrat text-xs"><span class="${p.inStock === false ? 'text-red-500' : 'text-green-600'}">${p.inStock === false ? 'Out of Stock' : 'In Stock'}</span></td>
                 <td class="font-montserrat text-xs"><span class="${p.visible === false ? 'text-muted-c' : 'text-green-600'}">${p.visible === false ? 'Private' : 'Public'}</span></td>
@@ -1083,8 +1083,8 @@ const App = {
           <div class="brand-tag">${w.brand}</div>
           <h3>${w.name}</h3>
           <div class="flex items-center mt-auto">
-            <span class="price">$${w.price.toLocaleString()}</span>
-            ${w.originalPrice ? `<span class="original-price">$${w.originalPrice.toLocaleString()}</span>` : ''}
+            <span class="price">DA${w.price.toLocaleString()}</span>
+            ${w.originalPrice ? `<span class="original-price">DA${w.originalPrice.toLocaleString()}</span>` : ''}
           </div>
         </div>
       </a>
