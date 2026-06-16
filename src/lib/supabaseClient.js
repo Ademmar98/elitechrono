@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = (typeof window !== 'undefined' && window.__SUPABASE_URL) || import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = (typeof window !== 'undefined' && window.__SUPABASE_ANON_KEY) || import.meta.env.VITE_SUPABASE_ANON_KEY;
+const FALLBACK_URL = 'https://zlqribkbrcquowqqosov.supabase.co';
+const FALLBACK_KEY = 'sb_publishable_gCjq1FNtov6hlC9bXXCO2Q_cnnkbldG';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || FALLBACK_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || FALLBACK_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(

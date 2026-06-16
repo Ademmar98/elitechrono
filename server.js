@@ -13,16 +13,6 @@ const MIME = {
   '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp',
 };
 
-function injectEnv(html) {
-  const url = process.env.VITE_SUPABASE_URL || '';
-  const key = process.env.VITE_SUPABASE_ANON_KEY || '';
-  if (!url || !key) return html;
-  return html.replace(
-    '</title>',
-    `</title><script>window.__SUPABASE_URL=${JSON.stringify(url)};window.__SUPABASE_ANON_KEY=${JSON.stringify(key)}</script>`
-  );
-}
-
 http.createServer((req, res) => {
   let file = req.url === '/' ? '/index.html' : req.url;
   // SPA fallback
@@ -34,17 +24,12 @@ http.createServer((req, res) => {
       fs.readFile(path.join(dist, 'index.html'), (e2, d2) => {
         if (e2) { res.writeHead(404); res.end('Not found'); return; }
         res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(injectEnv(d2));
+        res.end(d2);
       });
       return;
     }
     const ext = path.extname(file).toLowerCase();
-    if (ext === '.html') {
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      res.end(injectEnv(data));
-    } else {
-      res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
-      res.end(data);
-    }
+    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+    res.end(data);
   });
 }).listen(port, () => console.log(`Server on ${port}`));
