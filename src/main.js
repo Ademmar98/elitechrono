@@ -51,9 +51,12 @@ const App = {
 
   async syncProducts() {
     const dbProducts = await getProducts();
-    if (dbProducts && dbProducts.length > 0) {
+    if (dbProducts && dbProducts.length > 0 && dbProducts[0].id) {
       this.watches = dbProducts;
     } else {
+      if (dbProducts && dbProducts.length > 0 && !dbProducts[0].id) {
+        localStorage.removeItem('elitechrono_products');
+      }
       this.watches = [...WATCHES];
     }
   },
@@ -309,7 +312,8 @@ const App = {
   },
 
   renderProductDetail(id) {
-    const watch = this.watches.find(w => w.id === id);
+    let watch = this.watches.find(w => w.id === id);
+    if (!watch) watch = WATCHES.find(w => w.id === id);
     if (!watch) { this.showError('Watch not found'); return; }
     const inCart = Cart.items.find(i => i.id === watch.id);
 
@@ -320,7 +324,7 @@ const App = {
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="aspect-[4/5] bg-card border border-subtle overflow-hidden">
-                <img src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700">
+                <img src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.style.display='none'">
               </div>
               ${watch.new ? '<span class="absolute top-4 left-4 bg-gold text-primary px-4 py-1.5 font-montserrat text-xs tracking-wider uppercase font-semibold">New</span>' : ''}
             </div>
@@ -1045,7 +1049,7 @@ const App = {
     return `
       <a href="#product-${w.id}" class="product-card">
         <div class="relative overflow-hidden">
-          <img src="${w.img}" alt="${w.brand} ${w.name}" loading="lazy">
+          <img src="${w.img}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.style.display='none'">
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
         </div>
