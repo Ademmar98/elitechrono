@@ -311,9 +311,13 @@ const App = {
     `);
   },
 
-  renderProductDetail(id) {
+  async renderProductDetail(id) {
     let watch = this.watches.find(w => w.id === id);
-    if (!watch) watch = WATCHES.find(w => w.id === id);
+    if (!watch) {
+      const fresh = await getProducts();
+      watch = fresh.find(p => p.id === id);
+      if (watch) this.watches = fresh;
+    }
     if (!watch) { this.showError('Watch not found'); return; }
     const inCart = Cart.items.find(i => i.id === watch.id);
 
