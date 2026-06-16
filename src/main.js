@@ -328,9 +328,15 @@ const App = {
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="aspect-[4/5] bg-card border border-subtle overflow-hidden">
-                <img src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.style.display='none'">
+                <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.style.display='none'">
               </div>
               ${watch.new ? '<span class="absolute top-4 left-4 bg-gold text-primary px-4 py-1.5 font-montserrat text-xs tracking-wider uppercase font-semibold">New</span>' : ''}
+              ${(watch.images && watch.images.length > 1) ? `
+              <div class="flex gap-2 mt-3 overflow-x-auto pb-1 thumb-gallery">
+                ${watch.images.map((url, i) => `
+                  <img src="${url}" class="thumb-img ${i === 0 ? 'active' : ''}" onclick="document.getElementById('detail-main-img').src='${url}';document.querySelectorAll('.thumb-img').forEach(t=>t.classList.remove('active'));this.classList.add('active')" onerror="this.style.display='none'">
+                `).join('')}
+              </div>` : ''}
             </div>
             <div class="sticky top-32">
               <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">${watch.brand}</p>
@@ -979,7 +985,23 @@ const App = {
           </div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Description</label><textarea id="pf-desc" class="admin-input" rows="3" placeholder="Product description...">${existing ? existing.description : ''}</textarea></div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Main Image URL</label><input id="pf-img" class="admin-input" value="${existing ? existing.img : ''}" placeholder="https://..."></div>
-          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Additional Images (JSON array)</label><input id="pf-images" class="admin-input" value="${existing && existing.images ? JSON.stringify(existing.images) : ''}" placeholder='["https://..."]'></div>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase">Additional Images</label>
+              <button type="button" onclick="addImageField()" class="text-gold hover:text-gold-hover font-montserrat text-xs flex items-center gap-1 cursor-pointer">+ Add image</button>
+            </div>
+            <div id="pf-images-container">
+              ${(existing && existing.images && existing.images.length) ? existing.images.map(url => `
+              <div class="flex gap-2 mb-2">
+                <input class="admin-input pf-image-input flex-1" value="${url}" placeholder="https://...">
+                <button type="button" onclick="this.parentElement.remove()" class="admin-img-remove">&times;</button>
+              </div>`).join('') : `
+              <div class="flex gap-2 mb-2">
+                <input class="admin-input pf-image-input flex-1" placeholder="https://...">
+                <button type="button" onclick="this.parentElement.remove()" class="admin-img-remove">&times;</button>
+              </div>`}
+            </div>
+          </div>
           <div>
             <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Sections</label>
             <div class="flex flex-wrap gap-2">${sections.map(s => `<button type="button" class="section-toggle ${existing && (existing.sections || []).includes(s) ? 'active' : ''}" data-section="${s}" onclick="this.classList.toggle('active')">${s}</button>`).join('')}</div>
@@ -1006,7 +1028,6 @@ const App = {
     const price = parseFloat(document.getElementById('pf-price')?.value);
     const desc = document.getElementById('pf-desc')?.value?.trim();
     const img = document.getElementById('pf-img')?.value?.trim();
-    const imagesRaw = document.getElementById('pf-images')?.value?.trim();
     const sections = [];
     document.querySelectorAll('.section-toggle.active').forEach(btn => sections.push(btn.dataset.section));
     const stock = document.getElementById('pf-stock')?.value;
@@ -1017,8 +1038,9 @@ const App = {
       return;
     }
 
-    let images = [img];
-    try { if (imagesRaw) { const parsed = JSON.parse(imagesRaw); if (Array.isArray(parsed)) images = parsed; } } catch(e) {}
+    const imageInputs = document.querySelectorAll('.pf-image-input');
+    const images = Array.from(imageInputs).map(inp => inp.value.trim()).filter(u => u.startsWith('http'));
+    if (!images.length) images.push(img);
 
     const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0' };
 
@@ -1070,9 +1092,20 @@ const App = {
   },
 };
 
+function addImageField() {
+  const c = document.getElementById('pf-images-container');
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = 'flex gap-2 mb-2';
+  d.innerHTML = '<input class="admin-input pf-image-input flex-1" placeholder="https://..."> <button type="button" onclick="this.parentElement.remove()" class="admin-img-remove">&times;</button>';
+  c.appendChild(d);
+  d.querySelector('input').focus();
+}
+
 // Expose on window for onclick handlers
 window.App = App;
 window.Cart = Cart;
+window.addImageField = addImageField;
 
 // Entry point
 document.addEventListener('DOMContentLoaded', () => App.init());
