@@ -1072,13 +1072,10 @@ const App = {
   // ─── SHARED ───────────────────────────────────────────────────────────
 
   productCard(w) {
-    const allImgs = (w.images && w.images.length > 1) ? w.images : [w.img];
     return `
       <a href="#product-${w.id}" class="product-card">
-        <div class="product-card-imgs">
-          ${allImgs.map((url, i) => `
-            <img src="${url}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.style.display='none'" class="${i > 0 ? 'card-layer-alt' : ''}">
-          `).join('')}
+        <div class="relative overflow-hidden">
+          <img src="${w.img}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.style.display='none'">
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
         </div>
