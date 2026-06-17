@@ -1042,7 +1042,7 @@ const App = {
     const images = Array.from(imageInputs).map(inp => inp.value.trim()).filter(u => u.startsWith('http'));
     if (!images.length) images.push(img);
 
-    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0', new: sections.includes('New Models') };
+    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0' };
 
     const result = await saveProduct(productData);
     if (result) {
@@ -1072,13 +1072,10 @@ const App = {
   // ─── SHARED ───────────────────────────────────────────────────────────
 
   productCard(w) {
-    const allImgs = (w.images && w.images.length > 1) ? w.images : [w.img];
     return `
       <a href="#product-${w.id}" class="product-card">
-        <div class="product-card-imgs">
-          ${allImgs.map((url, i) => `
-            <img src="${url}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.style.display='none'" class="${i > 0 ? 'card-layer-alt' : ''}">
-          `).join('')}
+        <div class="relative overflow-hidden">
+          <img src="${w.img}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.style.display='none'">
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
         </div>
