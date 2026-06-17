@@ -168,7 +168,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="aspect-[4/5] bg-card border border-subtle overflow-hidden">
-                <img id="detail-main-img" src="${e.img}" alt="${e.brand} ${e.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.style.display='none'">
+                <img id="detail-main-img" src="${e.img}" alt="${e.brand} ${e.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.classList.add('img-err')">
                 ${e.images&&e.images.length>1?`
                 <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${e.id}', -1)" type="button">&lsaquo;</button>
                 <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${e.id}', 1)" type="button">&rsaquo;</button>
@@ -179,7 +179,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
               ${e.images&&e.images.length>1?`
               <div class="flex gap-2 mt-3 overflow-x-auto pb-1 thumb-gallery" id="thumb-gallery">
                 ${e.images.map((n,i)=>`
-                  <img src="${n}" class="thumb-img ${i===0?"active":""}" data-index="${i}" onclick="App.gallerySelect(${i})" onerror="this.style.display='none'">
+                  <img src="${n}" class="thumb-img ${i===0?"active":""}" data-index="${i}" onclick="App.gallerySelect(${i})" onerror="this.classList.add('img-err')">
                 `).join("")}
               </div>`:""}
             </div>
@@ -198,7 +198,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
               <div class="border-t border-subtle pt-8">
                 <h3 class="font-cormorant text-xl text-primary mb-4" data-i18n="product-specs">Technical Specifications</h3>
                 <div class="space-y-3">
-                  ${Object.entries(e.specs).map(([n,i])=>`<div class="flex justify-between font-montserrat text-sm border-b border-stone-100 pb-2"><span class="text-stone-500">${n}</span><span class="text-primary font-medium">${i}</span></div>`).join("")}
+                  ${(e.specs?Object.entries(e.specs):[]).map(([n,i])=>`<div class="flex justify-between font-montserrat text-sm border-b border-stone-100 pb-2"><span class="text-stone-500">${n}</span><span class="text-primary font-medium">${i}</span></div>`).join("")}
                 </div>
               </div>
               <div class="mt-8 flex gap-3">
@@ -648,7 +648,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
       <a href="#product-${t.id}" class="product-card">
         <div class="product-card-imgs">
           ${e.map((r,s)=>`
-            <img src="${r}" alt="${t.brand} ${t.name}" loading="lazy" onerror="this.style.display='none'" class="${s>0?"card-layer-alt":""}">
+            <img src="${r}" alt="${t.brand} ${t.name}" loading="lazy" onerror="this.classList.add('img-err')" class="${s>0?"card-layer-alt":""}">
           `).join("")}
           ${t.new?'<span class="badge-new">New</span>':""}
           ${t.originalPrice?'<span class="badge-sale">Sale</span>':""}

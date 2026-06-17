@@ -328,7 +328,7 @@ const App = {
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="aspect-[4/5] bg-card border border-subtle overflow-hidden">
-                <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.style.display='none'">
+                <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.classList.add('img-err')">
                 ${(watch.images && watch.images.length > 1) ? `
                 <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${watch.id}', -1)" type="button">&lsaquo;</button>
                 <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${watch.id}', 1)" type="button">&rsaquo;</button>
@@ -339,7 +339,7 @@ const App = {
               ${(watch.images && watch.images.length > 1) ? `
               <div class="flex gap-2 mt-3 overflow-x-auto pb-1 thumb-gallery" id="thumb-gallery">
                 ${watch.images.map((url, i) => `
-                  <img src="${url}" class="thumb-img ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="App.gallerySelect(${i})" onerror="this.style.display='none'">
+                  <img src="${url}" class="thumb-img ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="App.gallerySelect(${i})" onerror="this.classList.add('img-err')">
                 `).join('')}
               </div>` : ''}
             </div>
@@ -358,7 +358,7 @@ const App = {
               <div class="border-t border-subtle pt-8">
                 <h3 class="font-cormorant text-xl text-primary mb-4" data-i18n="product-specs">Technical Specifications</h3>
                 <div class="space-y-3">
-                  ${Object.entries(watch.specs).map(([key, val]) =>
+                  ${(watch.specs ? Object.entries(watch.specs) : []).map(([key, val]) =>
                     `<div class="flex justify-between font-montserrat text-sm border-b border-stone-100 pb-2"><span class="text-stone-500">${key}</span><span class="text-primary font-medium">${val}</span></div>`
                   ).join('')}
                 </div>
@@ -1123,7 +1123,7 @@ const App = {
       <a href="#product-${w.id}" class="product-card">
         <div class="product-card-imgs">
           ${allImgs.map((url, i) => `
-            <img src="${url}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.style.display='none'" class="${i > 0 ? 'card-layer-alt' : ''}">
+            <img src="${url}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.classList.add('img-err')" class="${i > 0 ? 'card-layer-alt' : ''}">
           `).join('')}
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
