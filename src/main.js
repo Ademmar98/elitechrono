@@ -142,7 +142,7 @@ const App = {
 
   renderHome() {
     const featured = this.watches.slice(0, 8);
-    const newModels = this.watches.filter(w => w.new).slice(0, 4);
+    const newModels = this.watches.filter(w => w.sections && w.sections.includes('New Models')).slice(0, 4);
 
     this.render(`
       <section class="relative w-full min-h-[80vh] flex items-center overflow-hidden bg-black">
@@ -285,7 +285,7 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="nav-new-models">New Models</h1>
             <p class="font-montserrat text-muted-c mt-4" data-i18n="section-new-arrivals-desc">The latest additions to our collection</p>
           </div>
-          <div class="product-grid">${this.watches.filter(w => w.new).map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${this.watches.filter(w => w.sections && w.sections.includes('New Models')).map(w => this.productCard(w)).join('')}</div>
         </div>
       </div>
     `);
@@ -329,12 +329,17 @@ const App = {
             <div class="relative">
               <div class="aspect-[4/5] bg-card border border-subtle overflow-hidden">
                 <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.style.display='none'">
+                ${(watch.images && watch.images.length > 1) ? `
+                <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${watch.id}', -1)" type="button">&lsaquo;</button>
+                <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${watch.id}', 1)" type="button">&rsaquo;</button>
+                <div class="gallery-dots">${watch.images.map((_, i) => `<span class="gallery-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`).join('')}</div>
+                ` : ''}
               </div>
               ${watch.new ? '<span class="absolute top-4 left-4 bg-gold text-primary px-4 py-1.5 font-montserrat text-xs tracking-wider uppercase font-semibold">New</span>' : ''}
               ${(watch.images && watch.images.length > 1) ? `
-              <div class="flex gap-2 mt-3 overflow-x-auto pb-1 thumb-gallery">
+              <div class="flex gap-2 mt-3 overflow-x-auto pb-1 thumb-gallery" id="thumb-gallery">
                 ${watch.images.map((url, i) => `
-                  <img src="${url}" class="thumb-img ${i === 0 ? 'active' : ''}" onclick="document.getElementById('detail-main-img').src='${url}';document.querySelectorAll('.thumb-img').forEach(t=>t.classList.remove('active'));this.classList.add('active')" onerror="this.style.display='none'">
+                  <img src="${url}" class="thumb-img ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="App.gallerySelect(${i})" onerror="this.style.display='none'">
                 `).join('')}
               </div>` : ''}
             </div>
@@ -366,6 +371,21 @@ const App = {
         </div>
       </div>
     `);
+    const watchId = id;
+    const mainImg = document.getElementById('detail-main-img');
+    if (mainImg && watch.images && watch.images.length > 1) {
+      let startX = 0;
+      const onStart = e => { startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX; };
+      const onEnd = e => {
+        const endX = e.type === 'touchend' ? e.changedTouches[0].clientX : e.clientX;
+        const diff = startX - endX;
+        if (Math.abs(diff) > 40) this.galleryNav(watchId, diff > 0 ? 1 : -1);
+      };
+      mainImg.addEventListener('touchstart', onStart, { passive: true });
+      mainImg.addEventListener('touchend', onEnd, { passive: true });
+      mainImg.addEventListener('mousedown', onStart);
+      mainImg.addEventListener('mouseup', onEnd);
+    }
   },
 
   addToCart(id) {
@@ -1042,7 +1062,7 @@ const App = {
     const images = Array.from(imageInputs).map(inp => inp.value.trim()).filter(u => u.startsWith('http'));
     if (!images.length) images.push(img);
 
-    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0' };
+    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0', new: sections.includes('New Models') };
 
     const result = await saveProduct(productData);
     if (result) {
@@ -1069,15 +1089,45 @@ const App = {
     }
   },
 
+  // ─── GALLERY ──────────────────────────────────────────────────────────
+
+  galleryNav(id, dir) {
+    const imgs = this.watches.find(w => w.id === id)?.images;
+    if (!imgs || imgs.length < 2) return;
+    const main = document.getElementById('detail-main-img');
+    const currentSrc = main.getAttribute('src');
+    let idx = imgs.indexOf(currentSrc);
+    if (idx === -1) idx = 0;
+    idx = (idx + dir + imgs.length) % imgs.length;
+    main.setAttribute('src', imgs[idx]);
+    document.querySelectorAll('.thumb-img').forEach(t => t.classList.toggle('active', parseInt(t.dataset.index) === idx));
+    document.querySelectorAll('.gallery-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.index) === idx));
+    document.getElementById('thumb-gallery')?.querySelector(`.thumb-img[data-index="${idx}"]`)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  },
+
+  gallerySelect(idx) {
+    const main = document.getElementById('detail-main-img');
+    const imgs = document.querySelectorAll('.thumb-img');
+    if (!main || !imgs.length) return;
+    const src = imgs[idx]?.getAttribute('src');
+    if (src) main.setAttribute('src', src);
+    imgs.forEach(t => t.classList.toggle('active', parseInt(t.dataset.index) === idx));
+    document.querySelectorAll('.gallery-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.index) === idx));
+  },
+
   // ─── SHARED ───────────────────────────────────────────────────────────
 
   productCard(w) {
+    const allImgs = (w.images && w.images.length > 1) ? w.images : [w.img];
     return `
       <a href="#product-${w.id}" class="product-card">
-        <div class="relative overflow-hidden">
-          <img src="${w.img}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.style.display='none'">
+        <div class="product-card-imgs">
+          ${allImgs.map((url, i) => `
+            <img src="${url}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.style.display='none'" class="${i > 0 ? 'card-layer-alt' : ''}">
+          `).join('')}
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
+          ${allImgs.length > 1 ? '<span class="card-img-count"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg> ' + allImgs.length + '</span>' : ''}
         </div>
         <div class="product-info">
           <div class="brand-tag">${w.brand}</div>
