@@ -328,7 +328,7 @@ const App = {
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="aspect-[4/5] bg-card border border-subtle overflow-hidden">
-                <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.classList.add('img-err')">
+                <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
                 ${(watch.images && watch.images.length > 1) ? `
                 <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${watch.id}', -1)" type="button">&lsaquo;</button>
                 <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${watch.id}', 1)" type="button">&rsaquo;</button>
@@ -339,7 +339,7 @@ const App = {
               ${(watch.images && watch.images.length > 1) ? `
               <div class="flex gap-2 mt-3 overflow-x-auto pb-1 thumb-gallery" id="thumb-gallery">
                 ${watch.images.map((url, i) => `
-                  <img src="${url}" class="thumb-img ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="App.gallerySelect(${i})" onerror="this.classList.add('img-err')">
+                  <img src="${url}" class="thumb-img ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="App.gallerySelect(${i})" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231C1917%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'">
                 `).join('')}
               </div>` : ''}
             </div>
@@ -1118,16 +1118,12 @@ const App = {
   // ─── SHARED ───────────────────────────────────────────────────────────
 
   productCard(w) {
-    const allImgs = (w.images && w.images.length > 1) ? w.images : [w.img];
     return `
       <a href="#product-${w.id}" class="product-card">
-        <div class="product-card-imgs">
-          ${allImgs.map((url, i) => `
-            <img src="${url}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.classList.add('img-err')" class="${i > 0 ? 'card-layer-alt' : ''}">
-          `).join('')}
+        <div class="relative overflow-hidden product-card-img-wrap">
+          <img src="${w.img}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
-          ${allImgs.length > 1 ? '<span class="card-img-count"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg> ' + allImgs.length + '</span>' : ''}
         </div>
         <div class="product-info">
           <div class="brand-tag">${w.brand}</div>
