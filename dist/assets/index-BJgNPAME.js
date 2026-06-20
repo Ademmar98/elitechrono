@@ -161,7 +161,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
           <div class="product-grid">${n.map(i=>this.productCard(i)).join("")}</div>
         </div>
       </div>
-    `)},async renderProductDetail(t){const e=o=>o.replace(/[\s-]+/g," "),r=e(t),s=o=>o.find(l=>l.id===t||e(l.id)===r||l.id===t.replace(/ /g,"-"));let n=s(this.watches);if(!n){const o=await ke();n=s(o),n&&(this.watches=o)}if(!n){this.showError("Watch not found");return}const i=n.id;try{this.render(`
+    `)},async renderProductDetail(t){const e=l=>l.replace(/[\s-]+/g," "),r=e(t),s=l=>l.find(c=>c.id===t||e(c.id)===r||c.id===t.replace(/ /g,"-"));let n=s(this.watches);if(!n){const l=await ke();n=s(l),n&&(this.watches=l)}if(!n){this.showError("Watch not found");return}const i=n.id,a=this.watches.filter(l=>l.brand===n.brand&&l.id!==n.id);try{this.render(`
       <div class="bg-page min-h-screen pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <a href="#products" class="inline-flex items-center gap-2 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mb-10" data-i18n="product-back">&larr; Back to Collection</a>
@@ -172,14 +172,14 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
                 ${n.images&&n.images.length>1?`
                 <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${i}', -1)" type="button">&lsaquo;</button>
                 <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${i}', 1)" type="button">&rsaquo;</button>
-                <div class="gallery-dots">${n.images.map((o,l)=>`<span class="gallery-dot ${l===0?"active":""}" data-index="${l}"></span>`).join("")}</div>
+                <div class="gallery-dots">${n.images.map((l,c)=>`<span class="gallery-dot ${c===0?"active":""}" data-index="${c}"></span>`).join("")}</div>
                 `:""}
               </div>
               ${n.new?'<span class="absolute top-4 left-4 bg-gold text-primary px-4 py-1.5 font-montserrat text-xs tracking-wider uppercase font-semibold">New</span>':""}
               ${n.images&&n.images.length>1?`
               <div class="flex gap-2 mt-3 overflow-x-auto pb-1 thumb-gallery" id="thumb-gallery">
-                ${n.images.map((o,l)=>`
-                  <img src="${o}" class="thumb-img ${l===0?"active":""}" data-index="${l}" onclick="App.gallerySelect(${l})" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231C1917%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'">
+                ${n.images.map((l,c)=>`
+                  <img src="${l}" class="thumb-img ${c===0?"active":""}" data-index="${c}" onclick="App.gallerySelect(${c})" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231C1917%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'">
                 `).join("")}
               </div>`:""}
             </div>
@@ -198,7 +198,7 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
               <div class="border-t border-subtle pt-8">
                 <h3 class="font-cormorant text-xl text-primary mb-4" data-i18n="product-specs">Technical Specifications</h3>
                 <div class="space-y-3">
-                  ${(n.specs?Object.entries(n.specs):[]).map(([o,l])=>`<div class="flex justify-between font-montserrat text-sm border-b border-stone-100 pb-2"><span class="text-stone-500">${o}</span><span class="text-primary font-medium">${l}</span></div>`).join("")}
+                  ${(n.specs?Object.entries(n.specs):[]).map(([l,c])=>`<div class="flex justify-between font-montserrat text-sm border-b border-stone-100 pb-2"><span class="text-stone-500">${l}</span><span class="text-primary font-medium">${c}</span></div>`).join("")}
                 </div>
               </div>
               <div class="mt-8 flex gap-3">
@@ -207,8 +207,24 @@ ${b}`}class T extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
             </div>
           </div>
         </div>
+        ${a.length>0?`
+        <div class="border-t border-subtle mt-20 pt-16 max-w-7xl mx-auto px-6">
+          <div class="text-center mb-12">
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="similar-subtitle">Same Collection</p>
+            <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="similar-title">More from <span class="text-gold">${n.brand}</span></h2>
+          </div>
+          <div class="similar-grid" id="similar-grid">
+            ${a.map((l,c)=>`
+              <div class="${c>=8?"similar-hidden":""}">${this.productCard(l)}</div>
+            `).join("")}
+          </div>
+          ${a.length>8?`
+          <div class="text-center mt-10">
+            <button onclick="App.loadMoreSimilar()" id="load-more-similar" class="border border-gold text-gold px-10 py-3 font-montserrat text-xs tracking-widest uppercase hover-bg-gold hover:text-primary transition-all duration-300 cursor-pointer">Load More</button>
+          </div>`:""}
+        </div>`:""}
       </div>
-    `)}catch(o){console.error("Error rendering product detail:",o),this.showError("Failed to load product details.");return}const a=document.getElementById("detail-main-img");if(a&&n.images&&n.images.length>1){let o=0;const l=d=>{o=d.type==="touchstart"?d.touches[0].clientX:d.clientX},c=d=>{const u=d.type==="touchend"?d.changedTouches[0].clientX:d.clientX,h=o-u;Math.abs(h)>40&&this.galleryNav(i,h>0?1:-1)};a.addEventListener("touchstart",l,{passive:!0}),a.addEventListener("touchend",c,{passive:!0}),a.addEventListener("mousedown",l),a.addEventListener("mouseup",c)}},addToCart(t){P.add(t),this.showToast(window.__("toast-added-cart"))},addToCartAndGo(t){P.add(t),this.navigate("checkout")},renderCart(){if(P.items.length===0){this.render(`
+    `)}catch(l){console.error("Error rendering product detail:",l),this.showError("Failed to load product details.");return}const o=document.getElementById("detail-main-img");if(o&&n.images&&n.images.length>1){let l=0;const c=u=>{l=u.type==="touchstart"?u.touches[0].clientX:u.clientX},d=u=>{const h=u.type==="touchend"?u.changedTouches[0].clientX:u.clientX,p=l-h;Math.abs(p)>40&&this.galleryNav(i,p>0?1:-1)};o.addEventListener("touchstart",c,{passive:!0}),o.addEventListener("touchend",d,{passive:!0}),o.addEventListener("mousedown",c),o.addEventListener("mouseup",d)}},loadMoreSimilar(){const t=document.querySelectorAll("#similar-grid .similar-hidden");let e=0;if(t.forEach(r=>{e<8&&(r.classList.remove("similar-hidden"),e++)}),document.querySelectorAll("#similar-grid .similar-hidden").length===0){const r=document.getElementById("load-more-similar");r&&(r.style.display="none")}},addToCart(t){P.add(t),this.showToast(window.__("toast-added-cart"))},addToCartAndGo(t){P.add(t),this.navigate("checkout")},renderCart(){if(P.items.length===0){this.render(`
         <div class="bg-page min-h-screen pt-32 pb-24">
           <div class="max-w-3xl mx-auto px-6 text-center">
             <div class="mb-8"><svg class="w-24 h-24 mx-auto text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></div>

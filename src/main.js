@@ -323,6 +323,7 @@ const App = {
     }
     if (!watch) { this.showError('Watch not found'); return; }
     const watchId = watch.id;
+    const similar = this.watches.filter(w => w.brand === watch.brand && w.id !== watch.id);
     try {
       this.render(`
       <div class="bg-page min-h-screen pt-28 pb-24">
@@ -372,6 +373,22 @@ const App = {
             </div>
           </div>
         </div>
+        ${similar.length > 0 ? `
+        <div class="border-t border-subtle mt-20 pt-16 max-w-7xl mx-auto px-6">
+          <div class="text-center mb-12">
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="similar-subtitle">Same Collection</p>
+            <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="similar-title">More from <span class="text-gold">${watch.brand}</span></h2>
+          </div>
+          <div class="similar-grid" id="similar-grid">
+            ${similar.map((w, i) => `
+              <div class="${i >= 8 ? 'similar-hidden' : ''}">${this.productCard(w)}</div>
+            `).join('')}
+          </div>
+          ${similar.length > 8 ? `
+          <div class="text-center mt-10">
+            <button onclick="App.loadMoreSimilar()" id="load-more-similar" class="border border-gold text-gold px-10 py-3 font-montserrat text-xs tracking-widest uppercase hover-bg-gold hover:text-primary transition-all duration-300 cursor-pointer">Load More</button>
+          </div>` : ''}
+        </div>` : ''}
       </div>
     `);
     } catch (e) {
@@ -392,6 +409,16 @@ const App = {
       mainImg.addEventListener('touchend', onEnd, { passive: true });
       mainImg.addEventListener('mousedown', onStart);
       mainImg.addEventListener('mouseup', onEnd);
+    }
+  },
+
+  loadMoreSimilar() {
+    const hidden = document.querySelectorAll('#similar-grid .similar-hidden');
+    let shown = 0;
+    hidden.forEach(el => { if (shown < 8) { el.classList.remove('similar-hidden'); shown++; } });
+    if (document.querySelectorAll('#similar-grid .similar-hidden').length === 0) {
+      const btn = document.getElementById('load-more-similar');
+      if (btn) btn.style.display = 'none';
     }
   },
 
