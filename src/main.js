@@ -557,8 +557,7 @@ const App = {
               </div>
               <p class="font-montserrat text-stone-600 leading-relaxed mb-8">${esc(watch.description)}</p>
               <div class="flex gap-3 mb-6">
-                <button onclick="App.addToCartAndGo('${watchId}')" class="flex-[7] bg-gold text-primary py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer" data-i18n="product-order">Order Now</button>
-                <button onclick="App.addToCart('${watchId}')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-add-cart">+ Cart</button>
+                ${watch.in_stock === false ? '<div class="flex-1 text-center py-4 border border-stone-700 font-montserrat text-sm text-stone-500 tracking-wider uppercase" data-i18n="product-oos">Out of Stock</div>' : '<button onclick="App.addToCartAndGo(\'' + watchId + '\')" class="flex-[7] bg-gold text-primary py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer" data-i18n="product-order">Order Now</button>\n                <button onclick="App.addToCart(\'' + watchId + '\')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-add-cart">+ Cart</button>'}
               </div>
               <div class="border-t border-subtle pt-8">
                 <h3 class="font-cormorant text-xl text-primary mb-4" data-i18n="product-specs">Technical Specifications</h3>
@@ -1440,11 +1439,12 @@ const App = {
 
   productCard(w) {
     return `
-      <a href="#product-${esc(w.id)}" class="product-card">
+      <a href="#product-${esc(w.id)}" class="product-card ${w.in_stock === false ? 'opacity-dimmed' : ''}">
         <div class="relative overflow-hidden product-card-img-wrap">
           <img src="${esc(w.img)}" alt="${esc(w.brand)} ${esc(w.name)}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
+          ${w.in_stock === false ? '<span class="badge-oos">Out of Stock</span>' : ''}
         </div>
         <div class="product-info">
           <div class="brand-tag">${esc(w.brand)}</div>
