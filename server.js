@@ -2,10 +2,13 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import 'dotenv/config';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(__dirname, 'dist');
 const port = process.env.PORT || 3000;
+const FB_ACCESS_TOKEN = process.env.FB_ACCESS_TOKEN;
+const FB_PIXEL_ID = process.env.FB_PIXEL_ID;
 
 const MIME = {
   '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css',
@@ -14,8 +17,43 @@ const MIME = {
 };
 
 http.createServer((req, res) => {
+  // CORS for dev
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+
+  // CAPI track endpoint
+  if (req.method === 'POST' && req.url === '/api/track') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const events = JSON.parse(body);
+        if (!FB_ACCESS_TOKEN || !FB_PIXEL_ID) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: false, error: 'CAPI not configured' }));
+          return;
+        }
+        const fbRes = await fetch(`https://graph.facebook.com/v22.0/${FB_PIXEL_ID}/events?access_token=${FB_ACCESS_TOKEN}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(events),
+        });
+        const fbData = await fbRes.json();
+        res.writeHead(fbRes.ok ? 200 : 500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(fbData));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // Static files
   let file = req.url === '/' ? '/index.html' : req.url;
-  // SPA fallback
   if (!path.extname(file)) file = '/index.html';
   const fpath = path.join(dist, file);
   if (!fpath.startsWith(dist)) { res.writeHead(403); res.end(); return; }
