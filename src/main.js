@@ -142,7 +142,7 @@ const App = {
   // ─── HOME ────────────────────────────────────────────────────────────
 
   renderHome() {
-    const featured = this.watches.slice(0, 8);
+    const featured = this.watches.filter(w => w.sections && w.sections.includes('Featured Timepieces')).slice(0, 8);
     const newModels = this.watches.filter(w => w.sections && w.sections.includes('New Models')).slice(0, 4);
 
     this.render(`
