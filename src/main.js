@@ -119,6 +119,8 @@ const App = {
       this.renderHome();
     }
 
+    if (typeof fbq !== 'undefined') fbq('track', 'PageView');
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   },
 
@@ -264,6 +266,7 @@ const App = {
     const brand = document.getElementById('product-brand-filter')?.value || '';
     const min = parseFloat(document.getElementById('product-price-min')?.value) || 0;
     const max = parseFloat(document.getElementById('product-price-max')?.value) || Infinity;
+    if (search && typeof fbq !== 'undefined') fbq('track', 'Search', { search_string: search });
     const filtered = this.watches.filter(w => {
       if (search && !w.name.toLowerCase().includes(search) && !w.brand.toLowerCase().includes(search)) return false;
       if (brand && w.brand !== brand) return false;
@@ -446,6 +449,7 @@ const App = {
       if (watch) this.watches = fresh;
     }
     if (!watch) { this.showError('Watch not found'); return; }
+    if (typeof fbq !== 'undefined') fbq('track', 'ViewContent', { content_name: watch.name, content_category: watch.brand, content_ids: [watch.id], content_type: 'product', currency: 'DZD', value: watch.price });
     const watchId = watch.id;
     const similar = this.watches.filter(w => w.brand === watch.brand && w.id !== watch.id);
     try {
@@ -550,10 +554,18 @@ const App = {
   addToCart(id) {
     Cart.add(id);
     this.showToast(window.__('toast-added-cart'));
+    if (typeof fbq !== 'undefined') {
+      const w = this.watches.find(w => w.id === id);
+      fbq('track', 'AddToCart', { content_ids: [id], content_name: w ? w.name : id, content_type: 'product', value: w ? w.price : 0, currency: 'DZD' });
+    }
   },
 
   addToCartAndGo(id) {
     Cart.add(id);
+    if (typeof fbq !== 'undefined') {
+      const w = this.watches.find(w => w.id === id);
+      fbq('track', 'AddToCart', { content_ids: [id], content_name: w ? w.name : id, content_type: 'product', value: w ? w.price : 0, currency: 'DZD' });
+    }
     this.navigate('checkout');
   },
 
@@ -765,6 +777,7 @@ const App = {
     }
 
     Cart.clear();
+    if (typeof fbq !== 'undefined') fbq('track', 'Purchase', { value: order.total, currency: 'DZD', content_ids: order.items.map(i => i.id), content_type: 'product' });
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-2xl mx-auto px-6 text-center">
