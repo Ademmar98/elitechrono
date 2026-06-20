@@ -46,7 +46,30 @@ function track(eventName, params) {
   } catch(e) {}
 }
 
+function updateMeta(title, desc, image) {
+  var base = 'https://elitechrono.runsite.app';
+  var t = title || 'Elite Chrono \u2014 Luxury Timepieces';
+  var d = desc || 'Discover extraordinary timepieces from the world\u2019s finest watch maisons.';
+  var img = image || base + '/og-image.png';
+  document.title = t;
+  setMeta('description', d);
+  setMeta('og:title', t);
+  setMeta('og:description', d);
+  setMeta('og:url', base + (location.hash || '/'));
+  setMeta('og:image', img);
+  setMeta('twitter:title', t);
+  setMeta('twitter:description', d);
+  setMeta('twitter:image', img);
+  var tc = document.querySelector('meta[name="theme-color"]');
+  if (tc) tc.setAttribute('content', '#0C0A09');
+}
 
+function setMeta(prop, val) {
+  var sel = prop === 'description' ? 'meta[name="description"]' : prop.indexOf(':') > -1 ? 'meta[property="' + prop + '"]' : 'meta[name="' + prop + '"]';
+  var m = document.querySelector(sel);
+  if (!m) { m = document.createElement('meta'); m.setAttribute(prop.indexOf(':') > -1 ? 'property' : 'name', prop); document.head.appendChild(m); }
+  m.setAttribute('content', val);
+}
 
 const App = {
   currentRoute: 'home',
@@ -127,6 +150,32 @@ const App = {
     }
 
     this.currentRoute = route;
+
+    var metaTitle, metaDesc, metaImg;
+    var base = 'https://elitechrono.runsite.app';
+    if (route === 'home') {
+      metaTitle = 'Elite Chrono \u2014 Luxury Timepieces';
+      metaDesc = 'Discover extraordinary timepieces from the world\u2019s finest watch maisons. Rolex, Patek Philippe, Audemars Piguet and more.';
+    } else if (route === 'watches') {
+      metaTitle = 'All Watches \u2014 Elite Chrono';
+      metaDesc = 'Browse our curated collection of luxury timepieces from the world\u2019s finest brands.';
+    } else if (route === 'brands') {
+      metaTitle = 'All Brands \u2014 Elite Chrono';
+      metaDesc = 'Explore the world\u2019s finest watch maisons. Rolex, Patek Philippe, Audemars Piguet, Cartier and more.';
+    } else if (route === 'checkout') {
+      metaTitle = 'Checkout \u2014 Elite Chrono';
+      metaDesc = 'Complete your order for luxury timepieces.';
+    } else if (route === 'contact') {
+      metaTitle = 'Contact Us \u2014 Elite Chrono';
+      metaDesc = 'Get in touch with Elite Chrono. We are here to help.';
+    } else if (route === 'featured') {
+      metaTitle = 'Featured Timepieces \u2014 Elite Chrono';
+      metaDesc = 'Our curated selection of the most exceptional luxury watches.';
+    } else if (route === 'elite-zone') {
+      metaTitle = 'Admin Panel \u2014 Elite Chrono';
+      metaDesc = 'Elite Chrono administration dashboard.';
+    }
+    updateMeta(metaTitle, metaDesc, metaImg);
 
     if (this.routes[route]) {
       this[this.routes[route]]();
@@ -377,6 +426,8 @@ const App = {
   },
 
   renderBrand(brandSlug) {
+    var brandName = brandSlug.replace(/-/g, ' ').replace(/\b\w/g, function(c){return c.toUpperCase();});
+    updateMeta(brandName + ' Watches \u2014 Elite Chrono', 'Explore the collection of ' + brandName + ' luxury timepieces at Elite Chrono.');
     const brand = BRANDS.find(b => slug(b) === brandSlug) || brandSlug;
     const watches = this.watches.filter(w => slug(w.brand) === slug(brand));
     const actualBrand = watches.length > 0 ? watches[0].brand : brand;
@@ -468,6 +519,7 @@ const App = {
       if (watch) this.watches = fresh;
     }
     if (!watch) { this.showError('Watch not found'); return; }
+    updateMeta(watch.name + ' \u2014 Elite Chrono', watch.brand + ' luxury watch. ' + (watch.description || ''), watch.image);
     track('ViewContent', { content_name: watch.name, content_category: watch.brand, content_ids: [watch.id], content_type: 'product', currency: 'DZD', value: watch.price });
     const watchId = watch.id;
     const similar = this.watches.filter(w => w.brand === watch.brand && w.id !== watch.id);
