@@ -26,6 +26,7 @@ const App = {
     home: 'renderHome',
     products: 'renderProducts',
     'new-models': 'renderNewModels',
+    featured: 'renderFeatured',
     cart: 'renderCart',
     checkout: 'renderCheckout',
     about: 'renderAbout',
@@ -221,14 +222,14 @@ const App = {
         <div class="max-w-7xl mx-auto px-6">
           <div class="flex items-end justify-between mb-16">
             <div>
-              <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Curated Selection</p>
+              <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Featured</p>
               <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-featured-title">Featured <span class="text-gold">Timepieces</span></h2>
             </div>
-            <a href="#products" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all-products">All Products</a>
+            <a href="#featured" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
           <div class="product-grid">${featured.map(w => this.productCard(w)).join('')}</div>
           <div class="mt-12 text-center">
-            <a href="#products" class="inline-flex items-center gap-2 border-2 border-inverse text-primary px-10 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="view-all-products">View All Timepieces</a>
+            <a href="#products" class="inline-flex items-center gap-2 border-2 border-inverse text-primary px-10 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="view-all-products">All Watches</a>
           </div>
         </div>
       </section>
@@ -279,8 +280,8 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <div class="mb-12">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Our Collection</p>
-            <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="view-all-products">All Timepieces</h1>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">All Watches</p>
+            <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="view-all-products">All Watches</h1>
           </div>
           <div class="bg-card border border-subtle p-5 mb-10 flex flex-col md:flex-row gap-4">
             <div class="flex-1">
@@ -321,6 +322,23 @@ const App = {
             <p class="font-montserrat text-muted-c mt-4" data-i18n="section-new-arrivals-desc">The latest additions to our collection</p>
           </div>
           <div class="product-grid">${this.watches.filter(w => w.sections && w.sections.includes('New Models')).map(w => this.productCard(w)).join('')}</div>
+        </div>
+      </div>
+    `);
+  },
+
+  renderFeatured() {
+    const watches = this.watches.filter(w => w.sections && w.sections.includes('Featured Timepieces'));
+    this.render(`
+      <div class="bg-page min-h-screen pt-32 pb-24">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="mb-12">
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Featured</p>
+            <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n-html="section-featured-title">Featured <span class="text-gold">Timepieces</span></h1>
+            <p class="font-montserrat text-muted-c mt-4" data-i18n="section-featured-desc">A hand-picked selection of exceptional watches.</p>
+          </div>
+          <div class="product-grid">${watches.map(w => this.productCard(w)).join('')}</div>
+          ${watches.length === 0 ? '<div class="text-center py-20"><p class="font-cormorant text-2xl text-muted-c">No featured watches yet.</p></div>' : ''}
         </div>
       </div>
     `);
@@ -952,7 +970,7 @@ const App = {
                 <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg> Orders</span>
               </a>
               <a href="#elite-zone-products" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'products' ? 'active' : ''}">
-                <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg> Products</span>
+                <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg> Watches</span>
               </a>
               <a href="#home" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle cursor-pointer hover-bg-hover transition-colors">
                 <span class="flex items-center gap-3 text-muted-c"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg> Back to Site</span>
@@ -1065,7 +1083,7 @@ const App = {
             <p class="text-muted-c text-xs">${o.wilaya || ''}${o.commune ? ', ' + o.commune : ''}</p>
           </div>
           <div class="border-t border-subtle pt-4">
-            <h4 class="text-xs uppercase tracking-wider text-muted-c mb-2">Products</h4>
+            <h4 class="text-xs uppercase tracking-wider text-muted-c mb-2">Watches</h4>
             ${o.items.map(item => {
               const p = this.watches.find(pr => pr.id === item.id);
               return `<div class="flex justify-between py-1"><span class="text-primary">${p ? p.name : item.id} x${item.qty}</span><span class="font-cormorant">DA${((p ? p.price : 0) * item.qty).toLocaleString()}</span></div>`;
@@ -1082,17 +1100,17 @@ const App = {
   renderAdminProducts() {
     const products = this._cachedAdminProducts || [];
     const brands = [...new Set(products.map(p => p.brand))];
-    const sections = ['New Models', 'Curated Selection', 'Featured Timepieces'];
+    const sections = ['New Models', 'Featured Timepieces'];
 
     return `
       <div class="flex items-center justify-between gap-4 mb-6">
-        <h2 class="font-cormorant text-2xl text-primary">Product Management</h2>
-        <button onclick="App.showProductForm()" class="admin-btn admin-btn-primary text-xs"><span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Add Product</span></button>
+        <h2 class="font-cormorant text-2xl text-primary">Watch Management</h2>
+        <button onclick="App.showProductForm()" class="admin-btn admin-btn-primary text-xs"><span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Add Watch</span></button>
       </div>
       <div class="overflow-x-auto border border-subtle">
         <table class="admin-table w-full">
           <thead>
-            <tr><th>Product</th><th>Brand</th><th>Price</th><th>Sections</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Watch</th><th>Brand</th><th>Price</th><th>Sections</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody>
             ${products.map(p => `
@@ -1116,24 +1134,24 @@ const App = {
     const products = this._cachedAdminProducts || [];
     const existing = productId ? products.find(p => p.id === productId) : null;
     const brands = [...new Set([...BRANDS, ...products.map(p => p.brand)])].sort();
-    const sections = ['New Models', 'Curated Selection', 'Featured Timepieces'];
+    const sections = ['New Models', 'Featured Timepieces'];
 
     const overlay = document.createElement('div');
     overlay.className = 'product-overlay';
     overlay.innerHTML = `
       <div class="admin-modal">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="font-cormorant text-2xl text-primary">${existing ? 'Edit Product' : 'Add Product'}</h3>
+          <h3 class="font-cormorant text-2xl text-primary">${existing ? 'Edit Watch' : 'Add Watch'}</h3>
           <button onclick="this.closest('.product-overlay').remove()" class="text-muted-c hover:text-primary cursor-pointer"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
         <div class="space-y-4">
-          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Product ID</label><input id="pf-id" class="admin-input" value="${existing ? existing.id : ''}" placeholder="e.g. rolex-daytona-2026" ${existing ? 'readonly style="opacity:0.6"' : ''}></div>
-          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Product Name</label><input id="pf-name" class="admin-input" value="${existing ? existing.name : ''}" placeholder="e.g. Daytona 40mm"></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Watch ID</label><input id="pf-id" class="admin-input" value="${existing ? existing.id : ''}" placeholder="e.g. rolex-daytona-2026" ${existing ? 'readonly style="opacity:0.6"' : ''}></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Watch Name</label><input id="pf-name" class="admin-input" value="${existing ? existing.name : ''}" placeholder="e.g. Daytona 40mm"></div>
           <div class="grid grid-cols-2 gap-4">
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Brand</label><select id="pf-brand" class="admin-select">${brands.map(b => `<option value="${b}" ${existing && existing.brand === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div>
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Price (DZD)</label><input id="pf-price" class="admin-input" type="number" value="${existing ? existing.price : ''}" placeholder="e.g. 14500"></div>
           </div>
-          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Description</label><textarea id="pf-desc" class="admin-input" rows="3" placeholder="Product description...">${existing ? existing.description : ''}</textarea></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Description</label><textarea id="pf-desc" class="admin-input" rows="3" placeholder="Watch description...">${existing ? existing.description : ''}</textarea></div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Main Image URL</label><input id="pf-img" class="admin-input" value="${existing ? existing.img : ''}" placeholder="https://..."></div>
           <div>
             <div class="flex items-center justify-between mb-1">
@@ -1161,7 +1179,7 @@ const App = {
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Visibility</label><select id="pf-visible" class="admin-select"><option value="1" ${existing && existing.visible !== false ? 'selected' : ''}>Public</option><option value="0" ${existing && existing.visible === false ? 'selected' : ''}>Private</option></select></div>
           </div>
           <div class="flex gap-3 pt-2">
-            <button onclick="App.saveProduct('${existing ? existing.id : ''}')" class="admin-btn admin-btn-primary flex-1">${existing ? 'Update Product' : 'Create Product'}</button>
+            <button onclick="App.saveProduct('${existing ? existing.id : ''}')" class="admin-btn admin-btn-primary flex-1">${existing ? 'Update Watch' : 'Create Watch'}</button>
             <button onclick="this.closest('.product-overlay').remove()" class="admin-btn admin-btn-ghost">Cancel</button>
           </div>
         </div>
