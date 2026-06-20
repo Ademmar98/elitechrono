@@ -1190,7 +1190,7 @@ const App = {
   },
 
   async saveProduct(existingId) {
-    const id = document.getElementById('pf-id')?.value?.trim();
+    let id = document.getElementById('pf-id')?.value?.trim();
     const name = document.getElementById('pf-name')?.value?.trim();
     const brand = document.getElementById('pf-brand')?.value;
     const price = parseFloat(document.getElementById('pf-price')?.value);
@@ -1206,6 +1206,15 @@ const App = {
       return;
     }
 
+    if (!existingId) {
+      const existingIds = new Set((this._cachedAdminProducts || []).map(p => p.id));
+      if (existingIds.has(id)) {
+        let suffix = 2;
+        while (existingIds.has(`${id}/${suffix}`)) suffix++;
+        id = `${id}/${suffix}`;
+      }
+    }
+
     const imageInputs = document.querySelectorAll('.pf-image-input');
     const images = Array.from(imageInputs).map(inp => inp.value.trim()).filter(u => u.startsWith('http'));
     if (!images.length) images.push(img);
@@ -1214,13 +1223,13 @@ const App = {
 
     const result = await saveProduct(productData);
     if (result) {
-      this.showToast(existingId ? 'Product updated' : 'Product created');
+      this.showToast(existingId ? 'Watch updated' : `Watch created (${id})`);
       document.querySelector('.product-overlay')?.remove();
       this._cachedAdminProducts = await getProducts();
       await this.syncProducts();
       this.renderAdmin();
     } else {
-      this.showToast('Failed to save product');
+      this.showToast('Failed to save watch');
     }
   },
 
