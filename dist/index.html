@@ -335,8 +335,9 @@
 
   
 
-  <script>var st=document.getElementById('scroll-top');window.addEventListener('scroll',function(){st.classList.toggle('show',window.scrollY>300)});</script>
-  document.addEventListener('click',function(e){var s=document.getElementById('search-suggestions');if(s&&!e.target.closest('#product-search')&&!e.target.closest('#search-suggestions'))s.classList.add('hidden');});
+  <script>
+    var st=document.getElementById('scroll-top');window.addEventListener('scroll',function(){st.classList.toggle('show',window.scrollY>300)});
+    document.addEventListener('click',function(e){var s=document.getElementById('search-suggestions');if(s&&!e.target.closest('#product-search')&&!e.target.closest('#search-suggestions'))s.classList.add('hidden');});
   </script>
 
 </body>
