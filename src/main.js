@@ -1251,10 +1251,11 @@ const App = {
 
     return `
       <div>
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <h2 class="font-cormorant text-2xl text-primary">Order Management</h2>
-          <div class="flex flex-wrap gap-2">
-            <a href="#elite-zone" class="admin-btn admin-btn-ghost text-xs ${!statusFilter ? 'border-gold' : ''}">All</a>
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h2 class="font-cormorant text-2xl text-primary">Order Management</h2>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="App.exportOrdersCSV()" class="admin-btn admin-btn-ghost text-xs flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> CSV</button>
+              <a href="#elite-zone" class="admin-btn admin-btn-ghost text-xs ${!statusFilter ? 'border-gold' : ''}">All</a>
             ${statuses.map(s => `<a href="#elite-zone?status=${s}" class="admin-btn admin-btn-ghost text-xs ${statusFilter === s ? 'border-gold' : ''}">${statusLabels[s]}</a>`).join('')}
           </div>
         </div>
@@ -1542,6 +1543,24 @@ const App = {
     } else {
       this.showToast('Failed to delete product');
     }
+  },
+
+  exportOrdersCSV() {
+    var orders = this._cachedOrders || [];
+    if (!orders.length) { this.showToast('No orders to export'); return; }
+    var rows = [['Order ID','Date','Client','Phone','Wilaya','Commune','Address','Items','Total (DZD)','Status']];
+    orders.forEach(function(o) {
+      var items = (o.items || []).map(function(item) {
+        var p = this.watches.find(function(w) { return w.id === item.id; });
+        return (p ? p.name : item.id) + ' x' + item.qty;
+      }.bind(this)).join('; ');
+      rows.push([o.id, new Date(o.date).toISOString(), (o.firstName||'') + ' ' + (o.lastName||''), o.phone||'', o.wilaya||'', o.commune||'', (o.address||'').replace(/,/g,' '), '"' + items + '"', (o.total||0).toString(), o.status||'']);
+    }.bind(this));
+    var csv = rows.map(function(r) { return r.join(','); }).join('\n');
+    var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = 'elitechrono-orders-' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   },
 
   // ─── GALLERY ──────────────────────────────────────────────────────────
