@@ -1057,6 +1057,26 @@ const App = {
             </div>
             <button onclick="App.adminLogout()" class="admin-btn admin-btn-ghost text-xs">Logout</button>
           </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            ${function(){
+              const all = this._cachedOrders || [];
+              const active = all.filter(o => o.status !== 'cancelled');
+              const revenue = active.reduce((s, o) => s + (o.total || 0), 0);
+              const pending = all.filter(o => o.status === 'pending').length;
+              const brandCounts = {};
+              all.forEach(o => (o.items || []).forEach(item => {
+                const p = [...this.watches, ...this._cachedAdminProducts || []].find(pr => pr.id === item.id);
+                if (p) { brandCounts[p.brand] = (brandCounts[p.brand] || 0) + item.qty; }
+              }));
+              const topBrand = Object.keys(brandCounts).sort((a,b) => brandCounts[b] - brandCounts[a])[0] || '—';
+              return `
+              <div class="bg-card border border-subtle p-5"><p class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-1">Total Orders</p><p class="font-cormorant text-2xl text-primary">${all.length}</p></div>
+              <div class="bg-card border border-subtle p-5"><p class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-1">Revenue (Active)</p><p class="font-cormorant text-2xl text-gold">DA${revenue.toLocaleString()}</p></div>
+              <div class="bg-card border border-subtle p-5"><p class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-1">Pending</p><p class="font-cormorant text-2xl text-primary">${pending}</p></div>
+              <div class="bg-card border border-subtle p-5"><p class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-1">Top Brand</p><p class="font-cormorant text-2xl text-primary">${esc(topBrand)}</p></div>
+              `;
+            }.call(this)}
+          </div>
           <div class="flex flex-col md:flex-row gap-8">
             <div class="admin-sidebar w-full md:w-56 flex-shrink-0">
               <a href="#elite-zone" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'orders' ? 'active' : ''}">
