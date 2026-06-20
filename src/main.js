@@ -413,6 +413,7 @@ const App = {
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
+          ${this.bc(['Home', 'Featured'])}
           <div class="mb-12">
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Featured</p>
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n-html="section-featured-title">Featured <span class="text-gold">Timepieces</span></h1>
@@ -436,6 +437,7 @@ const App = {
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
+          ${this.bc(['Home', 'Watches', actualBrand])}
           <div class="mb-12">
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="brand-collection">Maison</p>
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary">${actualBrand}</h1>
@@ -527,7 +529,7 @@ const App = {
       this.render(`
       <div class="bg-page min-h-screen pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-6">
-          <a href="#products" class="inline-flex items-center gap-2 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mb-10" data-i18n="product-back">&larr; Back to Collection</a>
+          ${this.bc(['Home', 'Watches', watch.brand, watch.name])}
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="bg-card border border-subtle overflow-hidden flex items-center justify-center" style="min-height:300px">
@@ -657,7 +659,8 @@ const App = {
 
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
-        <div class="max-w-5xl mx-auto px-6">
+        <div class="max-w-7xl mx-auto px-6">
+          ${this.bc(['Home', 'Watches'])}
           <div class="mb-12">
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="cart-title">Shopping Bag</p>
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n-html="cart-title">Your Cart</h1>
@@ -1384,6 +1387,28 @@ const App = {
   },
 
   // ─── SHARED ───────────────────────────────────────────────────────────
+
+  bc(items) {
+    var html = '<div class="flex items-center gap-2 text-xs font-montserrat text-muted-c mb-8 flex-wrap">';
+    if (items[0] !== 'Home') {
+      html += '<a href="#home" class="hover-text-gold transition-colors">Home</a><span class="text-gold">/</span>';
+    }
+    for (var i = 0; i < items.length; i++) {
+      var label = items[i];
+      var link = i < items.length - 1;
+      if (i === 0 && label === 'Home') {
+        html += '<a href="#home" class="hover-text-gold transition-colors">Home</a><span class="text-gold mx-1">/</span>';
+      } else if (link) {
+        var href = label === 'Watches' ? '#products' : label === 'Featured' ? '#featured' : label === 'Brands' ? '#brands' : '';
+        if (href) html += '<a href="' + href + '" class="hover-text-gold transition-colors">' + label + '</a><span class="text-gold mx-1">/</span>';
+        else html += '<span class="text-primary">' + label + '</span><span class="text-gold mx-1">/</span>';
+      } else {
+        html += '<span class="text-primary">' + label + '</span>';
+      }
+    }
+    html += '</div>';
+    return html;
+  },
 
   productCard(w) {
     return `
