@@ -251,30 +251,64 @@ const App = {
 
   // ─── PRODUCTS ─────────────────────────────────────────────────────────
 
+  applyProductFilters() {
+    const search = (document.getElementById('product-search')?.value || '').toLowerCase().trim();
+    const brand = document.getElementById('product-brand-filter')?.value || '';
+    const min = parseFloat(document.getElementById('product-price-min')?.value) || 0;
+    const max = parseFloat(document.getElementById('product-price-max')?.value) || Infinity;
+    const filtered = this.watches.filter(w => {
+      if (search && !w.name.toLowerCase().includes(search) && !w.brand.toLowerCase().includes(search)) return false;
+      if (brand && w.brand !== brand) return false;
+      if (min > 0 && w.price < min) return false;
+      if (max !== Infinity && w.price > max) return false;
+      return true;
+    });
+    const grid = document.getElementById('product-grid');
+    const count = document.getElementById('product-count');
+    const noRes = document.getElementById('product-no-results');
+    if (grid) grid.innerHTML = filtered.map(w => this.productCard(w)).join('');
+    if (count) count.textContent = `${filtered.length} watch${filtered.length !== 1 ? 'es' : ''}`;
+    if (noRes) noRes.classList.toggle('hidden', filtered.length > 0);
+  },
+
+  resetProductFilters() {
+    const ids = ['product-search', 'product-brand-filter', 'product-price-min', 'product-price-max'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    this.applyProductFilters();
+  },
+
   renderProducts() {
-    const qs = location.hash.indexOf('?');
-    const filterBrand = qs !== -1 ? new URLSearchParams(location.hash.slice(qs)).get('brand') : null;
-    let filtered = this.watches;
-    if (filterBrand) filtered = filtered.filter(w => w.brand === filterBrand);
-
-    const activeClasses = 'bg-inverse text-white border-inverse';
-    const inactiveClasses = 'bg-card text-secondary border-medium hover-border-inverse';
-
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <div class="mb-12">
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Our Collection</p>
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="view-all-products">All Timepieces</h1>
-            <p class="font-montserrat text-muted-c mt-4">${filtered.length} <span data-i18n="products">watches</span></p>
           </div>
-          <div class="flex flex-wrap gap-3 mb-12">
-            <a href="#products" class="px-5 py-2 font-montserrat text-xs tracking-wider uppercase border transition-all duration-300 cursor-pointer ${!filterBrand ? activeClasses : inactiveClasses}" data-i18n="view-all">All</a>
-            ${BRANDS.map(b => `
-              <a href="#products?brand=${encodeURIComponent(b)}" class="px-5 py-2 font-montserrat text-xs tracking-wider uppercase border transition-all duration-300 cursor-pointer ${filterBrand === b ? activeClasses : inactiveClasses}">${b}</a>
-            `).join('')}
+          <div class="bg-card border border-subtle p-5 mb-10 flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <input type="text" id="product-search" placeholder="Search by name or brand..." oninput="App.applyProductFilters()" class="w-full bg-page border border-subtle px-4 py-2.5 font-montserrat text-sm text-primary placeholder:text-muted-c focus:border-gold outline-none transition-colors duration-200">
+            </div>
+            <div class="md:w-44">
+              <select id="product-brand-filter" onchange="App.applyProductFilters()" class="w-full bg-page border border-subtle px-4 py-2.5 font-montserrat text-sm text-primary focus:border-gold outline-none transition-colors duration-200 cursor-pointer">
+                <option value="">All Brands</option>
+                ${BRANDS.map(b => `<option value="${b}">${b}</option>`).join('')}
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="number" id="product-price-min" placeholder="Min DA" oninput="App.applyProductFilters()" class="w-28 bg-page border border-subtle px-3 py-2.5 font-montserrat text-sm text-primary placeholder:text-muted-c focus:border-gold outline-none transition-colors duration-200">
+              <span class="text-muted-c text-sm select-none">&ndash;</span>
+              <input type="number" id="product-price-max" placeholder="Max DA" oninput="App.applyProductFilters()" class="w-28 bg-page border border-subtle px-3 py-2.5 font-montserrat text-sm text-primary placeholder:text-muted-c focus:border-gold outline-none transition-colors duration-200">
+            </div>
+            <button onclick="App.resetProductFilters()" class="px-5 py-2.5 font-montserrat text-xs tracking-wider uppercase border border-subtle text-muted-c hover:text-primary hover-border-inverse transition-all duration-300 cursor-pointer">Reset</button>
           </div>
-          <div class="product-grid">${filtered.map(w => this.productCard(w)).join('')}</div>
+          <div class="flex items-center justify-between mb-8">
+            <p class="font-montserrat text-muted-c text-sm" id="product-count">${this.watches.length} watches</p>
+          </div>
+          <div class="product-grid" id="product-grid">${this.watches.map(w => this.productCard(w)).join('')}</div>
+          <div id="product-no-results" class="text-center py-20 hidden">
+            <p class="font-cormorant text-2xl text-muted-c">No watches found matching your criteria.</p>
+          </div>
         </div>
       </div>
     `);
