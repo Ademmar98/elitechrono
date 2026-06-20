@@ -386,7 +386,7 @@ const App = {
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <div class="mb-12">
-            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">All Watches</p>
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-all-watches">All Watches</p>
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="view-all-products">All Watches</h1>
           </div>
           <div class="bg-card border border-subtle p-5 mb-10 flex flex-col md:flex-row gap-4">
