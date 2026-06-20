@@ -156,12 +156,12 @@ const App = {
           <p class="hero-desc" data-i18n="hero-desc">
             An exclusive atelier of the world's finest timepieces. Each movement tells a story of heritage, innovation, and unparalleled craftsmanship.
           </p>
-          <div class="hero-actions">
-            <a href="#products" class="hero-cta" data-i18n="hero-cta">
-              Explore the Collection
-              <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M10 1L15 6M15 6L10 11M15 6H1" stroke="currentColor" stroke-width="1.5"/></svg>
-            </a>
-          </div>
+            <div class="hero-actions">
+              <a href="#products" class="hero-cta">
+                <span data-i18n="hero-cta">Explore the Collection</span>
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M10 1L15 6M15 6L10 11M15 6H1" stroke="currentColor" stroke-width="1.5"/></svg>
+              </a>
+            </div>
         </div>
         <div class="hero-scroll">
           <span data-i18n="hero-scroll">Scroll</span>
