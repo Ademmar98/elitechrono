@@ -184,11 +184,11 @@
     .admin-badge-cancelled { background: #7F1D1D; color: #FCA5A5; }
     @keyframes fadeUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
     @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    .hero { position: relative; height: 100vh; min-height: 700px; display: flex; align-items: center; overflow: hidden; background: var(--bg-page); }
+    .hero { position: relative; height: 100vh; min-height: 700px; display: flex; align-items: center; overflow: hidden; background: var(--bg-page); padding-top: 80px; }
     .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.35; transform: scale(1.05); object-fit: cover; }
     .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(11,11,11,0.88) 0%, rgba(11,11,11,0.35) 50%, rgba(11,11,11,0.88) 100%); }
     .hero-content { position: relative; z-index: 2; max-width: 900px; padding: 0 2rem; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(202,138,4,0.5); padding: 0.5rem 1.5rem; margin-bottom: 2rem; opacity: 0; transform: translateY(20px); animation: fadeUp 1s cubic-bezier(0.86,0,0.07,1) 0.5s forwards; }
+    .hero-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 2rem; opacity: 0; transform: translateY(20px); animation: fadeUp 1s cubic-bezier(0.86,0,0.07,1) 0.5s forwards; }
     .hero-badge::before { content: ''; width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }
     .hero-title { font-size: clamp(2.5rem, 6vw, 5.5rem); color: var(--text-primary); line-height: 1.05; margin-bottom: 1.5rem; opacity: 0; transform: translateY(30px); animation: fadeUp 1s cubic-bezier(0.86,0,0.07,1) 0.8s forwards; text-wrap: balance; }
     .hero-title span.text-gold { display: block; font-style: italic; }
