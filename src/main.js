@@ -698,7 +698,16 @@ const App = {
               `;
             }).join('')}
           </div>
-          <div class="mt-10 bg-card border border-subtle p-8 ml-auto max-w-md">
+          <div class="mt-6 bg-card border border-subtle p-6 ml-auto max-w-md">
+            ${function() {
+              var threshold = 30000;
+              var pct = Math.min(100, Math.round(total / threshold * 100));
+              var remaining = threshold - total;
+              if (total >= threshold) return '<div class="flex items-center gap-3"><div class="flex-1 h-2 bg-stone-800 rounded-full overflow-hidden"><div class="h-full bg-green-600 rounded-full" style="width:100%"></div></div><span class="font-montserrat text-xs text-green-600 whitespace-nowrap" data-i18n="cart-shipping-free">Free Shipping!</span></div>';
+              return '<div class="mb-2"><div class="flex-1 h-2 bg-stone-800 rounded-full overflow-hidden"><div class="h-full bg-gold rounded-full transition-all duration-500" style="width:' + pct + '%"></div></div></div><p class="font-montserrat text-xs text-muted-c">Add <span class="text-gold font-semibold">DA' + remaining.toLocaleString() + '</span> more for free shipping</p>';
+            }.call(this)}
+          </div>
+          <div class="mt-6 bg-card border border-subtle p-8 ml-auto max-w-md">
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-subtotal">Subtotal</span><span>DA${total.toLocaleString()}</span></div>
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-shipping">Shipping</span><span class="text-green-600" data-i18n="cart-free">Free</span></div>
             <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span data-i18n="cart-total">Total</span><span>DA${total.toLocaleString()}</span></div>

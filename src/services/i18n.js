@@ -66,6 +66,7 @@ const trans = {
     'cart-total': 'Total',
     'cart-remove': 'Retirer',
     'cart-clear': 'Vider le Panier',
+    'cart-shipping-free': 'Livraison Offerte !',
 
     'checkout-title': 'Commande',
     'checkout-shipping': 'Détails de Livraison',
@@ -206,6 +207,7 @@ const trans = {
     'cart-total': 'Total',
     'cart-remove': 'Remove',
     'cart-clear': 'Clear Cart',
+    'cart-shipping-free': 'Free Shipping!',
 
     'checkout-title': 'Checkout',
     'checkout-shipping': 'Shipping Details',
@@ -346,6 +348,7 @@ const trans = {
     'cart-total': 'الإجمالي',
     'cart-remove': 'إزالة',
     'cart-clear': 'تفريغ السلة',
+    'cart-shipping-free': 'الشحن مجاني!',
 
     'checkout-title': 'الدفع',
     'checkout-shipping': 'تفاصيل التوصيل',
