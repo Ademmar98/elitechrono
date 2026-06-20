@@ -158,12 +158,12 @@ const App = {
       const m = gmt1.getMinutes();
       const s = gmt1.getSeconds();
       const ms = gmt1.getMilliseconds();
-      const secDeg = ((s + ms / 1000) / 60) * 360;
-      const minDeg = (m + (s + ms / 1000) / 60) * 6;
-      const hourDeg = (h + (m + (s + ms / 1000) / 60) / 60) * 30;
-      hourEl.setAttribute('transform', `rotate(${hourDeg},100,100)`);
-      minEl.setAttribute('transform', `rotate(${minDeg},100,100)`);
-      secEl.setAttribute('transform', `rotate(${secDeg},100,100)`);
+      const secDeg = s * 6 + ms * 0.006;
+      const minDeg = m * 6 + s * 0.1;
+      const hourDeg = (h % 12) * 30 + m * 0.5;
+      hourEl.style.transform = `rotate(${hourDeg}deg)`;
+      minEl.style.transform = `rotate(${minDeg}deg)`;
+      secEl.style.transform = `rotate(${secDeg}deg)`;
       if (!reduced) this._clockTimer = requestAnimationFrame(update);
     };
 
@@ -190,18 +190,16 @@ const App = {
 
     this.render(`
       <section class="hero" id="hero">
-        <div class="hero-bg" id="heroBg" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/25/Patek-Philippe_MG_2583.jpg');"></div>
-        <div class="hero-overlay"></div>
+        <div class="hero-bg"></div>
         <div class="hero-clock" id="heroClock">
           <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="clock-svg">
-            <circle cx="100" cy="100" r="92" stroke="var(--gold)" stroke-width="0.5" opacity="0.25" fill="none"/>
-            <circle cx="100" cy="100" r="88" stroke="var(--gold)" stroke-width="0.3" opacity="0.1" fill="none"/>
-            ${Array.from({length:12},(_,i)=>{const a=i*30-90,r=a*Math.PI/180;return `<circle cx="${100+84*Math.cos(r)}" cy="${100+84*Math.sin(r)}" r="${i%3===0?3:1.5}" fill="var(--gold)" opacity="${i%3===0?0.85:0.5}"/>`}).join('')}
-            <line id="hourHand" x1="100" y1="100" x2="100" y2="46" stroke="var(--gold)" stroke-width="3.5" stroke-linecap="round" transform="rotate(0,100,100)"/>
-            <line id="minuteHand" x1="100" y1="100" x2="100" y2="30" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" transform="rotate(0,100,100)"/>
-            <line id="secondHand" x1="100" y1="112" x2="100" y2="22" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round" transform="rotate(0,100,100)"/>
-            <circle cx="100" cy="100" r="5" fill="var(--gold)"/>
-            <circle cx="100" cy="100" r="2" fill="var(--bg-page)"/>
+            <circle cx="100" cy="100" r="90" stroke="var(--gold)" stroke-width="0.4" opacity="0.2" fill="none"/>
+            ${Array.from({length:12},(_,i)=>{const a=i*30-90,r=a*Math.PI/180;return `<circle cx="${100+82*Math.cos(r)}" cy="${100+82*Math.sin(r)}" r="${i%3===0?2.5:1.2}" fill="var(--gold)" opacity="${i%3===0?0.8:0.4}"/>`}).join('')}
+            <line id="hourHand" x1="100" y1="100" x2="100" y2="48"/>
+            <line id="minuteHand" x1="100" y1="100" x2="100" y2="34"/>
+            <line id="secondHand" x1="100" y1="110" x2="100" y2="24"/>
+            <circle cx="100" cy="100" r="4" fill="var(--gold)"/>
+            <circle cx="100" cy="100" r="1.5" fill="#000"/>
           </svg>
         </div>
         <div class="hero-content">
