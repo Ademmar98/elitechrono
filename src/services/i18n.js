@@ -14,10 +14,10 @@ const trans = {
     'nav-all-watches': 'Toutes les Montres',
     'nav-new-models': 'Nouveaux Modèles',
 
-    'hero-badge': 'Depuis 2024',
-    'hero-title': "L'Art de la<br><span class=\"text-gold\">Précision Horlogère</span>",
-    'hero-desc': 'Un atelier exclusif de garde-temps assemblés à la main. Chaque mouvement témoigne de siècles de savoir-faire suisse, sélectionné pour le collectionneur exigeant.',
-    'hero-cta': 'Découvrir Nouveau Modèle',
+    'hero-badge': 'Haute Horlogerie',
+    'hero-title': "L'Instant<br><span class=\"text-gold\">Devient Éternité</span>",
+    'hero-desc': "Un atelier d'exception dédié aux plus belles montres du monde. Chaque mouvement raconte une histoire d'héritage, d'innovation et d'un savoir-faire inégalé.",
+    'hero-cta': 'Explorer la Collection',
     'hero-scroll': 'Défiler',
 
     'section-new-arrivals': 'Nouveautés',
@@ -135,10 +135,10 @@ const trans = {
     'nav-all-watches': 'All Watches',
     'nav-new-models': 'New Models',
 
-    'hero-badge': 'Since 2024',
-    'hero-title': 'The Art of<br>Precision <span class="text-gold">Horology</span>',
-    'hero-desc': 'An exclusive atelier of hand-assembled timepieces. Each movement is a testament to centuries of Swiss craftsmanship, curated for the discerning collector.',
-    'hero-cta': 'Discover New Model',
+    'hero-badge': 'Haute Horlogerie',
+    'hero-title': 'Where Time<br>Becomes <span class="text-gold">Art</span>',
+    'hero-desc': 'An exclusive atelier of the world\'s finest timepieces. Each movement tells a story of heritage, innovation, and unparalleled craftsmanship.',
+    'hero-cta': 'Explore the Collection',
     'hero-scroll': 'Scroll',
 
     'section-new-arrivals': 'New Arrivals',
@@ -256,10 +256,10 @@ const trans = {
     'nav-all-watches': 'جميع الساعات',
     'nav-new-models': 'موديلات جديدة',
 
-    'hero-badge': 'منذ 2024',
-    'hero-title': 'فن<br><span class="text-gold">الدقة في صناعة الساعات</span>',
-    'hero-desc': 'ورشة حصرية للساعات المجمعة يدوياً. كل حركة هي شهادة على قرون من الحرفية السويسرية، منسقة لهواة الجمع المميزين.',
-    'hero-cta': 'اكتشف الموديل الجديد',
+    'hero-badge': 'صناعة الساعات الفاخرة',
+    'hero-title': 'حيث يصبح<br>الزمن <span class="text-gold">فناً</span>',
+    'hero-desc': 'ورشة حصرية لأفخر الساعات في العالم. كل حركة تحكي قصة تراث وابتكار وحرفية لا تضاهى.',
+    'hero-cta': 'استكشف المجموعة',
     'hero-scroll': 'تمرير',
 
     'section-new-arrivals': 'وصل حديثاً',

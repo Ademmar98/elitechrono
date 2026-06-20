@@ -150,16 +150,16 @@ const App = {
         <div class="hero-overlay"></div>
         <div class="hero-content">
           <div class="hero-inner">
-            <p class="hero-badge" data-i18n="hero-badge">Since 2024</p>
+            <p class="hero-badge" data-i18n="hero-badge">Haute Horlogerie</p>
             <h1 class="hero-title" data-i18n-html="hero-title">
-              The Art of<br>Precision <span class="text-gold">Horology</span>
+              Where Time<br>Becomes <span class="text-gold">Art</span>
             </h1>
             <p class="hero-desc" data-i18n="hero-desc">
-              An exclusive atelier of hand-assembled timepieces. Each movement is a testament to centuries of Swiss craftsmanship, curated for the discerning collector.
+              An exclusive atelier of the world's finest timepieces. Each movement tells a story of heritage, innovation, and unparalleled craftsmanship.
             </p>
             <div class="hero-actions">
-              <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="hero-cta" data-i18n="hero-cta">
-                Discover New Model
+              <a href="#products" class="hero-cta" data-i18n="hero-cta">
+                Explore the Collection
                 <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M10 1L15 6M15 6L10 11M15 6H1" stroke="currentColor" stroke-width="1.5"/></svg>
               </a>
             </div>
