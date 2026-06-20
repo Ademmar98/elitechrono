@@ -1137,6 +1137,7 @@ const App = {
   },
 
   async updateOrderStatus(orderId, newStatus) {
+    if (newStatus === 'cancelled' && !confirm('Cancel this order? This cannot be undone.')) return;
     const result = await updateOrderStatus(orderId, newStatus);
     if (result) {
       this.showToast(`Order ${orderId} → ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
@@ -1163,9 +1164,28 @@ const App = {
           <button onclick="this.closest('.admin-overlay').remove()" class="text-muted-c hover:text-primary cursor-pointer"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
         <div class="space-y-5 text-sm font-montserrat">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="flex items-center justify-between">
             <div><span class="text-muted-c text-xs uppercase tracking-wider">Date</span><p class="text-primary">${new Date(o.date).toLocaleString()}</p></div>
             <div><span class="text-muted-c text-xs uppercase tracking-wider">Status</span><p><span class="admin-badge ${statusBadge[o.status] || 'admin-badge-pending'}">${statusLabels[o.status] || o.status}</span></p></div>
+          </div>
+          <div class="border-t border-subtle pt-4">
+            <h4 class="text-xs uppercase tracking-wider text-muted-c mb-3">Order Timeline</h4>
+            <div class="flex items-start gap-0">
+              ${['pending','confirmed','shipped','delivered'].map((s, i) => {
+                var idx = ['pending','confirmed','shipped','delivered'].indexOf(o.status);
+                var done = idx >= i;
+                var cancelled = o.status === 'cancelled';
+                return `
+                <div class="flex-1 text-center">
+                  <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ${cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-primary' : 'bg-stone-800 text-stone-500'}">${done && !cancelled ? '✓' : '•'}</div>
+                  <div class="text-2xs mt-1 ${cancelled ? 'text-stone-500' : done ? 'text-gold' : 'text-stone-600'}">${statusLabels[s]}</div>
+                  ${o.status === s ? '<div class="text-2xs text-gold mt-0.5">← Current</div>' : ''}
+                </div>
+                ${i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : ''}
+                `;
+              }).join('')}
+            </div>
+            ${o.status === 'cancelled' ? '<div class="text-center mt-2"><span class="text-2xs text-red-400">This order was cancelled</span></div>' : ''}
           </div>
           <div class="border-t border-subtle pt-4">
             <h4 class="text-xs uppercase tracking-wider text-muted-c mb-2">Client</h4>
@@ -1184,6 +1204,14 @@ const App = {
               return `<div class="flex justify-between py-1"><span class="text-primary">${p ? p.name : item.id} x${item.qty}</span><span class="font-cormorant">DA${((p ? p.price : 0) * item.qty).toLocaleString()}</span></div>`;
             }).join('')}
             <div class="flex justify-between border-t border-subtle pt-2 mt-2 font-cormorant text-lg text-primary"><span>Total</span><span>DA${o.total.toLocaleString()}</span></div>
+          </div>
+          <div class="border-t border-subtle pt-4 flex gap-2">
+            ${o.status !== 'cancelled' && o.status !== 'delivered' ? `
+              ${o.status === 'pending' ? '<button onclick="App.updateOrderStatus(\'' + o.id + '\',\'confirmed\');this.closest(\'.admin-overlay\').remove()" class="admin-btn admin-btn-primary text-xs flex-1">Confirm Order</button>' : ''}
+              ${o.status === 'confirmed' ? '<button onclick="App.updateOrderStatus(\'' + o.id + '\',\'shipped\');this.closest(\'.admin-overlay\').remove()" class="admin-btn admin-btn-primary text-xs flex-1">Mark as Shipped</button>' : ''}
+              ${o.status === 'shipped' ? '<button onclick="App.updateOrderStatus(\'' + o.id + '\',\'delivered\');this.closest(\'.admin-overlay\').remove()" class="admin-btn admin-btn-primary text-xs flex-1">Mark as Delivered</button>' : ''}
+              <button onclick="App.updateOrderStatus(\'' + o.id + '\',\'cancelled\');this.closest(\'.admin-overlay\').remove()" class="admin-btn admin-btn-danger text-xs">Cancel</button>
+            ` : o.status === 'delivered' ? '<span class="text-xs text-green-600 flex-1 text-center py-2">Order completed</span>' : '<span class="text-xs text-red-400 flex-1 text-center py-2">Order cancelled</span>'}
           </div>
         </div>
       </div>
