@@ -1157,7 +1157,7 @@ const App = {
           <button onclick="this.closest('.product-overlay').remove()" class="text-muted-c hover:text-primary cursor-pointer"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
         <div class="space-y-4">
-          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Watch ID</label><input id="pf-id" class="admin-input" value="${existing ? existing.id : ''}" placeholder="e.g. rolex-daytona-2026" ${existing ? 'readonly style="opacity:0.6"' : ''}></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Watch ID</label><input id="pf-id" class="admin-input" value="${existing ? existing.id : ''}" placeholder="e.g. rolex-daytona-2026"></div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Watch Name</label><input id="pf-name" class="admin-input" value="${existing ? existing.name : ''}" placeholder="e.g. Daytona 40mm"></div>
           <div class="grid grid-cols-2 gap-4">
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Brand</label><select id="pf-brand" class="admin-select">${brands.map(b => `<option value="${b}" ${existing && existing.brand === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div>
