@@ -73,7 +73,7 @@ function setMeta(prop, val) {
 
 const App = {
   currentRoute: 'home',
-  whatsappNumber: '213555555555',
+  whatsappNumber: '213775818412',
   watches: WATCHES,
   routes: {
     home: 'renderHome',
