@@ -1266,6 +1266,17 @@ const App = {
             <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Sections</label>
             <div class="flex flex-wrap gap-2">${sections.map(s => `<button type="button" class="section-toggle ${existing && (existing.sections || []).includes(s) ? 'active' : ''}" data-section="${s}" onclick="this.classList.toggle('active')">${s}</button>`).join('')}</div>
           </div>
+          <div>
+            <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Specifications</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div><input id="pf-spec-movement" class="admin-input" placeholder="Movement" value="${existing && existing.specs ? existing.specs.Movement || '' : ''}"></div>
+              <div><input id="pf-spec-case" class="admin-input" placeholder="Case" value="${existing && existing.specs ? existing.specs.Case || '' : ''}"></div>
+              <div><input id="pf-spec-glass" class="admin-input" placeholder="Glass" value="${existing && existing.specs ? existing.specs.Glass || '' : ''}"></div>
+              <div><input id="pf-spec-dial" class="admin-input" placeholder="Dial" value="${existing && existing.specs ? existing.specs.Dial || '' : ''}"></div>
+              <div><input id="pf-spec-strap" class="admin-input" placeholder="Strap" value="${existing && existing.specs ? existing.specs.Strap || '' : ''}"></div>
+              <div><input id="pf-spec-water" class="admin-input" placeholder="Water Resistance" value="${existing && existing.specs ? existing.specs['Water Resistance'] || '' : ''}"></div>
+            </div>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Availability</label><select id="pf-stock" class="admin-select"><option value="in" ${existing && existing.inStock !== false ? 'selected' : ''}>In Stock</option><option value="out" ${existing && existing.inStock === false ? 'selected' : ''}>Out of Stock</option></select></div>
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Visibility</label><select id="pf-visible" class="admin-select"><option value="1" ${existing && existing.visible !== false ? 'selected' : ''}>Public</option><option value="0" ${existing && existing.visible === false ? 'selected' : ''}>Private</option></select></div>
@@ -1311,7 +1322,15 @@ const App = {
     const images = Array.from(imageInputs).map(inp => inp.value.trim()).filter(u => u.startsWith('http'));
     if (!images.length) images.push(img);
 
-    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0', new: sections.includes('New Models'), originalPrice: existing ? existing.originalPrice || null : null, specs: existing ? existing.specs || {} : {} };
+    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0', new: sections.includes('New Models'), originalPrice: existing ? existing.originalPrice || null : null };
+
+    var specs = {};
+    var specFields = ['Movement','Case','Glass','Dial','Strap','Water Resistance'];
+    specFields.forEach(function(f) {
+      var el = document.getElementById('pf-spec-' + f.toLowerCase().replace(/ /g, ''));
+      if (el && el.value.trim()) specs[f] = el.value.trim();
+    });
+    if (Object.keys(specs).length) productData.specs = specs;
 
     const result = await saveProduct(productData);
     if (result) {
