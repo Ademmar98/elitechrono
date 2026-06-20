@@ -22,6 +22,7 @@ const App = {
   watches: WATCHES,
   pendingOrders: [],
   cachedProducts: [],
+  _clockTimer: null,
 
   routes: {
     home: 'renderHome',
@@ -126,6 +127,7 @@ const App = {
   },
 
   render(html) {
+    this.stopHeroClock();
     document.querySelectorAll('.admin-overlay').forEach(el => el.remove());
     document.getElementById('main-content').innerHTML = html;
     if (window.applyTranslations) window.applyTranslations();
@@ -139,6 +141,47 @@ const App = {
     this.render(`<div class="flex items-center justify-center min-h-screen pt-24"><div class="text-center max-w-md mx-auto px-6"><svg class="w-16 h-16 text-stone-500 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><h2 class="font-cormorant text-2xl text-primary mb-2">Oops</h2><p class="font-montserrat text-sm text-muted-c mb-6">${msg}</p><a href="#home" class="inline-flex items-center gap-2 bg-inverse text-white px-6 py-3 font-montserrat font-semibold text-xs tracking-wider uppercase cursor-pointer">Back Home</a></div></div>`);
   },
 
+  startHeroClock() {
+    this.stopHeroClock();
+    const hourEl = document.getElementById('hourHand');
+    const minEl = document.getElementById('minuteHand');
+    const secEl = document.getElementById('secondHand');
+    if (!hourEl || !minEl || !secEl) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const update = () => {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const gmt1 = new Date(utc + 3600000);
+      const h = gmt1.getHours() % 12;
+      const m = gmt1.getMinutes();
+      const s = gmt1.getSeconds();
+      const ms = gmt1.getMilliseconds();
+      const secDeg = ((s + ms / 1000) / 60) * 360;
+      const minDeg = (m + (s + ms / 1000) / 60) * 6;
+      const hourDeg = (h + (m + (s + ms / 1000) / 60) / 60) * 30;
+      hourEl.setAttribute('transform', `rotate(${hourDeg},100,100)`);
+      minEl.setAttribute('transform', `rotate(${minDeg},100,100)`);
+      secEl.setAttribute('transform', `rotate(${secDeg},100,100)`);
+      if (!reduced) this._clockTimer = requestAnimationFrame(update);
+    };
+
+    if (reduced) { this._clockTimer = setInterval(update, 1000); update(); }
+    else { this._clockTimer = requestAnimationFrame(update); }
+  },
+
+  stopHeroClock() {
+    if (this._clockTimer) {
+      if (typeof this._clockTimer === 'number' && this._clockTimer > 0) {
+        cancelAnimationFrame(this._clockTimer);
+      } else {
+        clearInterval(this._clockTimer);
+      }
+      this._clockTimer = null;
+    }
+  },
+
   // ─── HOME ────────────────────────────────────────────────────────────
 
   renderHome() {
@@ -149,6 +192,16 @@ const App = {
       <section class="hero" id="hero">
         <div class="hero-bg" id="heroBg" style="background: url('https://upload.wikimedia.org/wikipedia/commons/2/25/Patek-Philippe_MG_2583.jpg') center/cover;"></div>
         <div class="hero-overlay"></div>
+        <div class="hero-clock" id="heroClock">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="clock-svg">
+            ${Array.from({length:12},(_,i)=>{const a=i*30-90,r=a*Math.PI/180;return `<circle cx="${100+80*Math.cos(r)}" cy="${100+80*Math.sin(r)}" r="${i%3===0?2.5:1.5}" fill="var(--gold)" opacity="0.7"/>`}).join('')}
+            <line id="hourHand" x1="100" y1="100" x2="100" y2="52" stroke="var(--gold)" stroke-width="3" stroke-linecap="round" transform="rotate(0,100,100)"/>
+            <line id="minuteHand" x1="100" y1="100" x2="100" y2="38" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" transform="rotate(0,100,100)"/>
+            <line id="secondHand" x1="100" y1="108" x2="100" y2="30" stroke="var(--gold)" stroke-width="1" stroke-linecap="round" transform="rotate(0,100,100)"/>
+            <circle cx="100" cy="100" r="5" fill="var(--gold)"/>
+            <circle cx="100" cy="100" r="2.5" fill="var(--bg-page)"/>
+          </svg>
+        </div>
         <div class="hero-content">
           <p class="hero-badge" data-i18n="hero-badge">Since 2024</p>
           <h1 class="hero-title" data-i18n-html="hero-title">
@@ -243,6 +296,7 @@ const App = {
         </div>
       </section>
     `);
+    this.startHeroClock();
   },
 
   // ─── PRODUCTS ─────────────────────────────────────────────────────────
