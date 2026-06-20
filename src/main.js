@@ -146,23 +146,21 @@ const App = {
 
     this.render(`
       <section class="hero" id="hero">
-        <div class="hero-bg"></div>
+        <img class="hero-bg" src="https://upload.wikimedia.org/wikipedia/commons/2/25/Patek-Philippe_MG_2583.jpg" alt="" aria-hidden="true">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-          <div class="hero-inner">
-            <p class="hero-badge" data-i18n="hero-badge">Haute Horlogerie</p>
-            <h1 class="hero-title" data-i18n-html="hero-title">
-              Where Time<br>Becomes <span class="text-gold">Art</span>
-            </h1>
-            <p class="hero-desc" data-i18n="hero-desc">
-              An exclusive atelier of the world's finest timepieces. Each movement tells a story of heritage, innovation, and unparalleled craftsmanship.
-            </p>
-            <div class="hero-actions">
-              <a href="#products" class="hero-cta" data-i18n="hero-cta">
-                Explore the Collection
-                <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M10 1L15 6M15 6L10 11M15 6H1" stroke="currentColor" stroke-width="1.5"/></svg>
-              </a>
-            </div>
+          <p class="hero-badge" data-i18n="hero-badge">Haute Horlogerie</p>
+          <h1 class="hero-title" data-i18n-html="hero-title">
+            Where Time<br>Becomes <span class="text-gold">Art</span>
+          </h1>
+          <p class="hero-desc" data-i18n="hero-desc">
+            An exclusive atelier of the world's finest timepieces. Each movement tells a story of heritage, innovation, and unparalleled craftsmanship.
+          </p>
+          <div class="hero-actions">
+            <a href="#products" class="hero-cta" data-i18n="hero-cta">
+              Explore the Collection
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M10 1L15 6M15 6L10 11M15 6H1" stroke="currentColor" stroke-width="1.5"/></svg>
+            </a>
           </div>
         </div>
         <div class="hero-scroll">
