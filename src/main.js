@@ -559,7 +559,7 @@ const App = {
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="bg-card border border-subtle overflow-hidden flex items-center justify-center" style="min-height:300px">
-                <img id="detail-main-img" src="${watch.img}" alt="${esc(watch.brand)} ${esc(watch.name)}" class="w-full object-contain bg-card max-h-[80vh]" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
+                <img id="detail-main-img" src="${watch.img}" alt="${esc(watch.brand)} ${esc(watch.name)}" class="w-full object-contain bg-card max-h-[80vh]" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent((this.alt || 'Watch').split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
                 ${(watch.images && watch.images.length > 1) ? `
                 <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${watchId}', -1)" type="button">&lsaquo;</button>
                 <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${watchId}', 1)" type="button">&rsaquo;</button>
@@ -1515,7 +1515,7 @@ const App = {
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Availability</label><select id="pf-stock" class="admin-select"><option value="in" ${existing && existing.inStock !== false ? 'selected' : ''}>In Stock</option><option value="out" ${existing && existing.inStock === false ? 'selected' : ''}>Out of Stock</option></select></div>
+            <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Availability</label><select id="pf-stock" class="admin-select"><option value="in" ${existing && existing.in_stock !== false ? 'selected' : ''}>In Stock</option><option value="out" ${existing && existing.in_stock === false ? 'selected' : ''}>Out of Stock</option></select></div>
             <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Visibility</label><select id="pf-visible" class="admin-select"><option value="1" ${existing && existing.visible !== false ? 'selected' : ''}>Public</option><option value="0" ${existing && existing.visible === false ? 'selected' : ''}>Private</option></select></div>
           </div>
           <div class="flex gap-3 pt-2">
@@ -1555,6 +1555,7 @@ const App = {
       }
     }
 
+    const existing = existingId ? (this._cachedAdminProducts || []).find(p => p.id === existingId) : null;
     const imageInputs = document.querySelectorAll('.pf-image-input');
     const images = Array.from(imageInputs).map(inp => inp.value.trim()).filter(u => u.startsWith('http'));
     if (!images.length) images.push(img);
@@ -1666,7 +1667,7 @@ const App = {
     return `
       <a href="#product-${esc(w.id)}" class="product-card ${w.in_stock === false ? 'opacity-dimmed' : ''}">
         <div class="relative overflow-hidden product-card-img-wrap">
-          <img src="${esc(w.img)}" alt="${esc(w.brand)} ${esc(w.name)}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
+          <img src="${esc(w.img)}" alt="${esc(w.brand)} ${esc(w.name)}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent((this.alt || 'Watch').split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
           ${w.in_stock === false ? '<span class="badge-oos">Out of Stock</span>' : ''}
