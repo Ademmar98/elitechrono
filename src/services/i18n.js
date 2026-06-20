@@ -88,6 +88,7 @@ const trans = {
     'checkout-success-contact': 'Vous serez contacté au',
     'checkout-failed': 'Échec de la commande.',
     'checkout-continue': 'Continuer vos Achats',
+    'checkout-track': 'Suivre la Commande',
 
     'product-back': 'Retour à la Collection',
     'product-order': 'Commander',
@@ -229,6 +230,7 @@ const trans = {
     'checkout-success-contact': 'You will be contacted at',
     'checkout-failed': 'Failed to place order.',
     'checkout-continue': 'Continue Shopping',
+    'checkout-track': 'Track Order',
 
     'product-back': 'Back to Collection',
     'product-order': 'Order Now',
@@ -370,6 +372,7 @@ const trans = {
     'checkout-success-contact': 'سيتم الاتصال بك على',
     'checkout-failed': 'فشل تقديم الطلب.',
     'checkout-continue': 'متابعة التسوق',
+    'checkout-track': 'تتبع الطلب',
 
     'product-back': 'العودة إلى المجموعة',
     'product-order': 'اطلب الآن',

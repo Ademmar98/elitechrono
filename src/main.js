@@ -984,16 +984,46 @@ const App = {
 
     Cart.clear();
     track('Purchase', { value: order.total, currency: 'DZD', content_ids: order.items.map(i => i.id), content_type: 'product' });
+    var itemsHtml = order.items.map(function(item) {
+      var w = this.watches.find(function(p) { return p.id === item.id; });
+      return '<div class="flex justify-between py-2"><span class="font-montserrat text-sm text-primary">' + (w ? esc(w.name) : item.id) + ' <span class="text-muted-c">x' + item.qty + '</span></span><span class="font-cormorant">DA' + ((w ? w.price : 0) * item.qty).toLocaleString() + '</span></div>';
+    }.bind(this)).join('');
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
-        <div class="max-w-2xl mx-auto px-6 text-center">
-          <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
-            <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <div class="max-w-2xl mx-auto px-6">
+          ${this.bc(['Home', 'Order Confirmed'])}
+          <div class="text-center mb-10">
+            <div class="w-16 h-16 bg-green-100/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h1 class="font-cormorant text-4xl text-primary mb-2" data-i18n="checkout-success-title">Order Confirmed</h1>
+            <p class="font-montserrat text-sm text-muted-c mb-1" data-i18n="checkout-success-thanks">Thank you for your purchase.</p>
+            <p class="font-montserrat text-xs text-stone-500">You will receive a confirmation call at <strong class="text-primary">${esc(phone)}</strong></p>
           </div>
-          <h1 class="font-cormorant text-5xl text-primary mb-4" data-i18n="checkout-success-title">Order Confirmed</h1>
-          <p class="font-montserrat text-muted-c mb-2" data-i18n="checkout-success-thanks">Thank you for your purchase.</p>
-          <p class="font-montserrat text-muted-c mb-8"><span data-i18n="checkout-success-id">Order</span> <strong class="text-primary">${orderId}</strong> — <span data-i18n="checkout-success-contact">You will be contacted at</span> <strong class="text-primary">${phone}</strong></p>
-          <a href="#home" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer" data-i18n="checkout-continue">Return Home</a>
+          <div class="bg-card border border-subtle p-6 md:p-8 mb-6">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-subtle">
+              <div>
+                <p class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-1" data-i18n="checkout-success-id">Order</p>
+                <p class="font-cormorant text-xl text-gold">${orderId}</p>
+              </div>
+              <span class="admin-badge admin-badge-pending">Pending</span>
+            </div>
+            <div class="mb-6">
+              <h4 class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-3">Items</h4>
+              ${itemsHtml}
+              <div class="flex justify-between border-t border-subtle pt-3 mt-2 font-cormorant text-lg text-primary"><span data-i18n="checkout-total">Total</span><span>DA${order.total.toLocaleString()}</span></div>
+            </div>
+            <div class="border-t border-subtle pt-4">
+              <h4 class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-2" data-i18n="checkout-shipping">Shipping Details</h4>
+              <p class="font-montserrat text-sm text-primary">${esc(firstName)} ${esc(lastName)}</p>
+              <p class="font-montserrat text-xs text-muted-c">${esc(address)}</p>
+              <p class="font-montserrat text-xs text-muted-c">${wilaya ? esc(wilaya.name) : ''}${commune ? ', ' + esc(commune) : ''}</p>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="#track/${orderId}" class="flex items-center justify-center gap-2 bg-gold text-primary px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-track">Track Order</a>
+            <a href="#home" class="flex items-center justify-center gap-2 border border-inverse text-primary px-8 py-4 font-montserrat text-sm tracking-wider uppercase hover-bg-inverse transition-colors duration-300 cursor-pointer" data-i18n="checkout-continue">Return Home</a>
+          </div>
         </div>
       </div>
     `);
