@@ -15,9 +15,10 @@ const trans = {
     'nav-new-models': 'Nouveaux Modèles',
 
     'hero-badge': 'Depuis 2024',
-    'hero-title': 'Le Temps est le<br><span class="text-gold">Luxe Ultime</span>',
-    'hero-desc': 'Découvrez une collection extraordinaire des montres les plus fines au monde. Des classiques patrimoniaux aux chefs-d\'œuvre avant-gardistes.',
-    'hero-cta': 'Découvrir Nos Nouveautés',
+    'hero-title': "L'Art de la<br><span class=\"text-gold\">Précision Horlogère</span>",
+    'hero-desc': 'Un atelier exclusif de garde-temps assemblés à la main. Chaque mouvement témoigne de siècles de savoir-faire suisse, sélectionné pour le collectionneur exigeant.',
+    'hero-cta': 'Découvrir Nouveau Modèle',
+    'hero-scroll': 'Défiler',
 
     'section-new-arrivals': 'Nouveautés',
     'section-new-arrivals-title': 'Derniers <span class="text-gold">Modèles</span>',
@@ -135,9 +136,10 @@ const trans = {
     'nav-new-models': 'New Models',
 
     'hero-badge': 'Since 2024',
-    'hero-title': 'Time is the<br><span class="text-gold">Ultimate Luxury</span>',
-    'hero-desc': 'Discover an extraordinary collection of the world\'s finest timepieces. From heritage classics to avant-garde masterpieces.',
-    'hero-cta': 'Discover Our New Arrivals',
+    'hero-title': 'The Art of<br>Precision <span class="text-gold">Horology</span>',
+    'hero-desc': 'An exclusive atelier of hand-assembled timepieces. Each movement is a testament to centuries of Swiss craftsmanship, curated for the discerning collector.',
+    'hero-cta': 'Discover New Model',
+    'hero-scroll': 'Scroll',
 
     'section-new-arrivals': 'New Arrivals',
     'section-new-arrivals-title': 'Latest <span class="text-gold">Models</span>',
@@ -255,9 +257,10 @@ const trans = {
     'nav-new-models': 'موديلات جديدة',
 
     'hero-badge': 'منذ 2024',
-    'hero-title': 'الوقت هو<br><span class="text-gold">الفخامة القصوى</span>',
-    'hero-desc': 'اكتشف مجموعة استثنائية من أفخر الساعات في العالم. من الكلاسيكيات التراثية إلى التحف الطليعية.',
-    'hero-cta': 'اكتشف أحدث واصلتنا',
+    'hero-title': 'فن<br><span class="text-gold">الدقة في صناعة الساعات</span>',
+    'hero-desc': 'ورشة حصرية للساعات المجمعة يدوياً. كل حركة هي شهادة على قرون من الحرفية السويسرية، منسقة لهواة الجمع المميزين.',
+    'hero-cta': 'اكتشف الموديل الجديد',
+    'hero-scroll': 'تمرير',
 
     'section-new-arrivals': 'وصل حديثاً',
     'section-new-arrivals-title': 'أحدث <span class="text-gold">الموديلات</span>',
