@@ -312,26 +312,29 @@ const App = {
   },
 
   async renderProductDetail(id) {
-    let watch = this.watches.find(w => w.id === id);
+    const norm = s => s.replace(/[\s-]+/g, ' ');
+    const nid = norm(id);
+    const findWatch = arr => arr.find(w => w.id === id || norm(w.id) === nid || w.id === id.replace(/ /g,'-'));
+    let watch = findWatch(this.watches);
     if (!watch) {
       const fresh = await getProducts();
-      watch = fresh.find(p => p.id === id);
+      watch = findWatch(fresh);
       if (watch) this.watches = fresh;
     }
     if (!watch) { this.showError('Watch not found'); return; }
-    const inCart = Cart.items.find(i => i.id === watch.id);
-
-    this.render(`
+    const watchId = watch.id;
+    try {
+      this.render(`
       <div class="bg-page min-h-screen pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <a href="#products" class="inline-flex items-center gap-2 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mb-10" data-i18n="product-back">&larr; Back to Collection</a>
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
-              <div class="aspect-[4/5] bg-card border border-subtle overflow-hidden">
-                <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
+              <div class="bg-card border border-subtle overflow-hidden flex items-center justify-center" style="min-height:300px">
+                <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full object-contain bg-card max-h-[80vh]" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
                 ${(watch.images && watch.images.length > 1) ? `
-                <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${watch.id}', -1)" type="button">&lsaquo;</button>
-                <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${watch.id}', 1)" type="button">&rsaquo;</button>
+                <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${watchId}', -1)" type="button">&lsaquo;</button>
+                <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${watchId}', 1)" type="button">&rsaquo;</button>
                 <div class="gallery-dots">${watch.images.map((_, i) => `<span class="gallery-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`).join('')}</div>
                 ` : ''}
               </div>
@@ -352,8 +355,8 @@ const App = {
               </div>
               <p class="font-montserrat text-stone-600 leading-relaxed mb-8">${watch.description}</p>
               <div class="flex gap-3 mb-6">
-                <button onclick="App.addToCartAndGo('${watch.id}')" class="flex-[7] bg-gold text-primary py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer" data-i18n="product-order">Order Now</button>
-                <button onclick="App.addToCart('${watch.id}')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-add-cart">+ Cart</button>
+                <button onclick="App.addToCartAndGo('${watchId}')" class="flex-[7] bg-gold text-primary py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer" data-i18n="product-order">Order Now</button>
+                <button onclick="App.addToCart('${watchId}')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-add-cart">+ Cart</button>
               </div>
               <div class="border-t border-subtle pt-8">
                 <h3 class="font-cormorant text-xl text-primary mb-4" data-i18n="product-specs">Technical Specifications</h3>
@@ -371,7 +374,11 @@ const App = {
         </div>
       </div>
     `);
-    const watchId = id;
+    } catch (e) {
+      console.error('Error rendering product detail:', e);
+      this.showError('Failed to load product details.');
+      return;
+    }
     const mainImg = document.getElementById('detail-main-img');
     if (mainImg && watch.images && watch.images.length > 1) {
       let startX = 0;
