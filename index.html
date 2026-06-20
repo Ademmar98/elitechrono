@@ -211,6 +211,8 @@
     .bnav-label { font-family: 'Montserrat', sans-serif; font-size: 9px; letter-spacing: 0.05em; text-transform: uppercase; }
     .bnav-badge { position: absolute; top: 0; right: 4px; background: var(--gold); color: var(--bg-page); font-size: 8px; font-family: 'Montserrat', sans-serif; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .bnav-link { position: relative; }
+    .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; z-index: 500; background: var(--bg-card); border: 1px solid var(--border-medium); border-top: none; max-height: 320px; overflow-y: auto; margin-top: -1px; }
+    .search-suggestions.hidden { display: none; }
     @keyframes fadeUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
     @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     .hero { position: relative; height: 100vh; min-height: 700px; display: flex; align-items: center; overflow: hidden; background: var(--bg-page); padding-top: 80px; }
@@ -356,6 +358,7 @@
       var badge = document.getElementById('bnav-badge');
       if (badge) { var origBadge = document.getElementById('cart-badge'); if (origBadge) { new MutationObserver(function(){badge.textContent=origBadge.textContent;badge.classList.toggle('hidden',origBadge.classList.contains('hidden'));}).observe(origBadge,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']}); } }
     }
+    document.addEventListener('click',function(e){var s=document.getElementById('search-suggestions');if(s&&!e.target.closest('#product-search')&&!e.target.closest('#search-suggestions'))s.classList.add('hidden');});
   </script>
 
 </body>

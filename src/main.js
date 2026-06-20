@@ -336,6 +336,24 @@ const App = {
 
   // ─── PRODUCTS ─────────────────────────────────────────────────────────
 
+  onSearchInput(val) {
+    this.applyProductFilters();
+    this.showSuggestions(val);
+  },
+
+  showSuggestions(val) {
+    var c = document.getElementById('search-suggestions');
+    if (!c) return;
+    var v = (val || '').trim().toLowerCase();
+    if (!v || v.length < 1) { c.classList.add('hidden'); return; }
+    var matches = this.watches.filter(function(w) { return w.name.toLowerCase().includes(v) || w.brand.toLowerCase().includes(v); }).slice(0, 6);
+    if (!matches.length) { c.classList.add('hidden'); return; }
+    c.innerHTML = matches.map(function(w) {
+      return '<a href="#product-' + w.id + '" class="flex items-center gap-3 px-4 py-2.5 hover-bg-hover transition-colors duration-150 border-b border-subtle last:border-b-0" onclick="document.getElementById(\'search-suggestions\').classList.add(\'hidden\')"><img src="' + w.img + '" alt="" class="w-8 h-8 object-cover bg-stone-800 flex-shrink-0" onerror="this.style.display=\'none\'"><div class="min-w-0"><div class="font-montserrat text-xs text-primary truncate">' + esc(w.name) + '</div><div class="font-montserrat text-2xs text-muted-c">' + esc(w.brand) + ' &middot; DA' + w.price.toLocaleString() + '</div></div></a>';
+    }).join('');
+    c.classList.remove('hidden');
+  },
+
   applyProductFilters() {
     const search = (document.getElementById('product-search')?.value || '').toLowerCase().trim();
     const brand = document.getElementById('product-brand-filter')?.value || '';
@@ -372,8 +390,9 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="view-all-products">All Watches</h1>
           </div>
           <div class="bg-card border border-subtle p-5 mb-10 flex flex-col md:flex-row gap-4">
-            <div class="flex-1">
-              <input type="text" id="product-search" placeholder="Search by name or brand..." oninput="App.applyProductFilters()" class="w-full bg-page border border-subtle px-4 py-2.5 font-montserrat text-sm text-primary placeholder:text-muted-c focus:border-gold outline-none transition-colors duration-200">
+            <div class="flex-1 relative">
+              <input type="text" id="product-search" placeholder="Search by name or brand..." autocomplete="off" oninput="App.onSearchInput(this.value)" class="w-full bg-page border border-subtle px-4 py-2.5 font-montserrat text-sm text-primary placeholder:text-muted-c focus:border-gold outline-none transition-colors duration-200">
+              <div id="search-suggestions" class="search-suggestions hidden"></div>
             </div>
             <div class="md:w-44">
               <select id="product-brand-filter" onchange="App.applyProductFilters()" class="w-full bg-page border border-subtle px-4 py-2.5 font-montserrat text-sm text-primary focus:border-gold outline-none transition-colors duration-200 cursor-pointer">
