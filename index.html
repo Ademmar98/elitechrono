@@ -197,6 +197,9 @@
     .admin-badge-delivered { background: #064E3B; color: #6EE7B7; }
     .admin-badge-cancelled { background: #7F1D1D; color: #FCA5A5; }
     .text-2xs { font-size: 9px; line-height: 1.2; }
+    #scroll-top { position: fixed; bottom: 32px; right: 32px; width: 44px; height: 44px; background: var(--bg-card); border: 1px solid var(--gold); color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 999; }
+    #scroll-top.show { opacity: 1; visibility: visible; }
+    #scroll-top:hover { background: var(--gold); color: var(--bg-page); }
     @keyframes fadeUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
     @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     .hero { position: relative; height: 100vh; min-height: 700px; display: flex; align-items: center; overflow: hidden; background: var(--bg-page); padding-top: 80px; }
@@ -318,6 +321,9 @@
       </div>
     </div>
   </footer>
+
+  <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg></button>
+  <script>var st=document.getElementById('scroll-top');window.addEventListener('scroll',function(){st.classList.toggle('show',window.scrollY>300)});</script>
 
 </body>
 </html>
