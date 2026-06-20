@@ -7,7 +7,7 @@ const PRODUCTS_KEY = 'elitechrono_products';
 // --- Fallback localStorage helpers ---
 
 function lsGet(key) {
-  return JSON.parse(localStorage.getItem(key) || 'null');
+  try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; }
 }
 function lsSet(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
@@ -74,7 +74,7 @@ export async function saveOrder(order) {
     return data;
   }
   const orders = lsGet(ORDERS_KEY) || [];
-  orders.push(order);
+  if (!orders.find(o => o.id === order.id)) orders.push(order);
   lsSet(ORDERS_KEY, orders);
   return order;
 }
@@ -167,10 +167,8 @@ const activeSubscriptions = {};
 
 export function subscribeOrders(callback) {
   if (!isSupabaseReady()) {
-    // Poll localStorage every 2s as fallback
     const interval = setInterval(() => {
-      const orders = lsGet(ORDERS_KEY) || [];
-      callback(orders);
+      callback({ eventType: 'poll' });
     }, 2000);
     return () => clearInterval(interval);
   }
@@ -190,6 +188,7 @@ export function subscribeOrders(callback) {
 }
 
 export function unsubscribeAll() {
+  if (!isSupabaseReady()) return;
   Object.values(activeSubscriptions).forEach(sub => {
     supabase.removeChannel(sub);
   });
@@ -199,32 +198,24 @@ export function unsubscribeAll() {
 
 export async function bootstrapSupabaseTables() {
   if (!isSupabaseReady()) return;
+  try {
+    const { count } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true });
 
-  // Check if products table has data
-  const { count } = await supabase
-    .from('products')
-    .select('*', { count: 'exact', head: true });
-
-  if (count === 0) {
-    // Seed products from static data
-    const seedProducts = WATCHES.map(w => ({
-      id: w.id,
-      name: w.name,
-      brand: w.brand,
-      price: w.price,
-      description: w.description,
-      img: w.img,
-      images: [w.img],
-      new: w.new || false,
-      originalPrice: w.originalPrice || null,
-      specs: w.specs || {},
-      sections: w.new ? ['New Models'] : [],
-      in_stock: true,
-      visible: true,
-    }));
-
-    const { error } = await supabase.from('products').insert(seedProducts);
-    if (error) console.warn('[DB] Seed products failed:', error.message);
+    if (count === 0) {
+      const seedProducts = WATCHES.map(w => ({
+        id: w.id, name: w.name, brand: w.brand, price: w.price,
+        description: w.description, img: w.img, images: [w.img],
+        new: w.new || false, originalPrice: w.originalPrice || null,
+        specs: w.specs || {}, sections: w.new ? ['New Models'] : [],
+        in_stock: true, visible: true,
+      }));
+      const { error } = await supabase.from('products').insert(seedProducts);
+      if (error) console.warn('[DB] Seed products failed:', error.message);
+    }
+  } catch (e) {
+    console.warn('[DB] bootstrapSupabaseTables error:', e);
   }
 }
 

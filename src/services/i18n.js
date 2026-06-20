@@ -23,6 +23,7 @@ const trans = {
 
     'section-new-arrivals': 'Nouveautés',
     'section-new-arrivals-title': 'Derniers <span class="text-gold">Modèles</span>',
+    'section-new-arrivals-desc': 'Les derniers ajouts à notre collection.',
     'section-featured': 'En Vedette',
     'section-featured-title': 'Montres <span class="text-gold">Phare</span>',
     'section-featured-desc': 'Une sélection exclusive de garde-temps d\'exception.',
@@ -33,6 +34,14 @@ const trans = {
     'read-more': 'Lire Plus',
     'view-all': 'Tout Voir',
     'view-all-products': 'Toutes les Montres',
+    'brands-view-all': 'Voir Toutes les Marques',
+    'products': 'montres',
+    'brands-subtitle': 'Marques',
+    'brands-title': 'Nos <span class="text-gold">Marques</span>',
+    'brands-desc': 'Découvrez les maisons horlogères les plus prestigieuses au monde, chacune avec un héritage de savoir-faire et d\'innovation.',
+    'similar-subtitle': 'Même Collection',
+    'similar-title': 'Plus de <span class="text-gold">%s</span>',
+    'page-contact-label': 'Entrer en Contact',
 
     'footer-desc': "Un atelier d'exception dédié aux plus belles montres depuis 2024.",
     'footer-brands': 'Marques',
@@ -43,6 +52,7 @@ const trans = {
     'footer-privacy': 'Confidentialité',
     'footer-terms': "Conditions d'Utilisation",
     'footer-shipping': 'Livraison & Retours',
+    'footer-faq': 'FAQ',
     'footer-copyright': '&copy; 2026 Elite Chrono. Tous droits réservés.',
 
     'cart-empty-title': 'Votre Panier est Vide',
@@ -146,6 +156,7 @@ const trans = {
 
     'section-new-arrivals': 'New Arrivals',
     'section-new-arrivals-title': 'Latest <span class="text-gold">Models</span>',
+    'section-new-arrivals-desc': 'The latest additions to our collection.',
     'section-featured': 'Featured',
     'section-featured-title': 'Featured <span class="text-gold">Timepieces</span>',
     'section-featured-desc': 'A hand-picked selection of exceptional watches.',
@@ -156,6 +167,14 @@ const trans = {
     'read-more': 'Read More',
     'view-all': 'View All',
     'view-all-products': 'All Watches',
+    'brands-view-all': 'View All Brands',
+    'products': 'watches',
+    'brands-subtitle': 'Maisons',
+    'brands-title': 'Our <span class="text-gold">Maisons</span>',
+    'brands-desc': 'Discover the world\'s most prestigious watch maisons, each with a legacy of craftsmanship and innovation.',
+    'similar-subtitle': 'Same Collection',
+    'similar-title': 'More from <span class="text-gold">%s</span>',
+    'page-contact-label': 'Get in Touch',
 
     'footer-desc': 'Curating the world\'s finest timepieces since 2024.',
     'footer-brands': 'Brands',
@@ -166,6 +185,7 @@ const trans = {
     'footer-privacy': 'Privacy',
     'footer-terms': 'Terms of Service',
     'footer-shipping': 'Shipping & Returns',
+    'footer-faq': 'FAQ',
     'footer-copyright': '&copy; 2026 Elite Chrono. All rights reserved.',
 
     'cart-empty-title': 'Your Cart is Empty',
@@ -269,16 +289,25 @@ const trans = {
 
     'section-new-arrivals': 'وصل حديثاً',
     'section-new-arrivals-title': 'أحدث <span class="text-gold">الموديلات</span>',
+    'section-new-arrivals-desc': 'أحدث الإضافات إلى مجموعتنا.',
     'section-featured': 'مميزة',
     'section-featured-title': 'ساعات <span class="text-gold">مميزة</span>',
     'section-featured-desc': 'تشكيلة منتقاة بعناية من الساعات الاستثنائية.',
-    'section-brands': 'ماركات<span class="text-gold">ـنا</span>',
+    'section-brands': '<span class="text-gold">ماركاتنا</span>',
     'section-journal': 'مجلة Elite Chrono',
     'section-journal-title': 'فن صناعة <span class="text-gold">الساعات الفاخرة</span>',
     'section-journal-desc': 'استكشف قصصنا عن روائع صناعة الساعات والحرفية والحكايات وراء أشهر الساعات في العالم.',
     'read-more': 'اقرأ المزيد',
     'view-all': 'عرض الكل',
     'view-all-products': 'جميع الساعات',
+    'brands-view-all': 'عرض جميع الماركات',
+    'products': 'ساعة',
+    'brands-subtitle': 'الماركات',
+    'brands-title': '<span class="text-gold">ماركاتنا</span>',
+    'brands-desc': 'اكتشف أشهر ماركات الساعات في العالم، كل منها يحمل إرثاً من الحرفية والابتكار.',
+    'similar-subtitle': 'نفس المجموعة',
+    'similar-title': 'المزيد من <span class="text-gold">%s</span>',
+    'page-contact-label': 'تواصل معنا',
 
     'footer-desc': 'نقدم أفخر الساعات منذ 2024.',
     'footer-brands': 'الماركات',
@@ -289,6 +318,7 @@ const trans = {
     'footer-privacy': 'الخصوصية',
     'footer-terms': 'شروط الخدمة',
     'footer-shipping': 'الشحن والإرجاع',
+    'footer-faq': 'الأسئلة الشائعة',
     'footer-copyright': '&copy; 2026 Elite Chrono. جميع الحقوق محفوظة.',
 
     'cart-empty-title': 'سلتك فارغة',
@@ -404,6 +434,11 @@ function switchLang(lang) {
   document.querySelectorAll('.lang-btn').forEach(function (btn) {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
   });
+  document.querySelectorAll('.lang-option').forEach(function (opt) {
+    opt.classList.toggle('active', opt.getAttribute('data-lang') === lang);
+  });
+  var current = document.querySelector('.lang-current');
+  if (current) current.textContent = LANGUAGES[lang];
 }
 
 function buildSwitcher() {

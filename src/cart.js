@@ -1,7 +1,7 @@
 const CART_KEY = 'elitechrono_cart';
 
 export const Cart = {
-  items: JSON.parse(localStorage.getItem(CART_KEY) || '[]'),
+  items: (function() { try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { return []; } })(),
 
   save() {
     localStorage.setItem(CART_KEY, JSON.stringify(this.items));
@@ -24,7 +24,8 @@ export const Cart = {
   },
 
   updateQty(productId, qty) {
-    if (qty < 1) return this.remove(productId);
+    qty = parseInt(qty, 10);
+    if (isNaN(qty) || qty < 1) return this.remove(productId);
     const item = this.items.find(i => i.id === productId);
     if (item) { item.qty = qty; this.save(); }
   },

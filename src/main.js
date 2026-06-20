@@ -10,18 +10,28 @@ function toggleMenu() {
   if (l) {
     var open = l.classList.toggle('open');
     var btn = document.getElementById('menuToggle');
-    if (btn) btn.textContent = open ? 'Close' : 'Menu';
+    if (btn) {
+      if (window.__) {
+        btn.textContent = open ? window.__('nav-close') : window.__('nav-menu');
+      } else {
+        btn.textContent = open ? 'Close' : 'Menu';
+      }
+    }
   }
 }
 window.toggleMenu = toggleMenu;
+
+function esc(s) {
+  var d = document.createElement('div');
+  d.appendChild(document.createTextNode(s || ''));
+  return d.innerHTML;
+}
 
 
 
 const App = {
   currentRoute: 'home',
   watches: WATCHES,
-  pendingOrders: [],
-  cachedProducts: [],
   routes: {
     home: 'renderHome',
     products: 'renderProducts',
@@ -446,7 +456,7 @@ const App = {
           <div class="grid md:grid-cols-2 gap-12 items-start">
             <div class="relative">
               <div class="bg-card border border-subtle overflow-hidden flex items-center justify-center" style="min-height:300px">
-                <img id="detail-main-img" src="${watch.img}" alt="${watch.brand} ${watch.name}" class="w-full object-contain bg-card max-h-[80vh]" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
+                <img id="detail-main-img" src="${watch.img}" alt="${esc(watch.brand)} ${esc(watch.name)}" class="w-full object-contain bg-card max-h-[80vh]" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
                 ${(watch.images && watch.images.length > 1) ? `
                 <button class="gallery-arrow gallery-arrow-left" onclick="App.galleryNav('${watchId}', -1)" type="button">&lsaquo;</button>
                 <button class="gallery-arrow gallery-arrow-right" onclick="App.galleryNav('${watchId}', 1)" type="button">&rsaquo;</button>
@@ -462,13 +472,13 @@ const App = {
               </div>` : ''}
             </div>
             <div class="sticky top-32">
-              <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">${watch.brand}</p>
-              <h1 class="font-cormorant text-4xl md:text-5xl text-primary mb-4">${watch.name}</h1>
+              <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3">${esc(watch.brand)}</p>
+              <h1 class="font-cormorant text-4xl md:text-5xl text-primary mb-4">${esc(watch.name)}</h1>
               <div class="flex items-baseline gap-3 mb-8">
                 <span class="font-cormorant text-3xl text-primary">DA${watch.price.toLocaleString()}</span>
                 ${watch.originalPrice ? `<span class="font-montserrat text-lg text-stone-400 line-through">DA${watch.originalPrice.toLocaleString()}</span><span class="font-montserrat text-sm text-red-500">Save ${Math.round((1 - watch.price/watch.originalPrice)*100)}%</span>` : ''}
               </div>
-              <p class="font-montserrat text-stone-600 leading-relaxed mb-8">${watch.description}</p>
+              <p class="font-montserrat text-stone-600 leading-relaxed mb-8">${esc(watch.description)}</p>
               <div class="flex gap-3 mb-6">
                 <button onclick="App.addToCartAndGo('${watchId}')" class="flex-[7] bg-gold text-primary py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer" data-i18n="product-order">Order Now</button>
                 <button onclick="App.addToCart('${watchId}')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-add-cart">+ Cart</button>
@@ -491,7 +501,7 @@ const App = {
         <div class="border-t border-subtle mt-20 pt-16 max-w-7xl mx-auto px-6">
           <div class="text-center mb-12">
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="similar-subtitle">Same Collection</p>
-            <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="similar-title">More from <span class="text-gold">${watch.brand}</span></h2>
+            <h2 class="font-cormorant text-4xl md:text-5xl text-primary">More from <span class="text-gold">${watch.brand}</span></h2>
           </div>
           <div class="similar-grid" id="similar-grid">
             ${similar.map((w, i) => `
@@ -512,12 +522,13 @@ const App = {
     }
     const mainImg = document.getElementById('detail-main-img');
     if (mainImg && watch.images && watch.images.length > 1) {
-      let startX = 0;
-      const onStart = e => { startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX; };
+      let startX = 0, touchFired = false;
+      const onStart = e => { startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX; if (e.type === 'touchstart') touchFired = false; };
       const onEnd = e => {
+        if (e.type === 'mouseup' && touchFired) return;
         const endX = e.type === 'touchend' ? e.changedTouches[0].clientX : e.clientX;
         const diff = startX - endX;
-        if (Math.abs(diff) > 40) this.galleryNav(watchId, diff > 0 ? 1 : -1);
+        if (Math.abs(diff) > 40) { this.galleryNav(watchId, diff > 0 ? 1 : -1); if (e.type === 'touchend') touchFired = true; }
       };
       mainImg.addEventListener('touchstart', onStart, { passive: true });
       mainImg.addEventListener('touchend', onEnd, { passive: true });
@@ -700,7 +711,7 @@ const App = {
   },
 
   updateCommunes() {
-    const wilayaCode = parseInt(document.getElementById('checkout-wilaya')?.value);
+    const wilayaCode = parseInt(document.getElementById('checkout-wilaya')?.value, 10);
     const communeSelect = document.getElementById('checkout-commune');
     if (!communeSelect) return;
     communeSelect.innerHTML = '<option value="">Select Commune</option>';
@@ -720,7 +731,7 @@ const App = {
     const firstName = document.getElementById('checkout-firstname')?.value?.trim();
     const lastName = document.getElementById('checkout-lastname')?.value?.trim();
     const phone = document.getElementById('checkout-phone')?.value?.trim();
-    const wilayaCode = parseInt(document.getElementById('checkout-wilaya')?.value);
+    const wilayaCode = parseInt(document.getElementById('checkout-wilaya')?.value, 10);
     const commune = document.getElementById('checkout-commune')?.value;
     const address = document.getElementById('checkout-address')?.value?.trim();
 
@@ -1047,6 +1058,7 @@ const App = {
     if (result) {
       this.showToast(`Order ${orderId} → ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
     }
+    this._cachedOrders = null;
     this.renderAdmin();
   },
 
@@ -1115,11 +1127,11 @@ const App = {
           <tbody>
             ${products.map(p => `
               <tr>
-                <td><div class="flex items-center gap-3"><div class="w-10 h-10 bg-stone-100 flex-shrink-0 overflow-hidden"><img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover"></div><div><div class="font-montserrat text-sm text-primary">${p.name}</div><div class="font-montserrat text-xs text-muted-c">${p.id}</div></div></div></td>
-                <td class="font-montserrat text-sm">${p.brand}</td>
+                <td><div class="flex items-center gap-3"><div class="w-10 h-10 bg-stone-100 flex-shrink-0 overflow-hidden"><img src="${esc(p.img)}" alt="${esc(p.name)}" class="w-full h-full object-cover"></div><div><div class="font-montserrat text-sm text-primary">${esc(p.name)}</div><div class="font-montserrat text-xs text-muted-c">${esc(p.id)}</div></div></div></td>
+                <td class="font-montserrat text-sm">${esc(p.brand)}</td>
                 <td class="font-cormorant text-sm">DA${p.price.toLocaleString()}</td>
                 <td><div class="flex flex-wrap gap-1">${(p.sections || []).length === 0 ? '<span class="text-muted-c text-xs font-montserrat">—</span>' : ''}${(p.sections || []).map(s => `<span class="admin-section-tag">${s}</span>`).join('')}</div></td>
-                <td class="font-montserrat text-xs"><span class="${p.inStock === false ? 'text-red-500' : 'text-green-600'}">${p.inStock === false ? 'Out of Stock' : 'In Stock'}</span></td>
+                <td class="font-montserrat text-xs"><span class="${p.in_stock === false ? 'text-red-500' : 'text-green-600'}">${p.in_stock === false ? 'Out of Stock' : 'In Stock'}</span></td>
                 <td class="font-montserrat text-xs"><span class="${p.visible === false ? 'text-muted-c' : 'text-green-600'}">${p.visible === false ? 'Private' : 'Public'}</span></td>
                 <td><div class="flex gap-2"><button onclick="App.showProductForm('${p.id}')" class="admin-btn admin-btn-ghost text-xs px-3 py-1">Edit</button><button onclick="App.deleteProduct('${p.id}')" class="admin-btn admin-btn-danger text-xs px-3 py-1">Delete</button></div></td>
               </tr>
@@ -1201,7 +1213,7 @@ const App = {
     const stock = document.getElementById('pf-stock')?.value;
     const visible = document.getElementById('pf-visible')?.value;
 
-    if (!id || !name || !brand || !price || !desc || !img) {
+    if (!id || !name || !brand || isNaN(price) || !desc || !img) {
       this.showToast('Please fill all required fields');
       return;
     }
@@ -1219,7 +1231,7 @@ const App = {
     const images = Array.from(imageInputs).map(inp => inp.value.trim()).filter(u => u.startsWith('http'));
     if (!images.length) images.push(img);
 
-    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0', new: sections.includes('New Models') };
+    const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0', new: sections.includes('New Models'), originalPrice: existing ? existing.originalPrice || null : null, specs: existing ? existing.specs || {} : {} };
 
     const result = await saveProduct(productData);
     if (result) {
@@ -1257,7 +1269,7 @@ const App = {
     if (idx === -1) idx = 0;
     idx = (idx + dir + imgs.length) % imgs.length;
     main.setAttribute('src', imgs[idx]);
-    document.querySelectorAll('.thumb-img').forEach(t => t.classList.toggle('active', parseInt(t.dataset.index) === idx));
+    document.querySelectorAll('.thumb-img').forEach(t => t.classList.toggle('active', parseInt(t.dataset.index, 10) === idx));
     document.querySelectorAll('.gallery-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.index) === idx));
     document.getElementById('thumb-gallery')?.querySelector(`.thumb-img[data-index="${idx}"]`)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   },
@@ -1268,7 +1280,7 @@ const App = {
     if (!main || !imgs.length) return;
     const src = imgs[idx]?.getAttribute('src');
     if (src) main.setAttribute('src', src);
-    imgs.forEach(t => t.classList.toggle('active', parseInt(t.dataset.index) === idx));
+    imgs.forEach(t => t.classList.toggle('active', parseInt(t.dataset.index, 10) === idx));
     document.querySelectorAll('.gallery-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.index) === idx));
   },
 
@@ -1276,15 +1288,15 @@ const App = {
 
   productCard(w) {
     return `
-      <a href="#product-${w.id}" class="product-card">
+      <a href="#product-${esc(w.id)}" class="product-card">
         <div class="relative overflow-hidden product-card-img-wrap">
-          <img src="${w.img}" alt="${w.brand} ${w.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
+          <img src="${esc(w.img)}" alt="${esc(w.brand)} ${esc(w.name)}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent(this.alt.split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
         </div>
         <div class="product-info">
-          <div class="brand-tag">${w.brand}</div>
-          <h3>${w.name}</h3>
+          <div class="brand-tag">${esc(w.brand)}</div>
+          <h3>${esc(w.name)}</h3>
           <div class="flex items-center mt-auto">
             <span class="price">DA${w.price.toLocaleString()}</span>
             ${w.originalPrice ? `<span class="original-price">DA${w.originalPrice.toLocaleString()}</span>` : ''}
