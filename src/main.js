@@ -682,20 +682,21 @@ const App = {
                     <span class="w-8 text-center font-montserrat">${item.qty}</span>
                     <button onclick="App.updateCartQty('${w.id}', ${item.qty + 1})" class="w-8 h-8 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat">+</button>
                   </div>
-                  <div class="text-right">
+                    <div class="text-right">
                     <p class="font-cormorant text-xl text-primary">DA${(w.price * item.qty).toLocaleString()}</p>
-                    <button onclick="Cart.remove('${w.id}'); App.renderCart();" class="font-montserrat text-xs text-stone-400 hover:text-red-500 transition-colors duration-200 cursor-pointer mt-2">Remove</button>
+                    <button onclick="App.removeCartItem('${w.id}')" class="font-montserrat text-xs text-stone-400 hover:text-red-500 transition-colors duration-200 cursor-pointer mt-2 flex items-center gap-1 ml-auto"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg> <span data-i18n="cart-remove">Remove</span></button>
                   </div>
                 </div>
               `;
             }).join('')}
           </div>
           <div class="mt-10 bg-card border border-subtle p-8 ml-auto max-w-md">
-            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Subtotal</span><span>DA${total.toLocaleString()}</span></div>
-            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span>Shipping</span><span class="text-green-600">Free</span></div>
-            <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span>Total</span><span>DA${total.toLocaleString()}</span></div>
+            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-subtotal">Subtotal</span><span>DA${total.toLocaleString()}</span></div>
+            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-shipping">Shipping</span><span class="text-green-600" data-i18n="cart-free">Free</span></div>
+            <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span data-i18n="cart-total">Total</span><span>DA${total.toLocaleString()}</span></div>
             <a href="#checkout" class="block w-full bg-gold text-primary text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="cart-proceed">Proceed to Checkout</a>
             <a href="#products" class="block w-full text-center py-3 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mt-2" data-i18n="checkout-continue">Continue Shopping</a>
+            <button onclick="App.clearCart()" class="block w-full text-center py-2 font-montserrat text-xs text-stone-500 hover:text-red-500 transition-colors duration-200 cursor-pointer mt-1" data-i18n="cart-clear">Clear Cart</button>
           </div>
         </div>
       </div>
@@ -705,6 +706,20 @@ const App = {
   updateCartQty(id, qty) {
     Cart.updateQty(id, qty);
     this.renderCart();
+  },
+
+  removeCartItem(id) {
+    if (confirm('Remove this item from your cart?')) {
+      Cart.remove(id);
+      this.renderCart();
+    }
+  },
+
+  clearCart() {
+    if (confirm('Clear your entire cart?')) {
+      Cart.clear();
+      this.renderCart();
+    }
   },
 
   // ─── CHECKOUT ─────────────────────────────────────────────────────────
