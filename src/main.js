@@ -85,6 +85,7 @@ const App = {
     contact: 'renderContact',
     'elite-zone': 'renderAdmin',
     brands: 'renderAllBrands',
+    track: 'renderTrack',
   },
 
   async init() {
@@ -147,6 +148,8 @@ const App = {
       route = 'elite-zone';
     } else if (hash.startsWith('elite-zone')) {
       route = 'elite-zone';
+    } else if (hash.startsWith('track/')) {
+      route = 'track'; param = hash.slice(6);
     }
 
     this.currentRoute = route;
@@ -174,6 +177,9 @@ const App = {
     } else if (route === 'elite-zone') {
       metaTitle = 'Admin Panel \u2014 Elite Chrono';
       metaDesc = 'Elite Chrono administration dashboard.';
+    } else if (route === 'track') {
+      metaTitle = 'Order Tracking \u2014 Elite Chrono';
+      metaDesc = 'Track the status of your Elite Chrono order.';
     }
     updateMeta(metaTitle, metaDesc, metaImg);
 
@@ -701,6 +707,94 @@ const App = {
         </div>
       </div>
     `);
+  },
+
+  async renderTrack(param) {
+    if (param) {
+      const o = await getOrderById(param);
+      if (!o) {
+        this.render(`
+          <div class="bg-page min-h-screen pt-32 pb-24">
+            <div class="max-w-xl mx-auto px-6 text-center">
+              <svg class="w-16 h-16 text-stone-500 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <h1 class="font-cormorant text-3xl text-primary mb-4">Order Not Found</h1>
+              <p class="font-montserrat text-muted-c mb-8">No order found with ID "${esc(param)}".</p>
+              <a href="#track" class="inline-flex items-center gap-2 bg-gold text-primary px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase cursor-pointer">Try Again</a>
+            </div>
+          </div>
+        `);
+        return;
+      }
+      var statusLabels = { pending: 'Pending', confirmed: 'Confirmed', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
+      var statusBadge = { pending: 'admin-badge-pending', confirmed: 'admin-badge-confirmed', shipped: 'admin-badge-shipped', delivered: 'admin-badge-delivered', cancelled: 'admin-badge-cancelled' };
+      this.render(`
+        <div class="bg-page min-h-screen pt-32 pb-24">
+          <div class="max-w-2xl mx-auto px-6">
+            ${this.bc(['Home', 'Track Order'])}
+            <div class="bg-card border border-subtle p-8 md:p-10">
+              <div class="flex items-center justify-between mb-6">
+                <h1 class="font-cormorant text-3xl text-primary">Order ${o.id}</h1>
+                <span class="admin-badge ${statusBadge[o.status] || 'admin-badge-pending'}">${statusLabels[o.status] || o.status}</span>
+              </div>
+              <p class="font-montserrat text-sm text-muted-c mb-8">Placed on ${new Date(o.date).toLocaleString()}</p>
+              <div class="border-t border-subtle pt-6 mb-8">
+                <h4 class="text-xs uppercase tracking-wider text-muted-c mb-4 font-montserrat">Status Timeline</h4>
+                <div class="flex items-start gap-0">
+                  ${['pending','confirmed','shipped','delivered'].map(function(s, i) {
+                    var idx = ['pending','confirmed','shipped','delivered'].indexOf(o.status);
+                    var done = idx >= i;
+                    var cancelled = o.status === 'cancelled';
+                    return '<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ' + (cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-primary' : 'bg-stone-800 text-stone-500') + '">' + (done && !cancelled ? '\u2713' : '\u2022') + '</div><div class="text-2xs mt-1 ' + (cancelled ? 'text-stone-500' : done ? 'text-gold' : 'text-stone-600') + '">' + statusLabels[s] + '</div></div>' + (i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : '');
+                  }).join('')}
+                </div>
+                ${o.status === 'cancelled' ? '<p class="text-center text-2xs text-red-400 mt-3">This order was cancelled.</p>' : ''}
+              </div>
+              <div class="border-t border-subtle pt-6">
+                <h4 class="text-xs uppercase tracking-wider text-muted-c mb-4 font-montserrat">Shipping Details</h4>
+                <p class="font-montserrat text-sm text-primary">${o.firstName || ''} ${o.lastName || ''}</p>
+                <p class="font-montserrat text-xs text-muted-c">${o.address || ''}</p>
+                <p class="font-montserrat text-xs text-muted-c">${o.wilaya || ''}${o.commune ? ', ' + o.commune : ''}</p>
+              </div>
+              <div class="border-t border-subtle pt-6 mt-6">
+                <h4 class="text-xs uppercase tracking-wider text-muted-c mb-4 font-montserrat">Items</h4>
+                ${o.items.map(function(item) {
+                  var p = this.watches.find(function(w) { return w.id === item.id; });
+                  return '<div class="flex justify-between py-1"><span class="font-montserrat text-sm text-primary">' + (p ? esc(p.name) : item.id) + ' x' + item.qty + '</span><span class="font-cormorant">DA' + ((p ? p.price : 0) * item.qty).toLocaleString() + '</span></div>';
+                }.call(this)).join('')}
+                <div class="flex justify-between border-t border-subtle pt-3 mt-3 font-cormorant text-xl text-primary"><span>Total</span><span>DA${o.total.toLocaleString()}</span></div>
+              </div>
+            </div>
+            <div class="text-center mt-8">
+              <a href="#track" class="font-montserrat text-sm text-muted-c hover-text-primary transition-colors cursor-pointer">Track another order</a>
+            </div>
+          </div>
+        </div>
+      `);
+      return;
+    }
+    this.render(`
+      <div class="bg-page min-h-screen pt-32 pb-24">
+        <div class="max-w-lg mx-auto px-6">
+          ${this.bc(['Home', 'Track Order'])}
+          <div class="bg-card border border-subtle p-8 md:p-10">
+            <div class="text-center mb-8">
+              <svg class="w-12 h-12 text-gold mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <h1 class="font-cormorant text-3xl text-primary mb-2">Track Your Order</h1>
+              <p class="font-montserrat text-sm text-muted-c">Enter your order ID to see the current status.</p>
+            </div>
+            <div class="flex gap-3">
+              <input type="text" id="track-input" class="admin-input flex-1" placeholder="e.g. ORD-1001" onkeydown="if(event.key==='Enter')App.trackOrder()">
+              <button onclick="App.trackOrder()" class="admin-btn admin-btn-primary px-6 whitespace-nowrap">Search</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+  },
+
+  trackOrder() {
+    var val = document.getElementById('track-input')?.value?.trim();
+    if (val) this.navigate('track/' + val);
   },
 
   updateCartQty(id, qty) {
