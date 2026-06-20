@@ -32,6 +32,7 @@ const App = {
     about: 'renderAbout',
     contact: 'renderContact',
     'elite-zone': 'renderAdmin',
+    brands: 'renderAllBrands',
   },
 
   async init() {
@@ -197,6 +198,9 @@ const App = {
               return items + items;
             })()}
           </div>
+          <div class="text-center mt-12">
+            <a href="#brands" class="inline-flex items-center gap-2 border border-gold text-gold px-8 py-3 font-montserrat text-xs tracking-widest uppercase hover-bg-gold hover:text-primary transition-all duration-300 cursor-pointer" data-i18n="brands-view-all">View All Brands</a>
+          </div>
         </div>
       </section>
 
@@ -309,6 +313,67 @@ const App = {
         </div>
       </div>
     `);
+  },
+
+  renderAllBrands() {
+    const svgs = {
+      'Rolex': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="28" font-weight="700" letter-spacing="4" fill="currentColor">ROLEX</text><path d="M85 28a15 15 0 1 0 0 24" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.4"/><path d="M115 28a15 15 0 1 1 0 24" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.4"/></svg>',
+      'Omega': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="24" font-weight="700" letter-spacing="3" fill="currentColor">OMEGA</text><ellipse cx="100" cy="28" rx="18" ry="8" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.35"/></svg>',
+      'Cartier': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="26" font-weight="600" letter-spacing="5" fill="currentColor">CARTIER</text><rect x="70" y="24" width="60" height="1" fill="currentColor" opacity="0.3"/></svg>',
+      'Hublot': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="47%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="6" fill="currentColor">HUBLOT</text><text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="9" font-weight="300" letter-spacing="4" fill="currentColor" opacity="0.5">SWISS MADE</text></svg>',
+      'Audemars Piguet': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="22" font-weight="700" letter-spacing="3" fill="currentColor">AUDEMARS</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">PIGUET</text></svg>',
+      'Patek Philippe': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="3" fill="currentColor">PATEK</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="17" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">PHILIPPE</text></svg>',
+      'Richard Mille': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="32" font-weight="800" letter-spacing="2" fill="currentColor">RM</text><text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="10" font-weight="400" letter-spacing="3" fill="currentColor" opacity="0.5">RICHARD MILLE</text></svg>',
+      'Hugo Boss': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="47%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6" fill="currentColor">BOSS</text><text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="8" font-weight="300" letter-spacing="3" fill="currentColor" opacity="0.4">HUGO BOSS</text></svg>',
+      'Emporio Armani': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="4" fill="currentColor">EMPORIO</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">ARMANI</text></svg>',
+      'Jacob & Co.': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="3" fill="currentColor">JACOB</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="3" fill="currentColor" opacity="0.65">&amp; CO.</text></svg>',
+    };
+    this.render(`
+      <div class="bg-page min-h-screen pt-32 pb-24">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-16">
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="brands-subtitle">Maisons</p>
+            <h1 class="font-cormorant text-5xl md:text-7xl text-primary mb-4" data-i18n-html="brands-title">Our <span class="text-gold">Maisons</span></h1>
+            <p class="font-montserrat text-muted-c max-w-xl mx-auto" data-i18n="brands-desc">Discover the world's most prestigious watch maisons, each with a legacy of craftsmanship and innovation.</p>
+          </div>
+          <div class="max-w-md mx-auto mb-14">
+            <input type="text" id="brand-search" placeholder="Search brands..." oninput="App.filterBrands()" class="w-full bg-card border border-subtle px-5 py-3.5 font-montserrat text-sm text-primary placeholder:text-muted-c focus:border-gold outline-none transition-colors duration-200">
+          </div>
+          <div class="brands-grid" id="brands-grid">
+            ${BRANDS.map(b => {
+              const count = this.watches.filter(w => w.brand === b).length;
+              return `
+              <a href="#brand-${slug(b)}" class="brand-showcase-card" data-brand="${b.toLowerCase()}">
+                <div class="brand-showcase-logo">${svgs[b] || `<span class="font-cormorant text-2xl text-primary">${b}</span>`}</div>
+                <div class="brand-showcase-info">
+                  <span class="brand-showcase-name">${b}</span>
+                  <span class="brand-showcase-count">${count} timepiece${count !== 1 ? 's' : ''}</span>
+                </div>
+                <div class="brand-showcase-hover">
+                  <span class="brand-showcase-cta">Explore Collection &rarr;</span>
+                </div>
+              </a>`;
+            }).join('')}
+          </div>
+          <div id="brands-no-results" class="text-center py-20 hidden">
+            <p class="font-cormorant text-2xl text-muted-c">No brands found matching your search.</p>
+          </div>
+        </div>
+      </div>
+    `);
+  },
+
+  filterBrands() {
+    const q = document.getElementById('brand-search')?.value.toLowerCase().trim() || '';
+    const cards = document.querySelectorAll('.brand-showcase-card');
+    let visible = 0;
+    cards.forEach(c => {
+      const match = !q || c.dataset.brand.includes(q);
+      c.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    const noRes = document.getElementById('brands-no-results');
+    if (noRes) noRes.classList.toggle('hidden', visible > 0);
   },
 
   async renderProductDetail(id) {

@@ -65,6 +65,21 @@
     .product-card .badge-sale { position: absolute; top: 12px; right: 12px; background: #DC2626; color: white; padding: 4px 12px; font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
     .similar-hidden { display: none; }
     .similar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+    .brands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+    .brand-showcase-card { background: var(--bg-card); border: 1px solid var(--border-subtle); overflow: hidden; cursor: pointer; display: flex; flex-direction: column; position: relative; transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .brand-showcase-card:hover { border-color: var(--gold); transform: translateY(-6px); box-shadow: 0 12px 40px -8px rgba(202,138,4,0.12); }
+    .brand-showcase-logo { height: 160px; display: flex; align-items: center; justify-content: center; padding: 32px; background: var(--bg-page); }
+    .brand-showcase-logo svg { width: 100%; max-height: 80px; color: var(--text-secondary); transition: all 0.4s ease; }
+    .brand-showcase-card:hover .brand-showcase-logo svg { color: var(--gold); filter: drop-shadow(0 0 8px rgba(202,138,4,0.15)); }
+    .brand-showcase-info { padding: 20px; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--border-subtle); transition: border-color 0.4s ease; }
+    .brand-showcase-card:hover .brand-showcase-info { border-color: var(--gold); }
+    .brand-showcase-name { font-family: 'Cormorant', serif; font-size: 20px; color: var(--text-primary); font-weight: 600; }
+    .brand-showcase-count { font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
+    .brand-showcase-hover { position: absolute; inset: 0; background: rgba(12,10,9,0.7); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.4s ease; backdrop-filter: blur(2px); }
+    .brand-showcase-card:hover .brand-showcase-hover { opacity: 1; }
+    .brand-showcase-cta { font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; border: 1px solid var(--gold); padding: 12px 28px; transition: all 0.3s ease; }
+    .brand-showcase-card:hover .brand-showcase-cta { background: var(--gold); color: var(--text-primary); }
+    @media (max-width: 767px) { .brands-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .brand-showcase-logo { height: 120px; padding: 24px; } .brand-showcase-logo svg { max-height: 56px; } .brand-showcase-info { padding: 14px; } .brand-showcase-name { font-size: 16px; } .brand-showcase-hover { display: none; } .brand-showcase-card:hover { transform: none; } }
     @media (max-width: 767px) { .similar-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .product-card img { height: 180px; } .product-card .product-info { padding: 12px; } .product-card h3 { font-size: 14px; } .product-card .price { font-size: 16px; } .product-card .brand-tag { font-size: 9px; } }
     .bg-page { background: var(--bg-page); }
     .bg-card { background: var(--bg-card); }
@@ -192,7 +207,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
   </style>
-  <script type="module" crossorigin src="/assets/index-BJgNPAME.js"></script>
+  <script type="module" crossorigin src="/assets/index-BuaZ1Csi.js"></script>
 </head>
 <body>
 
