@@ -234,3 +234,53 @@ export async function uploadImage(file) {
     .getPublicUrl(fileName);
   return { url: urlData.publicUrl };
 }
+
+const CMS_KEY = 'elitechrono_cms';
+
+const CMS_DEFAULTS = {
+  hero_badge: 'Haute Horlogerie',
+  hero_title: 'L\'Instant<br><span class="text-gold">Devient Éternité</span>',
+  hero_desc: 'Un atelier d\'exception dédié aux plus belles montres du monde. Chaque mouvement raconte une histoire d\'héritage, d\'innovation et d\'un savoir-faire inégalé.',
+  hero_cta: 'Explorer la Collection',
+  journal_badge: 'Le Journal Elite Chrono',
+  journal_title: 'L\'Art de l\'<span class="text-gold">Horlogerie Fine</span>',
+  journal_desc: 'Explorez nos articles sur les chefs-d\'œuvre horlogers, le savoir-faire et les histoires derrière les montres les plus convoitées.',
+};
+
+export function getCMSDefaults() {
+  return { ...CMS_DEFAULTS };
+}
+
+export async function getSiteContent() {
+  if (isSupabaseReady()) {
+    const { data, error } = await supabase
+      .from('site_content')
+      .select('*')
+      .order('id', { ascending: false })
+      .limit(1)
+      .single();
+    if (error || !data) return { ...CMS_DEFAULTS };
+    const cms = {};
+    Object.keys(CMS_DEFAULTS).forEach(function (k) { cms[k] = data[k] !== undefined && data[k] !== null ? data[k] : CMS_DEFAULTS[k]; });
+    return cms;
+  }
+  const saved = lsGet(CMS_KEY);
+  if (saved) {
+    const cms = {};
+    Object.keys(CMS_DEFAULTS).forEach(function (k) { cms[k] = saved[k] !== undefined ? saved[k] : CMS_DEFAULTS[k]; });
+    return cms;
+  }
+  return { ...CMS_DEFAULTS };
+}
+
+export async function saveSiteContent(data) {
+  if (isSupabaseReady()) {
+    const { error } = await supabase
+      .from('site_content')
+      .upsert({ id: 1, ...data }, { onConflict: 'id' });
+    if (error) { console.error('[DB] saveSiteContent:', error); return false; }
+    return true;
+  }
+  lsSet(CMS_KEY, data);
+  return true;
+}

@@ -45,3 +45,17 @@ CREATE POLICY "anon_select_product_images" ON storage.objects FOR SELECT TO anon
 CREATE POLICY "anon_insert_product_images" ON storage.objects FOR INSERT TO anon WITH CHECK (bucket_id = 'product-images');
 CREATE POLICY "anon_update_product_images" ON storage.objects FOR UPDATE TO anon USING (bucket_id = 'product-images');
 CREATE POLICY "anon_delete_product_images" ON storage.objects FOR DELETE TO anon USING (bucket_id = 'product-images');
+
+CREATE TABLE IF NOT EXISTS site_content (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  hero_badge TEXT NOT NULL DEFAULT '',
+  hero_title TEXT NOT NULL DEFAULT '',
+  hero_desc TEXT NOT NULL DEFAULT '',
+  hero_cta TEXT NOT NULL DEFAULT '',
+  journal_badge TEXT NOT NULL DEFAULT '',
+  journal_title TEXT NOT NULL DEFAULT '',
+  journal_desc TEXT NOT NULL DEFAULT ''
+);
+
+ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all_site_content" ON site_content FOR ALL TO anon USING (true) WITH CHECK (true);

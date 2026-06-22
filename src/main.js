@@ -1,6 +1,7 @@
 import { WATCHES, BRANDS, WILAYAS, slug } from './data.js';
 import { Cart } from './cart.js';
-import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders } from './services/db.js';
+import { Wishlist } from './services/wishlist.js';
+import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders, getSiteContent, saveSiteContent, getCMSDefaults } from './services/db.js';
 import { Auth } from './services/auth.js';
 import { isSupabaseReady } from './lib/supabaseClient.js';
 import './services/i18n.js';
@@ -71,6 +72,21 @@ function setMeta(prop, val) {
   m.setAttribute('content', val);
 }
 
+function injectJSONLD(data) {
+  var id = 'json-ld-' + ((data['@type'] || '').toLowerCase());
+  var existing = document.getElementById(id);
+  if (existing) existing.remove();
+  var s = document.createElement('script');
+  s.type = 'application/ld+json';
+  s.id = id;
+  s.textContent = JSON.stringify(data);
+  document.head.appendChild(s);
+}
+
+function removeJSONLD() {
+  document.querySelectorAll('script[type="application/ld+json"]').forEach(function (s) { s.remove(); });
+}
+
 const App = {
   currentRoute: 'home',
   whatsappNumber: '213775818412',
@@ -87,6 +103,7 @@ const App = {
     'elite-zone': 'renderAdmin',
     brands: 'renderAllBrands',
     track: 'renderTrack',
+    wishlist: 'renderWishlist',
   },
 
   async init() {
@@ -101,6 +118,7 @@ const App = {
     window.addEventListener('hashchange', () => this.handleRoute());
     this.handleRoute();
     Cart.updateBadge();
+    Wishlist.updateBadge();
     this.setupRealtime();
   },
 
@@ -145,7 +163,7 @@ const App = {
       route = 'brand'; param = hash.slice(6);
     } else if (hash.startsWith('product-')) {
       route = 'product'; param = hash.slice(8);
-    } else if (hash.startsWith('elite-zone-orders') || hash.startsWith('elite-zone-products')) {
+    } else if (hash.startsWith('elite-zone-orders') || hash.startsWith('elite-zone-products') || hash.startsWith('elite-zone-cms')) {
       route = 'elite-zone';
     } else if (hash.startsWith('elite-zone')) {
       route = 'elite-zone';
@@ -181,6 +199,9 @@ const App = {
     } else if (route === 'track') {
       metaTitle = 'Order Tracking \u2014 Elite Chrono';
       metaDesc = 'Track the status of your Elite Chrono order.';
+    } else if (route === 'wishlist') {
+      metaTitle = 'Wishlist \u2014 Elite Chrono';
+      metaDesc = 'Your saved favorite timepieces.';
     }
     updateMeta(metaTitle, metaDesc, metaImg);
 
@@ -228,31 +249,41 @@ const App = {
 
   // ─── HOME ────────────────────────────────────────────────────────────
 
-  renderHome() {
+  async renderHome() {
     const featured = this.watches.filter(w => w.sections && w.sections.includes('Featured Timepieces')).slice(0, 8);
     const newModels = this.watches.filter(w => w.sections && w.sections.includes('New Models')).slice(0, 4);
+
+    if (!this._cachedCMS) this._cachedCMS = await getSiteContent();
+    const cms = this._cachedCMS;
+
+    removeJSONLD();
+    injectJSONLD({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Elite Chrono',
+      url: 'https://elitechrono.runsite.app',
+      logo: 'https://elitechrono.runsite.app/favicon.svg',
+      description: 'Un atelier d\'exception dédié aux plus belles montres depuis 2024.',
+      sameAs: ['https://www.instagram.com/elitechrono_/'],
+    });
 
     this.render(`
       <section class="hero" id="hero">
         <img class="hero-bg" src="https://upload.wikimedia.org/wikipedia/commons/2/25/Patek-Philippe_MG_2583.jpg" alt="" aria-hidden="true">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-          <p class="hero-badge" data-i18n="hero-badge">Haute Horlogerie</p>
-          <h1 class="hero-title" data-i18n-html="hero-title">
-            Where Time<br>Becomes <span class="text-gold">Art</span>
-          </h1>
-          <p class="hero-desc" data-i18n="hero-desc">
-            An exclusive atelier of the world's finest timepieces. Each movement tells a story of heritage, innovation, and unparalleled craftsmanship.
-          </p>
+          <p class="hero-badge">${esc(cms.hero_badge)}</p>
+          <h1 class="hero-title">${cms.hero_title}</h1>
+          <p class="hero-desc">${esc(cms.hero_desc)}</p>
             <div class="hero-actions">
               <a href="#products" class="hero-cta">
-                <span data-i18n="hero-cta">Explore the Collection</span>
+                <span>${esc(cms.hero_cta)}</span>
                 <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M10 1L15 6M15 6L10 11M15 6H1" stroke="currentColor" stroke-width="1.5"/></svg>
               </a>
             </div>
         </div>
         <div class="hero-scroll">
-          <span data-i18n="hero-scroll">Scroll</span>
+          <span>Défiler</span>
           <div class="scroll-line"></div>
         </div>
       </section>
@@ -328,10 +359,10 @@ const App = {
         <div class="absolute inset-0" style="background: linear-gradient(to right, var(--hero-from), var(--hero-via));"></div>
         <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 75% 50%, var(--gold) 2px, transparent 2px); background-size: 30px 30px;"></div>
         <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-6" data-i18n="section-journal">The Elite Chrono Journal</p>
-          <h2 class="font-cormorant text-4xl md:text-6xl text-white mb-8" data-i18n-html="section-journal-title">The Art of Fine<br><span class="text-gold">Watchmaking</span></h2>
-          <p class="font-montserrat text-stone-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed" data-i18n="section-journal-desc">Explore our curated stories on horological masterpieces, craftsmanship, and the stories behind the world's most coveted timepieces.</p>
-          <a href="#about" class="inline-flex items-center gap-2 border border-white/20 text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover:bg-white/10 transition-colors duration-300 cursor-pointer" data-i18n="read-more">Read More</a>
+          <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-6">${esc(cms.journal_badge)}</p>
+          <h2 class="font-cormorant text-4xl md:text-6xl text-white mb-8">${cms.journal_title}</h2>
+          <p class="font-montserrat text-stone-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">${esc(cms.journal_desc)}</p>
+          <a href="#about" class="inline-flex items-center gap-2 border border-white/20 text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover:bg-white/10 transition-colors duration-300 cursor-pointer">Lire Plus</a>
         </div>
       </section>
     `);
@@ -554,6 +585,33 @@ const App = {
     track('ViewContent', { content_name: watch.name, content_category: watch.brand, content_ids: [watch.id], content_type: 'product', currency: 'DZD', value: watch.price });
     const watchId = watch.id;
     const similar = this.watches.filter(w => w.brand === watch.brand && w.id !== watch.id);
+
+    removeJSONLD();
+    injectJSONLD({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://elitechrono.runsite.app/' },
+        { '@type': 'ListItem', position: 2, name: watch.brand, item: 'https://elitechrono.runsite.app/#brand-' + slug(watch.brand) },
+        { '@type': 'ListItem', position: 3, name: watch.name, item: 'https://elitechrono.runsite.app/#product-' + watch.id },
+      ],
+    });
+    injectJSONLD({
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: watch.name,
+      brand: { '@type': 'Brand', name: watch.brand },
+      description: watch.description || '',
+      image: watch.img || (watch.images && watch.images[0]) || '',
+      offers: {
+        '@type': 'Offer',
+        price: watch.price,
+        priceCurrency: 'DZD',
+        availability: watch.in_stock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        url: 'https://elitechrono.runsite.app/#product-' + watch.id,
+      },
+    });
+
     try {
       this.render(`
       <div class="bg-page min-h-screen pt-28 pb-24">
@@ -665,6 +723,46 @@ const App = {
     const w = this.watches.find(w => w.id === id);
     track('AddToCart', { content_ids: [id], content_name: w ? w.name : id, content_type: 'product', value: w ? w.price : 0, currency: 'DZD' });
     this.navigate('checkout');
+  },
+
+  toggleWishlist(id) {
+    const added = Wishlist.toggle(id);
+    const w = this.watches.find(w => w.id === id);
+    if (added) {
+      this.showToast((w ? w.name + ' ' : '') + 'ajouté aux favoris');
+    } else {
+      this.showToast((w ? w.name + ' ' : '') + 'retiré des favoris');
+    }
+    wishlistUpdateUI();
+  },
+
+  renderWishlist() {
+    const items = Wishlist.getWatches(this.watches);
+    if (items.length === 0) {
+      this.render(`
+        <div class="bg-page min-h-screen pt-32 pb-24">
+          <div class="max-w-3xl mx-auto px-6 text-center">
+            <div class="mb-8"><svg class="w-24 h-24 mx-auto text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+            <h1 class="font-cormorant text-4xl text-primary mb-4">Votre liste de souhaits est vide</h1>
+            <p class="font-montserrat text-muted-c mb-8">Ajoutez vos montres préférées à vos favoris.</p>
+            <a href="#products" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer">Parcourir la Collection</a>
+          </div>
+        </div>
+      `);
+      return;
+    }
+    this.render(`
+      <div class="bg-page min-h-screen pt-28 pb-24">
+        <div class="max-w-7xl mx-auto px-6">
+          ${this.bc(['Home', 'Wishlist'])}
+          <div class="flex items-center justify-between mb-10">
+            <h1 class="font-cormorant text-4xl md:text-5xl text-primary">Mes Favoris</h1>
+            <span class="font-montserrat text-sm text-muted-c">${items.length} montre${items.length > 1 ? 's' : ''}</span>
+          </div>
+          <div class="product-grid">${items.map(w => this.productCard(w)).join('')}</div>
+        </div>
+      </div>
+    `);
   },
 
   // ─── CART ─────────────────────────────────────────────────────────────
@@ -1235,7 +1333,7 @@ const App = {
     if (!this._cachedOrders || this._cachedOrders.length === 0) this._cachedOrders = await getOrders();
     if (!this._cachedAdminProducts || this._cachedAdminProducts.length === 0) this._cachedAdminProducts = await getProducts();
     const hash = location.hash.slice(1);
-    const tab = hash === 'elite-zone-products' ? 'products' : 'orders';
+    const tab = hash === 'elite-zone-products' ? 'products' : hash === 'elite-zone-cms' ? 'cms' : 'orders';
     this.render(`
       <div class="bg-page min-h-screen pt-24">
         <div class="max-w-7xl mx-auto px-6 py-8">
@@ -1274,12 +1372,15 @@ const App = {
               <a href="#elite-zone-products" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'products' ? 'active' : ''}">
                 <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg> Watches</span>
               </a>
+              <a href="#elite-zone-cms" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'cms' ? 'active' : ''}">
+                <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> CMS</span>
+              </a>
               <a href="#home" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle cursor-pointer hover-bg-hover transition-colors">
                 <span class="flex items-center gap-3 text-muted-c"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg> Back to Site</span>
               </a>
             </div>
             <div class="flex-1 min-w-0">
-              ${tab === 'orders' ? this.renderAdminOrders() : this.renderAdminProducts()}
+              ${tab === 'orders' ? this.renderAdminOrders() : tab === 'cms' ? this.renderAdminCMS() : this.renderAdminProducts()}
             </div>
           </div>
         </div>
@@ -1460,6 +1561,69 @@ const App = {
         </table>
       </div>
     `;
+  },
+
+  async renderAdminCMS() {
+    const cms = this._cachedCMS || await getSiteContent();
+    this.renderCMSForm(cms);
+  },
+
+  renderCMSForm(cms) {
+    const overlay = document.createElement('div');
+    overlay.className = 'admin-overlay';
+    overlay.innerHTML = `
+      <div class="admin-modal" style="max-width:700px">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="font-cormorant text-2xl text-primary">Contenu du Site (CMS)</h3>
+          <button onclick="this.closest('.admin-overlay').remove()" class="text-muted-c hover:text-primary cursor-pointer"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+        <div class="space-y-4">
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Hero Badge</label><input id="cms-hero-badge" class="admin-input" value="${esc(cms.hero_badge || '')}"></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Hero Title (HTML autorisé)</label><textarea id="cms-hero-title" class="admin-input" rows="2">${esc(cms.hero_title || '')}</textarea></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Hero Description</label><textarea id="cms-hero-desc" class="admin-input" rows="3">${esc(cms.hero_desc || '')}</textarea></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Hero CTA</label><input id="cms-hero-cta" class="admin-input" value="${esc(cms.hero_cta || '')}"></div>
+          <hr class="border-subtle">
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Journal Badge</label><input id="cms-journal-badge" class="admin-input" value="${esc(cms.journal_badge || '')}"></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Journal Title (HTML autorisé)</label><textarea id="cms-journal-title" class="admin-input" rows="2">${esc(cms.journal_title || '')}</textarea></div>
+          <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Journal Description</label><textarea id="cms-journal-desc" class="admin-input" rows="3">${esc(cms.journal_desc || '')}</textarea></div>
+          <div class="flex gap-3 pt-2">
+            <button onclick="App.saveCMS()" class="admin-btn admin-btn-primary flex-1">Enregistrer</button>
+            <button onclick="App.resetCMS()" class="admin-btn admin-btn-ghost">Réinitialiser</button>
+            <button onclick="this.closest('.admin-overlay').remove()" class="admin-btn admin-btn-ghost">Annuler</button>
+          </div>
+        </div>
+      </div>
+    `;
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  },
+
+  async saveCMS() {
+    const data = {
+      hero_badge: document.getElementById('cms-hero-badge')?.value?.trim() || '',
+      hero_title: document.getElementById('cms-hero-title')?.value?.trim() || '',
+      hero_desc: document.getElementById('cms-hero-desc')?.value?.trim() || '',
+      hero_cta: document.getElementById('cms-hero-cta')?.value?.trim() || '',
+      journal_badge: document.getElementById('cms-journal-badge')?.value?.trim() || '',
+      journal_title: document.getElementById('cms-journal-title')?.value?.trim() || '',
+      journal_desc: document.getElementById('cms-journal-desc')?.value?.trim() || '',
+    };
+    const ok = await saveSiteContent(data);
+    if (ok) {
+      this._cachedCMS = data;
+      this.showToast('Contenu mis à jour');
+      document.querySelector('.admin-overlay')?.remove();
+    } else {
+      this.showToast('Échec de l\'enregistrement');
+    }
+  },
+
+  async resetCMS() {
+    const defaults = getCMSDefaults();
+    this._cachedCMS = defaults;
+    await saveSiteContent(defaults);
+    this.showToast('Contenu réinitialisé');
+    document.querySelector('.admin-overlay')?.remove();
   },
 
   showProductForm(productId) {
@@ -1667,6 +1831,7 @@ const App = {
   },
 
   productCard(w) {
+    const wishlisted = Wishlist.has(w.id);
     return `
       <a href="#product-${esc(w.id)}" class="product-card ${w.in_stock === false ? 'opacity-dimmed' : ''}">
         <div class="relative overflow-hidden product-card-img-wrap">
@@ -1674,6 +1839,9 @@ const App = {
           ${w.new ? '<span class="badge-new">New</span>' : ''}
           ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
           ${w.in_stock === false ? '<span class="badge-oos">Out of Stock</span>' : ''}
+          <button onclick="event.preventDefault();event.stopPropagation();App.toggleWishlist('${esc(w.id)}')" class="absolute top-3 right-3 z-10 p-1.5 cursor-pointer transition-all duration-200" style="background:rgba(0,0,0,0.4);border-radius:50%;border:none;line-height:0">
+            <svg class="w-4 h-4 transition-colors duration-200" fill="${wishlisted ? '#EF4444' : 'none'}" stroke="${wishlisted ? '#EF4444' : 'white'}" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
         </div>
         <div class="product-info">
           <div class="brand-tag">${esc(w.brand)}</div>
@@ -1698,9 +1866,28 @@ function addImageField() {
   d.querySelector('input').focus();
 }
 
+function wishlistUpdateUI() {
+  Wishlist.updateBadge();
+  document.querySelectorAll('.product-card').forEach(function (card) {
+    var a = card.closest('a') || card;
+    var href = a.getAttribute('href') || '';
+    var id = href.replace('#product-', '');
+    if (!id) return;
+    var btn = card.querySelector('button[onclick*="toggleWishlist"]');
+    if (!btn) return;
+    var svg = btn.querySelector('svg');
+    var isFav = Wishlist.has(id);
+    if (svg) {
+      svg.setAttribute('fill', isFav ? '#EF4444' : 'none');
+      svg.setAttribute('stroke', isFav ? '#EF4444' : 'white');
+    }
+  });
+}
+
 // Expose on window for onclick handlers
 window.App = App;
 window.Cart = Cart;
+window.Wishlist = Wishlist;
 window.addImageField = addImageField;
 
 // Entry point
