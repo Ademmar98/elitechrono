@@ -840,10 +840,10 @@ const App = {
         total += w.price * item.qty;
       }
     }.bind(this));
-    var msg = 'Hello Elite Chrono! I would like to order:%0A%0A';
+    var msg = 'Bonjour Elite Chrono ! Je souhaite commander :%0A%0A';
     msg += lines.join('%0A');
-    msg += '%0A%0ATotal: DA' + total.toLocaleString();
-    msg += '%0A%0APlease contact me to confirm delivery details.';
+    msg += '%0A%0ATotal : DA' + total.toLocaleString();
+    msg += '%0A%0AVeuillez me contacter pour confirmer les détails de livraison.';
     window.open('https://wa.me/' + this.whatsappNumber + '?text=' + msg, '_blank');
   },
 
@@ -853,7 +853,7 @@ const App = {
   },
 
   removeCartItem(id) {
-    if (confirm('Remove this item from your cart?')) {
+    if (confirm('Retirer cet article du panier ?')) {
       Cart.remove(id);
       this.renderCart();
     }
