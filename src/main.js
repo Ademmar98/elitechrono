@@ -315,7 +315,10 @@ const App = {
             <a href="#featured" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
           <div class="product-grid">${featured.map(w => this.productCard(w)).join('')}</div>
-          <div class="mt-12 text-center">
+          <div class="mt-8 text-center md:hidden">
+            <a href="#featured" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
+          </div>
+          <div class="mt-8 text-center">
             <a href="#products" class="inline-flex items-center gap-2 border-2 border-inverse text-primary px-10 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="view-all-products">All Watches</a>
           </div>
         </div>
