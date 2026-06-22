@@ -1514,7 +1514,7 @@ const App = {
               <div><input id="pf-spec-glass" class="admin-input" placeholder="Glass" value="${existing && existing.specs ? existing.specs.Glass || '' : ''}"></div>
               <div><input id="pf-spec-dial" class="admin-input" placeholder="Dial" value="${existing && existing.specs ? existing.specs.Dial || '' : ''}"></div>
               <div><input id="pf-spec-strap" class="admin-input" placeholder="Strap" value="${existing && existing.specs ? existing.specs.Strap || '' : ''}"></div>
-              <div><input id="pf-spec-water" class="admin-input" placeholder="Water Resistance" value="${existing && existing.specs ? existing.specs['Water Resistance'] || '' : ''}"></div>
+              <div><input id="pf-spec-quality" class="admin-input" placeholder="Quality" value="${existing && existing.specs ? existing.specs.Quality || '' : ''}"></div>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
@@ -1544,7 +1544,7 @@ const App = {
     const stock = document.getElementById('pf-stock')?.value;
     const visible = document.getElementById('pf-visible')?.value;
 
-    if (!id || !name || !brand || isNaN(price) || !desc || !img) {
+    if (!id || !name || !brand || isNaN(price) || !img) {
       this.showToast('Please fill all required fields');
       return;
     }
@@ -1566,7 +1566,7 @@ const App = {
     const productData = { id, name, brand, price, description: desc, img, images, sections, in_stock: stock === 'in', visible: visible !== '0', new: sections.includes('New Models'), originalPrice: existing ? existing.originalPrice || null : null };
 
     var specs = {};
-    var specFields = ['Movement','Case','Glass','Dial','Strap','Water Resistance'];
+    var specFields = ['Movement','Case','Glass','Dial','Strap','Quality'];
     specFields.forEach(function(f) {
       var el = document.getElementById('pf-spec-' + f.toLowerCase().replace(/ /g, ''));
       if (el && el.value.trim()) specs[f] = el.value.trim();
