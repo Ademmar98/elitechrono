@@ -88,11 +88,11 @@ ${v}`}class O extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
               <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-new-arrivals">New Arrivals</p>
               <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-new-arrivals-title">Latest <span class="text-gold">Models</span></h2>
             </div>
-            <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
+            <a href="#new-models" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
           <div class="product-grid">${e.map(r=>this.productCard(r)).join("")}</div>
           <div class="mt-8 text-center md:hidden">
-            <a href="#" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'});return false;" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
+            <a href="#new-models" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
           </div>
         </div>
       </section>
