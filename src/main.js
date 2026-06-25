@@ -1333,7 +1333,7 @@ const App = {
     if (!this._cachedOrders || this._cachedOrders.length === 0) this._cachedOrders = await getOrders();
     if (!this._cachedAdminProducts || this._cachedAdminProducts.length === 0) this._cachedAdminProducts = await getProducts();
     const hash = location.hash.slice(1);
-    const tab = hash === 'elite-zone-products' ? 'products' : hash === 'elite-zone-cms' ? 'cms' : 'orders';
+    const tab = hash === 'elite-zone-products' ? 'products' : hash === 'elite-zone-cms' ? 'cms' : hash === 'elite-zone-bulk' ? 'bulk' : 'orders';
     this.render(`
       <div class="bg-page min-h-screen pt-24">
         <div class="max-w-7xl mx-auto px-6 py-8">
@@ -1375,12 +1375,15 @@ const App = {
               <a href="#elite-zone-cms" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'cms' ? 'active' : ''}">
                 <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> CMS</span>
               </a>
+              <a href="#elite-zone-bulk" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle mb-2 cursor-pointer ${tab === 'bulk' ? 'active' : ''}">
+                <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v4a2 2 0 002 2h12a2 2 0 002-2v-4M16 8l-4-4m0 0L8 8m4-4v12"/></svg> Bulk Import</span>
+              </a>
               <a href="#home" class="admin-tab block px-5 py-3 font-montserrat text-sm border border-subtle cursor-pointer hover-bg-hover transition-colors">
                 <span class="flex items-center gap-3 text-muted-c"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg> Back to Site</span>
               </a>
             </div>
             <div class="flex-1 min-w-0">
-              ${tab === 'orders' ? this.renderAdminOrders() : tab === 'cms' ? this.renderAdminCMS() : this.renderAdminProducts()}
+              ${tab === 'orders' ? this.renderAdminOrders() : tab === 'cms' ? this.renderAdminCMS() : tab === 'bulk' ? this.renderBulkImport() : this.renderAdminProducts()}
             </div>
           </div>
         </div>
@@ -1778,6 +1781,121 @@ const App = {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a'); a.href = url; a.download = 'elitechrono-orders-' + new Date().toISOString().slice(0,10) + '.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  },
+
+  // ─── BULK IMPORT ──────────────────────────────────────────────────────
+
+  renderBulkImport() {
+    const brands = [...new Set(BRANDS)];
+
+    return `
+      <div>
+        <h2 class="font-cormorant text-2xl text-primary mb-6">Bulk Import Watches</h2>
+        <div class="bg-card border border-subtle p-6 mb-6 max-w-2xl">
+          <p class="font-montserrat text-xs text-muted-c mb-4 leading-relaxed">
+            Paste one image URL per product below. All products share the same brand, name prefix, price, description and sections.
+          </p>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Brand</label>
+                <select id="bi-brand" class="admin-select">${brands.map(b => `<option value="${b}">${b}</option>`).join('')}</select>
+              </div>
+              <div>
+                <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Price (DZD)</label>
+                <input id="bi-price" class="admin-input" type="number" placeholder="e.g. 14500">
+              </div>
+            </div>
+            <div>
+              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Watch Name Prefix</label>
+              <input id="bi-name-prefix" class="admin-input" placeholder="e.g. Rolex Daytona" value="">
+              <p class="font-montserrat text-2xs text-muted-c mt-1">Products will be named "Prefix #1", "Prefix #2" etc.</p>
+            </div>
+            <div>
+              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Description</label>
+              <textarea id="bi-desc" class="admin-input" rows="3" placeholder="Common description for all watches..."></textarea>
+            </div>
+            <div>
+              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Sections</label>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" class="section-toggle" data-section="New Models" onclick="this.classList.toggle('active')">New Models</button>
+                <button type="button" class="section-toggle" data-section="Featured Timepieces" onclick="this.classList.toggle('active')">Featured Timepieces</button>
+              </div>
+            </div>
+            <div>
+              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Image URLs (one per product)</label>
+              <textarea id="bi-urls" class="admin-input" rows="8" placeholder="https://example.com/watch1-main.jpg&#10;https://example.com/watch2-main.jpg&#10;https://example.com/watch3-main.jpg"></textarea>
+            </div>
+          </div>
+          <button onclick="App.saveBulkImport()" class="admin-btn admin-btn-primary mt-6 w-full text-center">Import Watches</button>
+        </div>
+      </div>
+    `;
+  },
+
+  async saveBulkImport() {
+    const brand = document.getElementById('bi-brand')?.value;
+    const price = parseFloat(document.getElementById('bi-price')?.value);
+    const prefix = document.getElementById('bi-name-prefix')?.value?.trim();
+    const desc = document.getElementById('bi-desc')?.value?.trim();
+    const urlsText = document.getElementById('bi-urls')?.value?.trim();
+
+    if (!brand || isNaN(price) || !prefix || !urlsText) {
+      this.showToast('Brand, Price, Name Prefix, and at least one URL are required');
+      return;
+    }
+
+    const sections = [];
+    document.querySelectorAll('.section-toggle.active').forEach(btn => sections.push(btn.dataset.section));
+
+    const urls = urlsText.split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
+    if (!urls.length) {
+      this.showToast('No valid image URLs found');
+      return;
+    }
+
+    this.showToast('Importing ' + urls.length + ' watches...');
+
+    const existingProducts = await getProducts();
+    const existingIds = new Set(existingProducts.map(p => p.id));
+    const created = [];
+    var counter = 1;
+
+    for (const url of urls) {
+      var productName = prefix + ' #' + counter;
+      var baseId = slug(prefix + '-' + counter);
+      var productId = baseId;
+      if (existingIds.has(productId)) {
+        var suffix = 2;
+        while (existingIds.has(productId + '-' + suffix)) suffix++;
+        productId = productId + '-' + suffix;
+      }
+      existingIds.add(productId);
+
+      const productData = {
+        id: productId,
+        name: productName,
+        brand: brand,
+        price: price,
+        description: desc || '',
+        img: url,
+        images: [url],
+        sections: sections,
+        in_stock: true,
+        visible: true,
+        new: sections.includes('New Models'),
+        originalPrice: null,
+      };
+
+      const result = await saveProduct(productData);
+      if (result) created.push(productName);
+      counter++;
+    }
+
+    this._cachedAdminProducts = await getProducts();
+    await this.syncProducts();
+    this.showToast(created.length + ' / ' + urls.length + ' watches imported successfully');
+    this.renderAdmin();
   },
 
   // ─── GALLERY ──────────────────────────────────────────────────────────
