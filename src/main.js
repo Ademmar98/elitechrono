@@ -829,7 +829,7 @@ const App = {
           </div>
           <div class="mt-6 bg-card border border-subtle p-8 ml-auto max-w-md">
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-subtotal">Subtotal</span><span>DA${total.toLocaleString()}</span></div>
-            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-shipping">Shipping</span><span class="text-green-600" data-i18n="cart-free">Free</span></div>
+            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-shipping">Shipping</span><span class="text-muted-c">Calculated at checkout</span></div>
             <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span data-i18n="cart-total">Total</span><span>DA${total.toLocaleString()}</span></div>
             <a href="#checkout" class="block w-full bg-gold text-primary text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="cart-proceed">Proceed to Checkout</a>
             <a href="#products" class="block w-full text-center py-3 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mt-2" data-i18n="checkout-continue">Continue Shopping</a>
