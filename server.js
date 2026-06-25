@@ -71,7 +71,7 @@ http.createServer((req, res) => {
         const shopId = segments[2];
         const goodsId = segments[3];
 
-        if (!shopId.startsWith('A') || !goodsId.startsWith('I')) {
+        if (shopId.length < 5 || goodsId.length < 5) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Invalid shop ID or goods ID in URL' }));
           return;
