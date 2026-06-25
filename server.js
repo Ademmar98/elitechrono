@@ -52,6 +52,69 @@ http.createServer((req, res) => {
     return;
   }
 
+  // WeChat Catalog product fetch proxy
+  if (req.method === 'POST' && req.url === '/api/wechat/fetch-product') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { url, cookie } = JSON.parse(body);
+        const parsedUrl = new URL(url);
+        const segments = parsedUrl.pathname.split('/').filter(Boolean);
+
+        if (segments.length < 4 || segments[0] !== 'weshop' || segments[1] !== 'goods') {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid WeChat Catalog URL format' }));
+          return;
+        }
+
+        const shopId = segments[2];
+        const goodsId = segments[3];
+
+        if (!shopId.startsWith('A') || !goodsId.startsWith('I')) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid shop ID or goods ID in URL' }));
+          return;
+        }
+
+        const apiUrl = `https://${parsedUrl.hostname}/commodity/view?targetAlbumId=${encodeURIComponent(shopId)}&itemId=${encodeURIComponent(goodsId)}&t=${Date.now()}`;
+
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Cookie': cookie,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Referer': url,
+          },
+        });
+
+        const data = await response.json();
+
+        if (data.errcode !== 0) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: data.errmsg || 'Failed to fetch product' }));
+          return;
+        }
+
+        const commodity = data.result?.commodity || data.result || {};
+        const images = commodity.imgsSrc || commodity.imgs || [];
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          title: commodity.title || '',
+          subTitle: commodity.subTitle || '',
+          price: commodity.price || commodity.optimaPrice || '',
+          images: images,
+          videoThumb: commodity.videoThumbImg || null,
+        }));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   // Static files
   let file = req.url === '/' ? '/index.html' : req.url;
   if (!path.extname(file)) file = '/index.html';

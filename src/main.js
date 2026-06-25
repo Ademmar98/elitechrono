@@ -1829,8 +1829,156 @@ const App = {
           </div>
           <button onclick="App.saveBulkImport()" class="admin-btn admin-btn-primary mt-6 w-full text-center">Import Watches</button>
         </div>
+
+        <div class="bg-card border border-subtle p-6 max-w-2xl">
+          <h3 class="font-cormorant text-xl text-primary mb-4">Import from WeChat Catalog</h3>
+          <p class="font-montserrat text-xs text-muted-c mb-4 leading-relaxed">
+            Paste your WeChat product URLs below. First, get your session cookie:
+            open any WeChat product page in your browser, press F12 &rarr; Application tab &rarr;
+            Cookies &rarr; select <code class="text-primary">wecatalog.cn</code> &rarr; copy all cookies as a single string.
+          </p>
+          <div class="space-y-4">
+            <div>
+              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Session Cookie</label>
+              <textarea id="bi-wechat-cookie" class="admin-input" rows="2" placeholder="paste your cookie string here"></textarea>
+            </div>
+            <div>
+              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">WeChat Product URLs (one per line)</label>
+              <textarea id="bi-wechat-urls" class="admin-input" rows="6" placeholder="https://a2018012414275920148.wecatalog.cn/weshop/goods/A2018012414275920148/I202405041621158212003441"></textarea>
+            </div>
+            <button onclick="App.fetchWechatProducts()" class="admin-btn admin-btn-primary w-full text-center">Fetch from WeChat</button>
+            <div id="bi-wechat-results" class="mt-4"></div>
+          </div>
+        </div>
       </div>
     `;
+  },
+
+  async fetchWechatProducts() {
+    const cookie = document.getElementById('bi-wechat-cookie')?.value?.trim();
+    const urlsText = document.getElementById('bi-wechat-urls')?.value?.trim();
+
+    if (!cookie || !urlsText) {
+      this.showToast('Provide both the session cookie and at least one WeChat URL');
+      return;
+    }
+
+    const urls = urlsText.split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
+    if (!urls.length) {
+      this.showToast('No valid URLs found');
+      return;
+    }
+
+    const resultsDiv = document.getElementById('bi-wechat-results');
+    resultsDiv.innerHTML = '<p class="font-montserrat text-xs text-muted-c">Fetching products from WeChat...</p>';
+
+    const results = [];
+
+    for (const url of urls) {
+      try {
+        const res = await fetch('/api/wechat/fetch-product', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, cookie }),
+        });
+        const data = await res.json();
+        results.push({ url, ...data, images: data.images || [] });
+      } catch (e) {
+        results.push({ url, error: e.message, images: [] });
+      }
+    }
+
+    const success = results.filter(r => !r.error);
+    const failed = results.filter(r => r.error);
+
+    if (!success.length) {
+      resultsDiv.innerHTML = '<p class="font-montserrat text-xs text-red-500">Failed to fetch any products. Check your cookie and URLs.</p>';
+      return;
+    }
+
+    let html = `
+      <div class="bg-background border border-subtle rounded p-3">
+        <p class="font-montserrat text-xs text-muted-c mb-3">${success.length} product(s) fetched successfully${failed.length ? ', ' + failed.length + ' failed' : ''}</p>
+        <div class="space-y-3 max-h-96 overflow-y-auto">`;
+
+    for (const r of success) {
+      const firstImg = r.images[0] || r.videoThumb || '';
+      html += `
+          <div class="flex gap-3 items-start border border-subtle rounded p-2 bg-card fetched-wechat-item">
+            ${firstImg ? `<img src="${esc(firstImg)}" class="w-16 h-16 object-cover rounded flex-shrink-0" alt="">` : '<div class="w-16 h-16 bg-subtle rounded flex-shrink-0 flex items-center justify-center font-montserrat text-2xs text-muted-c">No img</div>'}
+            <div class="flex-1 min-w-0">
+              <p class="font-montserrat text-xs text-primary truncate">${esc(r.title || 'Untitled')}</p>
+              <p class="font-montserrat text-2xs text-muted-c">${r.images.length} image(s)</p>
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${r.images.slice(0, 4).map(img => `<img src="${esc(img)}" class="w-8 h-8 object-cover rounded border border-subtle" alt="">`).join('')}
+                ${r.images.length > 4 ? `<span class="font-montserrat text-2xs text-muted-c self-center">+${r.images.length - 4}</span>` : ''}
+              </div>
+            </div>
+          </div>`;
+    }
+
+    html += `</div>
+        <button onclick="App.importWechatProducts()" class="admin-btn admin-btn-primary mt-4 w-full text-center">Import All ${success.length} Products</button>
+      </div>`;
+
+    for (const r of failed) {
+      html += `<p class="font-montserrat text-2xs text-red-500 mt-1">${esc(r.url)}: ${esc(r.error)}</p>`;
+    }
+
+    resultsDiv.innerHTML = html;
+    resultsDiv._wechatResults = success;
+  },
+
+  async importWechatProducts() {
+    const resultsDiv = document.getElementById('bi-wechat-results');
+    const products = resultsDiv._wechatResults;
+    if (!products || !products.length) return;
+
+    this.showToast('Importing ' + products.length + ' products...');
+
+    const existingProducts = await getProducts();
+    const existingIds = new Set(existingProducts.map(p => p.id));
+    const created = [];
+
+    for (const product of products) {
+      const name = product.title || 'WeChat Import';
+      const baseId = slug(name.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'wechat-' + Date.now());
+      let productId = baseId;
+      if (existingIds.has(productId)) {
+        let suffix = 2;
+        while (existingIds.has(productId + '-' + suffix)) suffix++;
+        productId = productId + '-' + suffix;
+      }
+      existingIds.add(productId);
+
+      const allImages = product.images || [];
+      const productData = {
+        id: productId,
+        name: name,
+        brand: 'WeChat',
+        price: parseFloat(product.price) || 0,
+        description: product.subTitle || '',
+        img: allImages[0] || '',
+        images: allImages,
+        sections: ['Featured Timepieces'],
+        in_stock: true,
+        visible: true,
+        new: false,
+        originalPrice: null,
+      };
+
+      const result = await saveProduct(productData);
+      if (result) created.push(name);
+    }
+
+    this._cachedAdminProducts = await getProducts();
+    await this.syncProducts();
+    this.showToast(created.length + ' / ' + products.length + ' products imported successfully');
+
+    const resultsDiv2 = document.getElementById('bi-wechat-results');
+    resultsDiv2.innerHTML = '';
+    resultsDiv2._wechatResults = null;
+    this.renderAdmin();
   },
 
   async saveBulkImport() {
@@ -1862,7 +2010,7 @@ const App = {
     var counter = 1;
 
     for (const url of urls) {
-      var productName = prefix + ' #' + counter;
+      var productName = prefix;
       var baseId = slug(prefix + '-' + counter);
       var productId = baseId;
       if (existingIds.has(productId)) {
