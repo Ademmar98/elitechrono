@@ -1793,7 +1793,7 @@ const App = {
         <h2 class="font-cormorant text-2xl text-primary mb-6">Bulk Import Watches</h2>
         <div class="bg-card border border-subtle p-6 mb-6 max-w-2xl">
           <p class="font-montserrat text-xs text-muted-c mb-4 leading-relaxed">
-            Paste one image URL per product below. All products share the same brand, name prefix, price, description and sections.
+            All products share the same brand, name prefix, price, description and sections.
           </p>
           <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
@@ -1809,7 +1809,6 @@ const App = {
             <div>
               <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Watch Name Prefix</label>
               <input id="bi-name-prefix" class="admin-input" placeholder="e.g. Rolex Daytona" value="">
-              <p class="font-montserrat text-2xs text-muted-c mt-1">Products will be named "Prefix #1", "Prefix #2" etc.</p>
             </div>
             <div>
               <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Description</label>
@@ -1822,33 +1821,32 @@ const App = {
                 <button type="button" class="section-toggle" data-section="Featured Timepieces" onclick="this.classList.toggle('active')">Featured Timepieces</button>
               </div>
             </div>
-            <div>
-              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Image URLs (one per product)</label>
-              <textarea id="bi-urls" class="admin-input" rows="8" placeholder="https://example.com/watch1-main.jpg&#10;https://example.com/watch2-main.jpg&#10;https://example.com/watch3-main.jpg"></textarea>
-            </div>
-          </div>
-          <button onclick="App.saveBulkImport()" class="admin-btn admin-btn-primary mt-6 w-full text-center">Import Watches</button>
-        </div>
 
-        <div class="bg-card border border-subtle p-6 max-w-2xl">
-          <h3 class="font-cormorant text-xl text-primary mb-4">Import from WeChat Catalog</h3>
-          <p class="font-montserrat text-xs text-muted-c mb-4 leading-relaxed">
-            Paste your WeChat product URLs below. First, get your session cookie:
-            open any WeChat product page in your browser, press F12 &rarr; Application tab &rarr;
-            Cookies &rarr; select <code class="text-primary">wecatalog.cn</code> &rarr; copy all cookies as a single string.
-          </p>
-          <div class="space-y-4">
-            <div>
-              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Session Cookie</label>
-              <textarea id="bi-wechat-cookie" class="admin-input" rows="2" placeholder="paste your cookie string here"></textarea>
-            </div>
-            <div>
-              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">WeChat Product URLs (one per line)</label>
-              <textarea id="bi-wechat-urls" class="admin-input" rows="6" placeholder="https://a2018012414275920148.wecatalog.cn/weshop/goods/A2018012414275920148/I202405041621158212003441"></textarea>
-            </div>
-            <button onclick="App.fetchWechatProducts()" class="admin-btn admin-btn-primary w-full text-center">Fetch from WeChat</button>
-            <div id="bi-wechat-results" class="mt-4"></div>
+            <details class="border border-subtle rounded p-3" ${this._wechatResults ? 'open' : ''}>
+              <summary class="font-montserrat text-xs text-muted-c cursor-pointer select-none">WeChat Catalog (fetch images only)</summary>
+              <div class="space-y-4 mt-4">
+                <div>
+                  <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Session Cookie</label>
+                  <textarea id="bi-wechat-cookie" class="admin-input" rows="2" placeholder="paste your cookie string here"></textarea>
+                </div>
+                <div>
+                  <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">WeChat Product URLs (one per line)</label>
+                  <textarea id="bi-wechat-urls" class="admin-input" rows="6" placeholder="https://a...wecatalog.cn/weshop/goods/..."></textarea>
+                </div>
+                <button type="button" onclick="App.fetchWechatProducts()" class="admin-btn admin-btn-primary w-full text-center">Fetch &amp; Preview</button>
+                <div id="bi-wechat-results" class="mt-2"></div>
+              </div>
+            </details>
+
+            <details class="border border-subtle rounded p-3">
+              <summary class="font-montserrat text-xs text-muted-c cursor-pointer select-none">Manual image URLs (one per product)</summary>
+              <div class="mt-4">
+                <textarea id="bi-urls" class="admin-input" rows="8" placeholder="https://example.com/watch1-main.jpg&#10;https://example.com/watch2-main.jpg&#10;https://example.com/watch3-main.jpg"></textarea>
+              </div>
+            </details>
           </div>
+
+          <button onclick="App.saveBulkImport()" class="admin-btn admin-btn-primary mt-6 w-full text-center">Import Watches</button>
         </div>
       </div>
     `;
@@ -1896,89 +1894,34 @@ const App = {
       return;
     }
 
+    this._wechatResults = success;
     let html = `
       <div class="bg-background border border-subtle rounded p-3">
-        <p class="font-montserrat text-xs text-muted-c mb-3">${success.length} product(s) fetched successfully${failed.length ? ', ' + failed.length + ' failed' : ''}</p>
+        <p class="font-montserrat text-xs text-muted-c mb-3">${success.length} product(s) fetched${failed.length ? ', ' + failed.length + ' failed' : ''}</p>
         <div class="space-y-3 max-h-96 overflow-y-auto">`;
 
     for (const r of success) {
       const firstImg = r.images[0] || r.videoThumb || '';
       html += `
-          <div class="flex gap-3 items-start border border-subtle rounded p-2 bg-card fetched-wechat-item">
+          <div class="flex gap-3 items-start border border-subtle rounded p-2 bg-card">
             ${firstImg ? `<img src="${esc(firstImg)}" class="w-16 h-16 object-cover rounded flex-shrink-0" alt="">` : '<div class="w-16 h-16 bg-subtle rounded flex-shrink-0 flex items-center justify-center font-montserrat text-2xs text-muted-c">No img</div>'}
             <div class="flex-1 min-w-0">
-              <p class="font-montserrat text-xs text-primary truncate">${esc(r.title || 'Untitled')}</p>
               <p class="font-montserrat text-2xs text-muted-c">${r.images.length} image(s)</p>
               <div class="flex flex-wrap gap-1 mt-1">
-                ${r.images.slice(0, 4).map(img => `<img src="${esc(img)}" class="w-8 h-8 object-cover rounded border border-subtle" alt="">`).join('')}
-                ${r.images.length > 4 ? `<span class="font-montserrat text-2xs text-muted-c self-center">+${r.images.length - 4}</span>` : ''}
+                ${r.images.slice(0, 5).map(img => `<img src="${esc(img)}" class="w-10 h-10 object-cover rounded border border-subtle" alt="">`).join('')}
+                ${r.images.length > 5 ? `<span class="font-montserrat text-2xs text-muted-c self-center">+${r.images.length - 5}</span>` : ''}
               </div>
             </div>
           </div>`;
     }
 
-    html += `</div>
-        <button onclick="App.importWechatProducts()" class="admin-btn admin-btn-primary mt-4 w-full text-center">Import All ${success.length} Products</button>
-      </div>`;
+    html += `</div></div>`;
 
     for (const r of failed) {
       html += `<p class="font-montserrat text-2xs text-red-500 mt-1">${esc(r.url)}: ${esc(r.error)}</p>`;
     }
 
     resultsDiv.innerHTML = html;
-    resultsDiv._wechatResults = success;
-  },
-
-  async importWechatProducts() {
-    const resultsDiv = document.getElementById('bi-wechat-results');
-    const products = resultsDiv._wechatResults;
-    if (!products || !products.length) return;
-
-    this.showToast('Importing ' + products.length + ' products...');
-
-    const existingProducts = await getProducts();
-    const existingIds = new Set(existingProducts.map(p => p.id));
-    const created = [];
-
-    for (const product of products) {
-      const name = product.title || 'WeChat Import';
-      const baseId = slug(name.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'wechat-' + Date.now());
-      let productId = baseId;
-      if (existingIds.has(productId)) {
-        let suffix = 2;
-        while (existingIds.has(productId + '-' + suffix)) suffix++;
-        productId = productId + '-' + suffix;
-      }
-      existingIds.add(productId);
-
-      const allImages = product.images || [];
-      const productData = {
-        id: productId,
-        name: name,
-        brand: 'WeChat',
-        price: parseFloat(product.price) || 0,
-        description: product.subTitle || '',
-        img: allImages[0] || '',
-        images: allImages,
-        sections: ['Featured Timepieces'],
-        in_stock: true,
-        visible: true,
-        new: false,
-        originalPrice: null,
-      };
-
-      const result = await saveProduct(productData);
-      if (result) created.push(name);
-    }
-
-    this._cachedAdminProducts = await getProducts();
-    await this.syncProducts();
-    this.showToast(created.length + ' / ' + products.length + ' products imported successfully');
-
-    const resultsDiv2 = document.getElementById('bi-wechat-results');
-    resultsDiv2.innerHTML = '';
-    resultsDiv2._wechatResults = null;
-    this.renderAdmin();
   },
 
   async saveBulkImport() {
@@ -1986,31 +1929,46 @@ const App = {
     const price = parseFloat(document.getElementById('bi-price')?.value);
     const prefix = document.getElementById('bi-name-prefix')?.value?.trim();
     const desc = document.getElementById('bi-desc')?.value?.trim();
-    const urlsText = document.getElementById('bi-urls')?.value?.trim();
 
-    if (!brand || isNaN(price) || !prefix || !urlsText) {
-      this.showToast('Brand, Price, Name Prefix, and at least one URL are required');
+    if (!brand || isNaN(price) || !prefix) {
+      this.showToast('Brand, Price, and Name Prefix are required');
       return;
     }
 
     const sections = [];
     document.querySelectorAll('.section-toggle.active').forEach(btn => sections.push(btn.dataset.section));
 
-    const urls = urlsText.split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
-    if (!urls.length) {
-      this.showToast('No valid image URLs found');
-      return;
-    }
+    const wechatResults = this._wechatResults;
 
-    this.showToast('Importing ' + urls.length + ' watches...');
+    if (!wechatResults || !wechatResults.length) {
+      const urlsText = document.getElementById('bi-urls')?.value?.trim();
+      if (!urlsText) {
+        this.showToast('Provide image URLs manually or fetch from WeChat');
+        return;
+      }
+      const urls = urlsText.split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
+      if (!urls.length) {
+        this.showToast('No valid image URLs found');
+        return;
+      }
+      await this._doBulkImport(brand, price, prefix, desc, sections, urls.map(u => ({ images: [u] })));
+    } else {
+      await this._doBulkImport(brand, price, prefix, desc, sections, wechatResults);
+      this._wechatResults = null;
+    }
+  },
+
+  async _doBulkImport(brand, price, prefix, desc, sections, sources) {
+    this.showToast('Importing ' + sources.length + ' watches...');
 
     const existingProducts = await getProducts();
     const existingIds = new Set(existingProducts.map(p => p.id));
     const created = [];
     var counter = 1;
 
-    for (const url of urls) {
-      var productName = prefix;
+    for (const src of sources) {
+      const allImages = src.images || [];
+      const productName = prefix;
       var baseId = slug(prefix + '-' + counter);
       var productId = baseId;
       if (existingIds.has(productId)) {
@@ -2026,8 +1984,8 @@ const App = {
         brand: brand,
         price: price,
         description: desc || '',
-        img: url,
-        images: [url],
+        img: allImages[0] || '',
+        images: allImages.length ? allImages : [''],
         sections: sections,
         in_stock: true,
         visible: true,
@@ -2042,7 +2000,7 @@ const App = {
 
     this._cachedAdminProducts = await getProducts();
     await this.syncProducts();
-    this.showToast(created.length + ' / ' + urls.length + ' watches imported successfully');
+    this.showToast(created.length + ' / ' + sources.length + ' watches imported successfully');
     this.renderAdmin();
   },
 
