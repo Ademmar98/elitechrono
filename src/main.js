@@ -1,4 +1,4 @@
-import { WATCHES, BRANDS, WILAYAS, slug } from './data.js';
+import { WATCHES, BRANDS, WILAYAS, DELIVERY_PRICES, slug } from './data.js';
 import { Cart } from './cart.js';
 import { Wishlist } from './services/wishlist.js';
 import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders, getSiteContent, saveSiteContent, getCMSDefaults } from './services/db.js';
@@ -885,6 +885,7 @@ const App = {
                 <p class="font-montserrat text-sm text-primary">${o.firstName || ''} ${o.lastName || ''}</p>
                 <p class="font-montserrat text-xs text-muted-c">${o.address || ''}</p>
                 <p class="font-montserrat text-xs text-muted-c">${o.wilaya || ''}${o.commune ? ', ' + o.commune : ''}</p>
+                ${o.deliveryCompany ? '<p class="font-montserrat text-xs text-muted-c">' + esc(o.deliveryCompany) + (o.deliveryType === 'desk' ? ' (Stop Desk)' : ' (Home Delivery)') + ' &mdash; DA' + (o.deliveryPrice || 0).toLocaleString() + '</p>' : ''}
               </div>
               <div class="border-t border-subtle pt-6 mt-6">
                 <h4 class="text-xs uppercase tracking-wider text-muted-c mb-4 font-montserrat">Items</h4>
@@ -892,6 +893,7 @@ const App = {
                   var p = this.watches.find(function(w) { return w.id === item.id; });
                   return '<div class="flex justify-between py-1"><span class="font-montserrat text-sm text-primary">' + (p ? esc(p.name) : item.id) + ' x' + item.qty + '</span><span class="font-cormorant">DA' + ((p ? p.price : 0) * item.qty).toLocaleString() + '</span></div>';
                 }.call(this)).join('')}
+                ${o.deliveryCompany ? '<div class="flex justify-between py-1"><span class="font-montserrat text-sm text-muted-c">' + esc(o.deliveryCompany) + '</span><span class="font-cormorant">DA' + (o.deliveryPrice || 0).toLocaleString() + '</span></div>' : ''}
                 <div class="flex justify-between border-t border-subtle pt-3 mt-3 font-cormorant text-xl text-primary"><span>Total</span><span>DA${o.total.toLocaleString()}</span></div>
               </div>
             </div>
@@ -966,11 +968,46 @@ const App = {
 
   // ─── CHECKOUT ─────────────────────────────────────────────────────────
 
+  _getDeliveryPrice(wilayaCode, companyKey, method) {
+    const carrier = DELIVERY_PRICES[companyKey];
+    if (!carrier) return null;
+    const row = carrier.prices.find(p => p.code === wilayaCode);
+    if (!row) return null;
+    const price = method === 'desk' ? row.desk : row.domicile;
+    return price > 0 ? price : null;
+  },
+
+  updateDeliveryPrice() {
+    const wilayaCode = parseInt(document.getElementById('checkout-wilaya')?.value, 10);
+    const methodEl = document.querySelector('input[name="delivery-method"]:checked');
+    const method = methodEl ? methodEl.value : 'domicile';
+    const companyKey = document.getElementById('delivery-company')?.value || 'DHD';
+    const price = wilayaCode ? this._getDeliveryPrice(wilayaCode, companyKey, method) : null;
+
+    const shippingEl = document.getElementById('checkout-shipping-display');
+    const totalEl = document.getElementById('checkout-total-display');
+    const grandTotalEl = document.getElementById('checkout-grand-total');
+    const confirmBtn = document.getElementById('checkout-confirm-btn');
+    const subtotal = Cart.getTotal(this.watches);
+
+    if (shippingEl) {
+      shippingEl.textContent = price != null ? 'DA' + price.toLocaleString() : '\u2014';
+      shippingEl.className = price != null ? 'font-montserrat text-sm text-primary' : 'font-montserrat text-sm text-muted-c';
+    }
+    const grandTotal = subtotal + (price || 0);
+    if (totalEl) totalEl.textContent = 'DA' + grandTotal.toLocaleString();
+    if (grandTotalEl) grandTotalEl.textContent = 'DA' + grandTotal.toLocaleString();
+    if (confirmBtn) confirmBtn.innerHTML = 'Confirm Order &mdash; DA' + grandTotal.toLocaleString();
+  },
+
   renderCheckout() {
     if (Cart.items.length === 0) { this.navigate('cart'); return; }
 
     const total = Cart.getTotal(this.watches);
     const wilayaOptions = WILAYAS.map(w => `<option value="${w.code}">${w.name}</option>`).join('');
+    const companyOptions = Object.keys(DELIVERY_PRICES).map(k =>
+      `<option value="${k}">${DELIVERY_PRICES[k].name}</option>`
+    ).join('');
 
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
@@ -993,7 +1030,7 @@ const App = {
               <div class="bg-card border border-subtle p-8">
                 <h2 class="font-cormorant text-2xl text-primary mb-6" data-i18n="checkout-shipping">Delivery Address</h2>
                 <div class="grid grid-cols-2 gap-4">
-                  <select id="checkout-wilaya" onchange="App.updateCommunes()" class="col-span-2 sm:col-span-1 border border-medium px-4 py-3 font-montserrat text-sm bg-card focus:outline-none focus:border-gold transition-colors duration-200">
+                  <select id="checkout-wilaya" onchange="App.updateCommunes();App.updateDeliveryPrice()" class="col-span-2 sm:col-span-1 border border-medium px-4 py-3 font-montserrat text-sm bg-card focus:outline-none focus:border-gold transition-colors duration-200">
                     <option value="" data-i18n="checkout-wilaya">Select Wilaya</option>
                     ${wilayaOptions}
                   </select>
@@ -1001,6 +1038,30 @@ const App = {
                     <option value="" data-i18n="checkout-commune">Select Commune</option>
                   </select>
                   <textarea id="checkout-address" placeholder="Street address / Building *" rows="3" class="col-span-2 border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200 resize-none" data-i18n-placeholder="checkout-address-placeholder"></textarea>
+                </div>
+              </div>
+              <div class="bg-card border border-subtle p-8">
+                <h2 class="font-cormorant text-2xl text-primary mb-6">Delivery Method</h2>
+                <div class="space-y-4">
+                  <div>
+                    <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Carrier</label>
+                    <select id="delivery-company" onchange="App.updateDeliveryPrice()" class="w-full border border-medium px-4 py-3 font-montserrat text-sm bg-card focus:outline-none focus:border-gold transition-colors duration-200">
+                      ${companyOptions}
+                    </select>
+                  </div>
+                  <div>
+                    <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Delivery Type</label>
+                    <div class="flex gap-4">
+                      <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="delivery-method" value="domicile" checked onchange="App.updateDeliveryPrice()" class="accent-gold">
+                        <span class="font-montserrat text-sm text-primary">Home Delivery</span>
+                      </label>
+                      <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="delivery-method" value="desk" onchange="App.updateDeliveryPrice()" class="accent-gold">
+                        <span class="font-montserrat text-sm text-primary">Stop Desk</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="bg-card border border-subtle p-8">
@@ -1013,7 +1074,7 @@ const App = {
                   </div>
                 </div>
               </div>
-              <button onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; DA${total.toLocaleString()}</button>
+              <button id="checkout-confirm-btn" onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; DA${total.toLocaleString()}</button>
             </div>
             <div class="md:col-span-2">
               <div class="bg-card border border-subtle p-8 sticky top-32">
@@ -1037,8 +1098,8 @@ const App = {
                 </div>
                 <div class="border-t border-subtle mt-6 pt-6 space-y-2">
                   <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-order-summary">Subtotal</span><span>DA${total.toLocaleString()}</span></div>
-                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-shipping">Shipping</span><span class="text-green-600" data-i18n="checkout-place-order">Free</span></div>
-                  <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span data-i18n="checkout-total">Total</span><span>DA${total.toLocaleString()}</span></div>
+                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-shipping">Shipping</span><span id="checkout-shipping-display" class="font-montserrat text-sm text-muted-c">&mdash;</span></div>
+                  <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span data-i18n="checkout-total">Total</span><span id="checkout-total-display">DA${total.toLocaleString()}</span></div>
                 </div>
               </div>
             </div>
@@ -1078,9 +1139,16 @@ const App = {
       return;
     }
 
+    const companyKey = document.getElementById('delivery-company')?.value || 'DHD';
+    const methodEl = document.querySelector('input[name="delivery-method"]:checked');
+    const deliveryType = methodEl ? methodEl.value : 'domicile';
+    const deliveryCompany = DELIVERY_PRICES[companyKey] ? DELIVERY_PRICES[companyKey].name : companyKey;
+
     const wilaya = WILAYAS.find(w => w.code === wilayaCode);
-    const existingOrders = await getOrders();
+    const deliveryPrice = this._getDeliveryPrice(wilayaCode, companyKey, deliveryType);
     const orderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+    const subtotal = Cart.getTotal(this.watches);
+    const total = subtotal + (deliveryPrice || 0);
     const order = {
       id: orderId,
       date: new Date().toISOString(),
@@ -1091,9 +1159,12 @@ const App = {
       wilayaCode,
       commune,
       address,
+      deliveryCompany,
+      deliveryType,
+      deliveryPrice: deliveryPrice || 0,
       items: Cart.items.map(i => ({ id: i.id, qty: i.qty })),
       status: 'pending',
-      total: Cart.getTotal(this.watches),
+      total,
     };
 
     const saved = await saveOrder(order);
@@ -1108,6 +1179,7 @@ const App = {
       var w = this.watches.find(function(p) { return p.id === item.id; });
       return '<div class="flex justify-between py-2"><span class="font-montserrat text-sm text-primary">' + (w ? esc(w.name) : item.id) + ' <span class="text-muted-c">x' + item.qty + '</span></span><span class="font-cormorant">DA' + ((w ? w.price : 0) * item.qty).toLocaleString() + '</span></div>';
     }.bind(this)).join('');
+    var deliveryLabel = deliveryType === 'desk' ? 'Stop Desk' : 'Home Delivery';
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-2xl mx-auto px-6">
@@ -1131,7 +1203,8 @@ const App = {
             <div class="mb-6">
               <h4 class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-3">Items</h4>
               ${itemsHtml}
-              <div class="flex justify-between border-t border-subtle pt-3 mt-2 font-cormorant text-lg text-primary"><span data-i18n="checkout-total">Total</span><span>DA${order.total.toLocaleString()}</span></div>
+              <div class="flex justify-between py-1"><span class="font-montserrat text-sm text-muted-c">${esc(deliveryCompany)} (${deliveryLabel})</span><span class="font-cormorant">DA${(deliveryPrice || 0).toLocaleString()}</span></div>
+              <div class="flex justify-between border-t border-subtle pt-3 mt-2 font-cormorant text-lg text-primary"><span data-i18n="checkout-total">Total</span><span>DA${total.toLocaleString()}</span></div>
             </div>
             <div class="border-t border-subtle pt-4">
               <h4 class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-2" data-i18n="checkout-shipping">Shipping Details</h4>
@@ -1509,13 +1582,15 @@ const App = {
             <h4 class="text-xs uppercase tracking-wider text-muted-c mb-2">Shipping</h4>
             <p class="text-primary">${o.address || ''}</p>
             <p class="text-muted-c text-xs">${o.wilaya || ''}${o.commune ? ', ' + o.commune : ''}</p>
+            ${o.deliveryCompany ? `<p class="text-muted-c text-xs">${esc(o.deliveryCompany)}${o.deliveryType === 'desk' ? ' (Stop Desk)' : ' (Home Delivery)'} &mdash; DA${(o.deliveryPrice || 0).toLocaleString()}</p>` : ''}
           </div>
           <div class="border-t border-subtle pt-4">
-            <h4 class="text-xs uppercase tracking-wider text-muted-c mb-2">Watches</h4>
+            <h4 class="text-xs uppercase tracking-wider text-muted-c mb-2">Items</h4>
             ${o.items.map(item => {
               const p = this.watches.find(pr => pr.id === item.id);
               return `<div class="flex justify-between py-1"><span class="text-primary">${p ? p.name : item.id} x${item.qty}</span><span class="font-cormorant">DA${((p ? p.price : 0) * item.qty).toLocaleString()}</span></div>`;
             }).join('')}
+            ${o.deliveryCompany ? `<div class="flex justify-between py-1"><span class="text-primary text-muted-c">${esc(o.deliveryCompany)}</span><span class="font-cormorant">DA${(o.deliveryPrice || 0).toLocaleString()}</span></div>` : ''}
             <div class="flex justify-between border-t border-subtle pt-2 mt-2 font-cormorant text-lg text-primary"><span>Total</span><span>DA${o.total.toLocaleString()}</span></div>
           </div>
           <div class="border-t border-subtle pt-4 flex gap-2">
@@ -1768,13 +1843,14 @@ const App = {
   exportOrdersCSV() {
     var orders = this._cachedOrders || [];
     if (!orders.length) { this.showToast('No orders to export'); return; }
-    var rows = [['Order ID','Date','Client','Phone','Wilaya','Commune','Address','Items','Total (DZD)','Status']];
+    var rows = [['Order ID','Date','Client','Phone','Wilaya','Commune','Address','Items','Subtotal (DZD)','Delivery Company','Delivery Price (DZD)','Total (DZD)','Status']];
     orders.forEach(function(o) {
       var items = (o.items || []).map(function(item) {
         var p = this.watches.find(function(w) { return w.id === item.id; });
         return (p ? p.name : item.id) + ' x' + item.qty;
       }.bind(this)).join('; ');
-      rows.push([o.id, new Date(o.date).toISOString(), (o.firstName||'') + ' ' + (o.lastName||''), o.phone||'', o.wilaya||'', o.commune||'', (o.address||'').replace(/,/g,' '), '"' + items + '"', (o.total||0).toString(), o.status||'']);
+      var subtotal = o.total - (o.deliveryPrice || 0);
+      rows.push([o.id, new Date(o.date).toISOString(), (o.firstName||'') + ' ' + (o.lastName||''), o.phone||'', o.wilaya||'', o.commune||'', (o.address||'').replace(/,/g,' '), '"' + items + '"', subtotal.toString(), o.deliveryCompany||'', (o.deliveryPrice||0).toString(), (o.total||0).toString(), o.status||'']);
     }.bind(this));
     var csv = rows.map(function(r) { return r.join(','); }).join('\n');
     var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });

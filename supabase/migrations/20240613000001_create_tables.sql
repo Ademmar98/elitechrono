@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS orders (
   "wilayaCode" INTEGER NOT NULL,
   commune TEXT NOT NULL,
   address TEXT NOT NULL,
+  "deliveryCompany" TEXT,
+  "deliveryType" TEXT DEFAULT 'domicile',
+  "deliveryPrice" NUMERIC DEFAULT 0,
   items JSONB NOT NULL DEFAULT '[]',
   status TEXT NOT NULL DEFAULT 'pending',
   total NUMERIC NOT NULL
