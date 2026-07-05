@@ -1098,7 +1098,7 @@ const App = {
                 </div>
                 <div class="border-t border-subtle mt-6 pt-6 space-y-2">
                   <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-order-summary">Subtotal</span><span>DA${total.toLocaleString()}</span></div>
-                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-shipping">Shipping</span><span id="checkout-shipping-display" class="font-montserrat text-sm text-muted-c">&mdash;</span></div>
+                  <div class="flex justify-between font-montserrat text-sm text-muted-c"><span data-i18n="checkout-shipping">Shipping</span><span id="checkout-shipping-display" class="font-montserrat text-sm text-muted-c">—</span></div>
                   <div class="flex justify-between font-cormorant text-xl text-primary border-t border-subtle pt-4 mt-4"><span data-i18n="checkout-total">Total</span><span id="checkout-total-display">DA${total.toLocaleString()}</span></div>
                 </div>
               </div>
@@ -1891,6 +1891,17 @@ const App = {
               <textarea id="bi-desc" class="admin-input" rows="3" placeholder="Common description for all watches..."></textarea>
             </div>
             <div>
+              <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Specifications</label>
+              <div class="grid grid-cols-2 gap-3">
+                <div><input id="bi-spec-movement" class="admin-input" placeholder="Movement"></div>
+                <div><input id="bi-spec-case" class="admin-input" placeholder="Case"></div>
+                <div><input id="bi-spec-glass" class="admin-input" placeholder="Glass"></div>
+                <div><input id="bi-spec-dial" class="admin-input" placeholder="Dial"></div>
+                <div><input id="bi-spec-strap" class="admin-input" placeholder="Strap"></div>
+                <div><input id="bi-spec-quality" class="admin-input" placeholder="Quality"></div>
+              </div>
+            </div>
+            <div>
               <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Sections</label>
               <div class="flex flex-wrap gap-2">
                 <button type="button" class="section-toggle" data-section="New Models" onclick="this.classList.toggle('active')">New Models</button>
@@ -2014,6 +2025,12 @@ const App = {
     const sections = [];
     document.querySelectorAll('.section-toggle.active').forEach(btn => sections.push(btn.dataset.section));
 
+    const specs = {};
+    ['Movement', 'Case', 'Glass', 'Dial', 'Strap', 'Quality'].forEach(function(f) {
+      var el = document.getElementById('bi-spec-' + f.toLowerCase());
+      if (el && el.value.trim()) specs[f] = el.value.trim();
+    });
+
     const wechatResults = this._wechatResults;
 
     if (!wechatResults || !wechatResults.length) {
@@ -2027,14 +2044,14 @@ const App = {
         this.showToast('No valid image URLs found');
         return;
       }
-      await this._doBulkImport(brand, price, prefix, desc, sections, urls.map(u => ({ images: [u] })));
+      await this._doBulkImport(brand, price, prefix, desc, sections, specs, urls.map(u => ({ images: [u] })));
     } else {
-      await this._doBulkImport(brand, price, prefix, desc, sections, wechatResults);
+      await this._doBulkImport(brand, price, prefix, desc, sections, specs, wechatResults);
       this._wechatResults = null;
     }
   },
 
-  async _doBulkImport(brand, price, prefix, desc, sections, sources) {
+  async _doBulkImport(brand, price, prefix, desc, sections, specs, sources) {
     this.showToast('Importing ' + sources.length + ' watches...');
 
     const existingProducts = await getProducts();
@@ -2062,6 +2079,7 @@ const App = {
         description: desc || '',
         img: allImages[0] || '',
         images: allImages.length ? allImages : [''],
+        specs: specs,
         sections: sections,
         in_stock: true,
         visible: true,
