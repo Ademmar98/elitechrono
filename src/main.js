@@ -89,7 +89,7 @@ function removeJSONLD() {
 
 const App = {
   currentRoute: 'home',
-  whatsappNumber: '213775818412',
+  whatsappNumber: '213782596190',
   watches: WATCHES,
   routes: {
     home: 'renderHome',
