@@ -172,4 +172,6 @@ export const DELIVERY_PRICES = {
   },
 };
 
+export const FREE_SHIPPING_THRESHOLD = 30000;
+
 export const slug = s => s.toLowerCase().replace(/[&\s.]+/g, '-').replace(/^-+|-+$/g, '');

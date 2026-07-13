@@ -90,6 +90,17 @@ const trans = {
     'checkout-failed': 'Échec de la commande.',
     'checkout-continue': 'Continuer vos Achats',
     'checkout-track': 'Suivre la Commande',
+    'checkout-phone-invalid': 'Numéro de téléphone invalide (ex. 05 XX XX XX XX)',
+    'checkout-whatsapp': 'Confirmer via WhatsApp',
+
+    'sort-default': 'Recommandé',
+    'sort-price-asc': 'Prix : croissant',
+    'sort-price-desc': 'Prix : décroissant',
+    'sort-newest': 'Nouveautés d\'abord',
+    'sort-name': 'Nom (A–Z)',
+
+    'section-recent': 'Vus Récemment',
+    'section-recent-title': 'Continuez votre <span class="text-gold">Exploration</span>',
 
     'product-back': 'Retour à la Collection',
     'product-order': 'Commander',
@@ -233,6 +244,17 @@ const trans = {
     'checkout-failed': 'Failed to place order.',
     'checkout-continue': 'Continue Shopping',
     'checkout-track': 'Track Order',
+    'checkout-phone-invalid': 'Invalid phone number (e.g. 05 XX XX XX XX)',
+    'checkout-whatsapp': 'Confirm via WhatsApp',
+
+    'sort-default': 'Recommended',
+    'sort-price-asc': 'Price: Low to High',
+    'sort-price-desc': 'Price: High to Low',
+    'sort-newest': 'New First',
+    'sort-name': 'Name (A–Z)',
+
+    'section-recent': 'Recently Viewed',
+    'section-recent-title': 'Continue <span class="text-gold">Browsing</span>',
 
     'product-back': 'Back to Collection',
     'product-order': 'Order Now',
@@ -376,6 +398,17 @@ const trans = {
     'checkout-failed': 'فشل تقديم الطلب.',
     'checkout-continue': 'متابعة التسوق',
     'checkout-track': 'تتبع الطلب',
+    'checkout-phone-invalid': 'رقم الهاتف غير صالح (مثال 05 XX XX XX XX)',
+    'checkout-whatsapp': 'التأكيد عبر واتساب',
+
+    'sort-default': 'موصى به',
+    'sort-price-asc': 'السعر: من الأدنى إلى الأعلى',
+    'sort-price-desc': 'السعر: من الأعلى إلى الأدنى',
+    'sort-newest': 'الجديد أولاً',
+    'sort-name': 'الاسم (أ–ي)',
+
+    'section-recent': 'شوهدت مؤخراً',
+    'section-recent-title': 'واصل <span class="text-gold">التصفح</span>',
 
     'product-back': 'العودة إلى المجموعة',
     'product-order': 'اطلب الآن',

@@ -1,4 +1,4 @@
-import { WATCHES, BRANDS, WILAYAS, DELIVERY_PRICES, slug } from './data.js';
+import { WATCHES, BRANDS, WILAYAS, DELIVERY_PRICES, FREE_SHIPPING_THRESHOLD, slug } from './data.js';
 import { Cart } from './cart.js';
 import { Wishlist } from './services/wishlist.js';
 import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders, getSiteContent, saveSiteContent, getCMSDefaults } from './services/db.js';
@@ -26,6 +26,11 @@ function esc(s) {
   var d = document.createElement('div');
   d.appendChild(document.createTextNode(s || ''));
   return d.innerHTML;
+}
+
+function isValidDzPhone(p) {
+  var v = (p || '').replace(/[\s.\-()]/g, '');
+  return /^(0|\+213|00213)[567]\d{8}$/.test(v);
 }
 
 function track(eventName, params) {
@@ -112,6 +117,7 @@ const App = {
       await bootstrapSupabaseTables();
     }
     await this.syncProducts();
+    if (!this._cachedCMS) this._cachedCMS = await getSiteContent();
     this.populateBrands();
     if (window.buildSwitcher) window.buildSwitcher();
     if (window.applyTranslations) window.applyTranslations();
@@ -252,6 +258,7 @@ const App = {
   async renderHome() {
     const featured = this.watches.filter(w => w.sections && w.sections.includes('Featured Timepieces')).slice(0, 8);
     const newModels = this.watches.filter(w => w.sections && w.sections.includes('New Models')).slice(0, 4);
+    const recent = this.getRecentlyViewed().map(id => this.watches.find(w => w.id === id)).filter(Boolean).slice(0, 4);
 
     if (!this._cachedCMS) this._cachedCMS = await getSiteContent();
     const cms = this._cachedCMS;
@@ -355,6 +362,17 @@ const App = {
         </div>
       </section>
 
+      ${recent.length ? `
+      <section class="py-24 bg-page">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="mb-16">
+            <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-recent">Recently Viewed</p>
+            <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-recent-title">Continue <span class="text-gold">Browsing</span></h2>
+          </div>
+          <div class="product-grid">${recent.map(w => this.productCard(w)).join('')}</div>
+        </div>
+      </section>` : ''}
+
       <section class="relative py-32 overflow-hidden">
         <div class="absolute inset-0" style="background: linear-gradient(to right, var(--hero-from), var(--hero-via));"></div>
         <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 75% 50%, var(--gold) 2px, transparent 2px); background-size: 30px 30px;"></div>
@@ -394,6 +412,7 @@ const App = {
     const min = parseFloat(document.getElementById('product-price-min')?.value) || 0;
     const max = parseFloat(document.getElementById('product-price-max')?.value) || Infinity;
     if (search) track('Search', { search_string: search });
+    const sort = document.getElementById('product-sort')?.value || '';
     const filtered = this.watches.filter(w => {
       if (search && !w.name.toLowerCase().includes(search) && !w.brand.toLowerCase().includes(search)) return false;
       if (brand && w.brand !== brand) return false;
@@ -401,6 +420,10 @@ const App = {
       if (max !== Infinity && w.price > max) return false;
       return true;
     });
+    if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+    else if (sort === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+    else if (sort === 'name-asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sort === 'newest') filtered.sort((a, b) => (b.new === true) - (a.new === true));
     const grid = document.getElementById('product-grid');
     const count = document.getElementById('product-count');
     const noRes = document.getElementById('product-no-results');
@@ -410,7 +433,7 @@ const App = {
   },
 
   resetProductFilters() {
-    const ids = ['product-search', 'product-brand-filter', 'product-price-min', 'product-price-max'];
+    const ids = ['product-search', 'product-brand-filter', 'product-price-min', 'product-price-max', 'product-sort'];
     ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     this.applyProductFilters();
   },
@@ -432,6 +455,15 @@ const App = {
               <select id="product-brand-filter" onchange="App.applyProductFilters()" class="w-full bg-page border border-subtle px-4 py-2.5 font-montserrat text-sm text-primary focus:border-gold outline-none transition-colors duration-200 cursor-pointer">
                 <option value="">All Brands</option>
                 ${BRANDS.map(b => `<option value="${b}">${b}</option>`).join('')}
+              </select>
+            </div>
+            <div class="md:w-48">
+              <select id="product-sort" onchange="App.applyProductFilters()" class="w-full bg-page border border-subtle px-4 py-2.5 font-montserrat text-sm text-primary focus:border-gold outline-none transition-colors duration-200 cursor-pointer">
+                <option value="" data-i18n="sort-default">Recommended</option>
+                <option value="price-asc" data-i18n="sort-price-asc">Price: Low to High</option>
+                <option value="price-desc" data-i18n="sort-price-desc">Price: High to Low</option>
+                <option value="newest" data-i18n="sort-newest">New First</option>
+                <option value="name-asc" data-i18n="sort-name">Name (A–Z)</option>
               </select>
             </div>
             <div class="flex items-center gap-2">
@@ -581,6 +613,7 @@ const App = {
       if (watch) this.watches = fresh;
     }
     if (!watch) { this.showError('Watch not found'); return; }
+    this.trackRecentlyViewed(watch.id);
     updateMeta(watch.name + ' \u2014 Elite Chrono', watch.brand + ' luxury watch. ' + (watch.description || ''), watch.image);
     track('ViewContent', { content_name: watch.name, content_category: watch.brand, content_ids: [watch.id], content_type: 'product', currency: 'DZD', value: watch.price });
     const watchId = watch.id;
@@ -818,18 +851,19 @@ const App = {
               `;
             }).join('')}
           </div>
-          <div class="mt-6 bg-card border border-subtle p-6 ml-auto max-w-md">
-            ${function() {
-              var threshold = 30000;
+          ${function() {
+              var threshold = this.freeShippingThreshold();
+              if (!threshold) return '';
               var pct = Math.min(100, Math.round(total / threshold * 100));
               var remaining = threshold - total;
-              if (total >= threshold) return '<div class="flex items-center gap-3"><div class="flex-1 h-2 bg-stone-800 rounded-full overflow-hidden"><div class="h-full bg-green-600 rounded-full" style="width:100%"></div></div><span class="font-montserrat text-xs text-green-600 whitespace-nowrap" data-i18n="cart-shipping-free">Free Shipping!</span></div>';
-              return '<div class="mb-2"><div class="flex-1 h-2 bg-stone-800 rounded-full overflow-hidden"><div class="h-full bg-gold rounded-full transition-all duration-500" style="width:' + pct + '%"></div></div></div><p class="font-montserrat text-xs text-muted-c">Add <span class="text-gold font-semibold">DA' + remaining.toLocaleString() + '</span> more for free shipping</p>';
+              var inner;
+              if (total >= threshold) inner = '<div class="flex items-center gap-3"><div class="flex-1 h-2 bg-stone-800 rounded-full overflow-hidden"><div class="h-full bg-green-600 rounded-full" style="width:100%"></div></div><span class="font-montserrat text-xs text-green-600 whitespace-nowrap" data-i18n="cart-shipping-free">Free Shipping!</span></div>';
+              else inner = '<div class="mb-2"><div class="flex-1 h-2 bg-stone-800 rounded-full overflow-hidden"><div class="h-full bg-gold rounded-full transition-all duration-500" style="width:' + pct + '%"></div></div></div><p class="font-montserrat text-xs text-muted-c">Add <span class="text-gold font-semibold">DA' + remaining.toLocaleString() + '</span> more for free shipping</p>';
+              return '<div class="mt-6 bg-card border border-subtle p-6 ml-auto max-w-md">' + inner + '</div>';
             }.call(this)}
-          </div>
           <div class="mt-6 bg-card border border-subtle p-8 ml-auto max-w-md">
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-subtotal">Subtotal</span><span>DA${total.toLocaleString()}</span></div>
-            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-shipping">Shipping</span><span class="text-muted-c">Calculated at checkout</span></div>
+            <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-shipping">Shipping</span>${this.freeShippingThreshold() > 0 && total >= this.freeShippingThreshold() ? '<span class="text-green-600" data-i18n="cart-free">Free</span>' : '<span class="text-muted-c">Calculated at checkout</span>'}</div>
             <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span data-i18n="cart-total">Total</span><span>DA${total.toLocaleString()}</span></div>
             <a href="#checkout" class="block w-full bg-gold text-primary text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="cart-proceed">Proceed to Checkout</a>
             <a href="#products" class="block w-full text-center py-3 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mt-2" data-i18n="checkout-continue">Continue Shopping</a>
@@ -947,6 +981,36 @@ const App = {
     window.open('https://wa.me/' + this.whatsappNumber + '?text=' + msg, '_blank');
   },
 
+  whatsappConfirmOrder() {
+    var o = this._lastOrder;
+    if (!o) return;
+    var lines = o.items.map(item => {
+      var w = this.watches.find(p => p.id === item.id);
+      return '- ' + (w ? w.name : item.id) + ' x' + item.qty;
+    });
+    var deliveryLabel = o.deliveryType === 'desk' ? 'Stop Desk' : 'À domicile';
+    var msg = 'Bonjour Elite Chrono ! Je viens de passer la commande ' + o.id + ' :\n\n'
+      + lines.join('\n')
+      + '\n\nLivraison : ' + o.deliveryCompany + ' (' + deliveryLabel + ') — ' + (o.deliveryPrice ? 'DA' + o.deliveryPrice.toLocaleString() : 'Offerte')
+      + '\nTotal : DA' + o.total.toLocaleString()
+      + '\n\nNom : ' + o.firstName + ' ' + o.lastName
+      + '\nTéléphone : ' + o.phone
+      + '\nAdresse : ' + o.address + ', ' + o.commune + ', ' + o.wilaya;
+    window.open('https://wa.me/' + this.whatsappNumber + '?text=' + encodeURIComponent(msg), '_blank');
+  },
+
+  // ─── RECENTLY VIEWED ──────────────────────────────────────────────────
+
+  getRecentlyViewed() {
+    try { return JSON.parse(localStorage.getItem('elitechrono_recent') || '[]'); } catch (e) { return []; }
+  },
+
+  trackRecentlyViewed(id) {
+    var list = this.getRecentlyViewed().filter(function(x) { return x !== id; });
+    list.unshift(id);
+    try { localStorage.setItem('elitechrono_recent', JSON.stringify(list.slice(0, 12))); } catch (e) {}
+  },
+
   updateCartQty(id, qty) {
     Cart.updateQty(id, qty);
     this.renderCart();
@@ -968,6 +1032,14 @@ const App = {
 
   // ─── CHECKOUT ─────────────────────────────────────────────────────────
 
+  freeShippingThreshold() {
+    const raw = this._cachedCMS ? this._cachedCMS.free_shipping_threshold : undefined;
+    if (raw === undefined || raw === null || raw === '') return FREE_SHIPPING_THRESHOLD;
+    const n = Number(raw);
+    if (isNaN(n)) return FREE_SHIPPING_THRESHOLD;
+    return n > 0 ? n : 0; // 0 disables the free shipping promo
+  },
+
   _getDeliveryPrice(wilayaCode, companyKey, method) {
     const carrier = DELIVERY_PRICES[companyKey];
     if (!carrier) return null;
@@ -982,17 +1054,24 @@ const App = {
     const methodEl = document.querySelector('input[name="delivery-method"]:checked');
     const method = methodEl ? methodEl.value : 'domicile';
     const companyKey = document.getElementById('delivery-company')?.value || 'DHD';
-    const price = wilayaCode ? this._getDeliveryPrice(wilayaCode, companyKey, method) : null;
+    const subtotal = Cart.getTotal(this.watches);
+    const threshold = this.freeShippingThreshold();
+    const freeShipping = threshold > 0 && subtotal >= threshold;
+    const price = freeShipping ? 0 : (wilayaCode ? this._getDeliveryPrice(wilayaCode, companyKey, method) : null);
 
     const shippingEl = document.getElementById('checkout-shipping-display');
     const totalEl = document.getElementById('checkout-total-display');
     const grandTotalEl = document.getElementById('checkout-grand-total');
     const confirmBtn = document.getElementById('checkout-confirm-btn');
-    const subtotal = Cart.getTotal(this.watches);
 
     if (shippingEl) {
-      shippingEl.textContent = price != null ? 'DA' + price.toLocaleString() : '\u2014';
-      shippingEl.className = price != null ? 'font-montserrat text-sm text-primary' : 'font-montserrat text-sm text-muted-c';
+      if (freeShipping) {
+        shippingEl.textContent = window.__ ? window.__('cart-free') : 'Free';
+        shippingEl.className = 'font-montserrat text-sm text-green-600';
+      } else {
+        shippingEl.textContent = price != null ? 'DA' + price.toLocaleString() : '\u2014';
+        shippingEl.className = price != null ? 'font-montserrat text-sm text-primary' : 'font-montserrat text-sm text-muted-c';
+      }
     }
     const grandTotal = subtotal + (price || 0);
     if (totalEl) totalEl.textContent = 'DA' + grandTotal.toLocaleString();
@@ -1107,6 +1186,7 @@ const App = {
         </div>
       </div>
     `);
+    this.updateDeliveryPrice();
   },
 
   updateCommunes() {
@@ -1139,15 +1219,24 @@ const App = {
       return;
     }
 
+    if (!isValidDzPhone(phone)) {
+      this.showToast(window.__ ? window.__('checkout-phone-invalid') : 'Invalid phone number');
+      const phoneEl = document.getElementById('checkout-phone');
+      if (phoneEl) { phoneEl.style.borderColor = '#EF4444'; phoneEl.focus(); }
+      return;
+    }
+
     const companyKey = document.getElementById('delivery-company')?.value || 'DHD';
     const methodEl = document.querySelector('input[name="delivery-method"]:checked');
     const deliveryType = methodEl ? methodEl.value : 'domicile';
     const deliveryCompany = DELIVERY_PRICES[companyKey] ? DELIVERY_PRICES[companyKey].name : companyKey;
 
     const wilaya = WILAYAS.find(w => w.code === wilayaCode);
-    const deliveryPrice = this._getDeliveryPrice(wilayaCode, companyKey, deliveryType);
-    const orderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
     const subtotal = Cart.getTotal(this.watches);
+    const threshold = this.freeShippingThreshold();
+    const freeShipping = threshold > 0 && subtotal >= threshold;
+    const deliveryPrice = freeShipping ? 0 : this._getDeliveryPrice(wilayaCode, companyKey, deliveryType);
+    const orderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
     const total = subtotal + (deliveryPrice || 0);
     const order = {
       id: orderId,
@@ -1174,6 +1263,7 @@ const App = {
     }
 
     Cart.clear();
+    this._lastOrder = order;
     track('Purchase', { value: order.total, currency: 'DZD', content_ids: order.items.map(i => i.id), content_type: 'product' });
     var itemsHtml = order.items.map(function(item) {
       var w = this.watches.find(function(p) { return p.id === item.id; });
@@ -1203,7 +1293,7 @@ const App = {
             <div class="mb-6">
               <h4 class="font-montserrat text-2xs text-muted-c uppercase tracking-wider mb-3">Items</h4>
               ${itemsHtml}
-              <div class="flex justify-between py-1"><span class="font-montserrat text-sm text-muted-c">${esc(deliveryCompany)} (${deliveryLabel})</span><span class="font-cormorant">DA${(deliveryPrice || 0).toLocaleString()}</span></div>
+              <div class="flex justify-between py-1"><span class="font-montserrat text-sm text-muted-c">${esc(deliveryCompany)} (${deliveryLabel})</span><span class="font-cormorant">${freeShipping ? '<span class="text-green-600" data-i18n="cart-free">Free</span>' : 'DA' + (deliveryPrice || 0).toLocaleString()}</span></div>
               <div class="flex justify-between border-t border-subtle pt-3 mt-2 font-cormorant text-lg text-primary"><span data-i18n="checkout-total">Total</span><span>DA${total.toLocaleString()}</span></div>
             </div>
             <div class="border-t border-subtle pt-4">
@@ -1215,6 +1305,7 @@ const App = {
           </div>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
             <a href="#track/${orderId}" class="flex items-center justify-center gap-2 bg-gold text-primary px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-track">Track Order</a>
+            <button onclick="App.whatsappConfirmOrder()" class="flex items-center justify-center gap-2 border border-[#25D366]/40 text-[#25D366] px-8 py-4 font-montserrat text-sm tracking-wider uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300 cursor-pointer"><svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span data-i18n="checkout-whatsapp">Confirm via WhatsApp</span></button>
             <a href="#home" class="flex items-center justify-center gap-2 border border-inverse text-primary px-8 py-4 font-montserrat text-sm tracking-wider uppercase hover-bg-inverse transition-colors duration-300 cursor-pointer" data-i18n="checkout-continue">Return Home</a>
           </div>
         </div>
@@ -1664,6 +1755,12 @@ const App = {
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Journal Badge</label><input id="cms-journal-badge" class="admin-input" value="${esc(cms.journal_badge || '')}"></div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Journal Title (HTML autorisé)</label><textarea id="cms-journal-title" class="admin-input" rows="2">${esc(cms.journal_title || '')}</textarea></div>
           <div><label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Journal Description</label><textarea id="cms-journal-desc" class="admin-input" rows="3">${esc(cms.journal_desc || '')}</textarea></div>
+          <hr class="border-subtle">
+          <div>
+            <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-1 block">Seuil Livraison Gratuite (DZD)</label>
+            <input id="cms-free-shipping" class="admin-input" type="number" min="0" step="500" value="${cms.free_shipping_threshold != null ? cms.free_shipping_threshold : 30000}">
+            <p class="font-montserrat text-2xs text-muted-c mt-1">Livraison offerte à partir de ce montant. Mettre 0 pour désactiver la promotion.</p>
+          </div>
           <div class="flex gap-3 pt-2">
             <button onclick="App.saveCMS()" class="admin-btn admin-btn-primary flex-1">Enregistrer</button>
             <button onclick="App.resetCMS()" class="admin-btn admin-btn-ghost">Réinitialiser</button>
@@ -1685,6 +1782,7 @@ const App = {
       journal_badge: document.getElementById('cms-journal-badge')?.value?.trim() || '',
       journal_title: document.getElementById('cms-journal-title')?.value?.trim() || '',
       journal_desc: document.getElementById('cms-journal-desc')?.value?.trim() || '',
+      free_shipping_threshold: Math.max(0, parseFloat(document.getElementById('cms-free-shipping')?.value) || 0),
     };
     const ok = await saveSiteContent(data);
     if (ok) {

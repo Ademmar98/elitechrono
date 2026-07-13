@@ -245,6 +245,7 @@ const CMS_DEFAULTS = {
   journal_badge: 'Le Journal Elite Chrono',
   journal_title: 'L\'Art de l\'<span class="text-gold">Horlogerie Fine</span>',
   journal_desc: 'Explorez nos articles sur les chefs-d\'œuvre horlogers, le savoir-faire et les histoires derrière les montres les plus convoitées.',
+  free_shipping_threshold: 30000,
 };
 
 export function getCMSDefaults() {
@@ -275,9 +276,17 @@ export async function getSiteContent() {
 
 export async function saveSiteContent(data) {
   if (isSupabaseReady()) {
-    const { error } = await supabase
+    let { error } = await supabase
       .from('site_content')
       .upsert({ id: 1, ...data }, { onConflict: 'id' });
+    if (error && String(error.message || '').indexOf('free_shipping_threshold') !== -1) {
+      // Column not migrated yet — save the rest so the CMS still works
+      console.warn('[DB] site_content is missing free_shipping_threshold; run the latest migration.');
+      const { free_shipping_threshold, ...rest } = data;
+      ({ error } = await supabase
+        .from('site_content')
+        .upsert({ id: 1, ...rest }, { onConflict: 'id' }));
+    }
     if (error) { console.error('[DB] saveSiteContent:', error); return false; }
     return true;
   }
