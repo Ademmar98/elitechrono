@@ -91,7 +91,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
             </div>
             <a href="#new-models" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
-          <div class="product-grid" data-reveal>${e.map(i=>this.productCard(i)).join("")}</div>
+          <div class="product-grid" data-reveal>${e.map((i,n)=>this.productCard(i,n)).join("")}</div>
           <div class="mt-8 text-center md:hidden">
             <a href="#new-models" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
           </div>
@@ -107,7 +107,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
             </div>
             <a href="#featured" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
-          <div class="product-grid" data-reveal>${t.map(i=>this.productCard(i)).join("")}</div>
+          <div class="product-grid" data-reveal>${t.map((i,n)=>this.productCard(i,n)).join("")}</div>
           <div class="mt-8 text-center md:hidden">
             <a href="#featured" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
           </div>
@@ -124,7 +124,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-recent">Recently Viewed</p>
             <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-recent-title">Continue <span class="text-gold">Browsing</span></h2>
           </div>
-          <div class="product-grid" data-reveal>${r.map(i=>this.productCard(i)).join("")}</div>
+          <div class="product-grid" data-reveal>${r.map((i,n)=>this.productCard(i,n)).join("")}</div>
         </div>
       </section>`:""}
 
@@ -138,7 +138,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
           <a href="#about" class="inline-flex items-center gap-2 border border-white/20 text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover:bg-white/10 transition-colors duration-300 cursor-pointer" data-i18n="read-more">Lire Plus</a>
         </div>
       </section>
-    `)},onSearchInput(t){this.applyProductFilters(),this.showSuggestions(t)},showSuggestions(t){var e=document.getElementById("search-suggestions");if(e){var r=(t||"").trim().toLowerCase();if(!r||r.length<1){e.classList.add("hidden");return}var s=this.watches.filter(function(i){return i.name.toLowerCase().includes(r)||i.brand.toLowerCase().includes(r)}).slice(0,6);if(!s.length){e.classList.add("hidden");return}e.innerHTML=s.map(function(i){return'<a href="#product-'+i.id+`" class="flex items-center gap-3 px-4 py-2.5 hover-bg-hover transition-colors duration-150 border-b border-subtle last:border-b-0" onclick="document.getElementById('search-suggestions').classList.add('hidden')"><img src="`+i.img+`" alt="" class="w-8 h-8 object-cover bg-stone-800 flex-shrink-0" onerror="this.style.display='none'"><div class="min-w-0"><div class="font-montserrat text-xs text-primary truncate">`+k(i.name)+'</div><div class="font-montserrat text-2xs text-muted-c">'+k(i.brand)+" &middot; DA"+i.price.toLocaleString()+"</div></div></a>"}).join(""),e.classList.remove("hidden")}},applyProductFilters(){const t=(document.getElementById("product-search")?.value||"").toLowerCase().trim(),e=document.getElementById("product-brand-filter")?.value||"",r=parseFloat(document.getElementById("product-price-min")?.value)||0,s=parseFloat(document.getElementById("product-price-max")?.value)||1/0;t&&we("Search",{search_string:t});const i=document.getElementById("product-sort")?.value||"",n=this.watches.filter(c=>!(t&&!c.name.toLowerCase().includes(t)&&!c.brand.toLowerCase().includes(t)||e&&c.brand!==e||r>0&&c.price<r||s!==1/0&&c.price>s));i==="price-asc"?n.sort((c,d)=>c.price-d.price):i==="price-desc"?n.sort((c,d)=>d.price-c.price):i==="name-asc"?n.sort((c,d)=>c.name.localeCompare(d.name)):i==="newest"&&n.sort((c,d)=>(d.new===!0)-(c.new===!0));const a=document.getElementById("product-grid"),l=document.getElementById("product-count"),o=document.getElementById("product-no-results");a&&(a.innerHTML=n.map(c=>this.productCard(c)).join("")),l&&(l.textContent=`${n.length} watch${n.length!==1?"es":""}`),o&&o.classList.toggle("hidden",n.length>0)},resetProductFilters(){["product-search","product-brand-filter","product-price-min","product-price-max","product-sort"].forEach(e=>{const r=document.getElementById(e);r&&(r.value="")}),this.applyProductFilters()},renderProducts(){this.render(`
+    `)},onSearchInput(t){this.applyProductFilters(),this.showSuggestions(t)},showSuggestions(t){var e=document.getElementById("search-suggestions");if(e){var r=(t||"").trim().toLowerCase();if(!r||r.length<1){e.classList.add("hidden");return}var s=this.watches.filter(function(i){return i.name.toLowerCase().includes(r)||i.brand.toLowerCase().includes(r)}).slice(0,6);if(!s.length){e.classList.add("hidden");return}e.innerHTML=s.map(function(i){return'<a href="#product-'+i.id+`" class="flex items-center gap-3 px-4 py-2.5 hover-bg-hover transition-colors duration-150 border-b border-subtle last:border-b-0" onclick="document.getElementById('search-suggestions').classList.add('hidden')"><img src="`+i.img+`" alt="" class="w-8 h-8 object-cover bg-stone-800 flex-shrink-0" onerror="this.style.display='none'"><div class="min-w-0"><div class="font-montserrat text-xs text-primary truncate">`+k(i.name)+'</div><div class="font-montserrat text-2xs text-muted-c">'+k(i.brand)+" &middot; DA"+i.price.toLocaleString()+"</div></div></a>"}).join(""),e.classList.remove("hidden")}},applyProductFilters(){const t=(document.getElementById("product-search")?.value||"").toLowerCase().trim(),e=document.getElementById("product-brand-filter")?.value||"",r=parseFloat(document.getElementById("product-price-min")?.value)||0,s=parseFloat(document.getElementById("product-price-max")?.value)||1/0;t&&we("Search",{search_string:t});const i=document.getElementById("product-sort")?.value||"",n=this.watches.filter(c=>!(t&&!c.name.toLowerCase().includes(t)&&!c.brand.toLowerCase().includes(t)||e&&c.brand!==e||r>0&&c.price<r||s!==1/0&&c.price>s));i==="price-asc"?n.sort((c,d)=>c.price-d.price):i==="price-desc"?n.sort((c,d)=>d.price-c.price):i==="name-asc"?n.sort((c,d)=>c.name.localeCompare(d.name)):i==="newest"&&n.sort((c,d)=>(d.new===!0)-(c.new===!0));const a=document.getElementById("product-grid"),l=document.getElementById("product-count"),o=document.getElementById("product-no-results");a&&(a.innerHTML=n.map((c,d)=>this.productCard(c,d)).join("")),l&&(l.textContent=`${n.length} watch${n.length!==1?"es":""}`),o&&o.classList.toggle("hidden",n.length>0)},resetProductFilters(){["product-search","product-brand-filter","product-price-min","product-price-max","product-sort"].forEach(e=>{const r=document.getElementById(e);r&&(r.value="")}),this.applyProductFilters()},renderProducts(){this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <div class="mb-12">
@@ -175,7 +175,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
           <div class="flex items-center justify-between mb-8">
             <p class="font-montserrat text-muted-c text-sm" id="product-count">${this.watches.length} watches</p>
           </div>
-          <div class="product-grid" id="product-grid">${this.watches.map(t=>this.productCard(t)).join("")}</div>
+          <div class="product-grid" id="product-grid">${this.watches.map((t,e)=>this.productCard(t,e)).join("")}</div>
           <div id="product-no-results" class="text-center py-20 hidden">
             <p class="font-cormorant text-2xl text-muted-c">No watches found matching your criteria.</p>
           </div>
@@ -189,7 +189,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="nav-new-models">New Models</h1>
             <p class="font-montserrat text-muted-c mt-4" data-i18n="section-new-arrivals-desc">The latest additions to our collection</p>
           </div>
-          <div class="product-grid">${this.watches.filter(t=>t.sections&&t.sections.includes("New Models")).map(t=>this.productCard(t)).join("")}</div>
+          <div class="product-grid">${this.watches.filter(t=>t.sections&&t.sections.includes("New Models")).map((t,e)=>this.productCard(t,e)).join("")}</div>
         </div>
       </div>
     `)},renderFeatured(){const t=this.watches.filter(e=>e.sections&&e.sections.includes("Featured Timepieces"));this.render(`
@@ -201,7 +201,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n-html="section-featured-title">Featured <span class="text-gold">Timepieces</span></h1>
             <p class="font-montserrat text-muted-c mt-4" data-i18n="section-featured-desc">A hand-picked selection of exceptional watches.</p>
           </div>
-          <div class="product-grid">${t.map(e=>this.productCard(e)).join("")}</div>
+          <div class="product-grid">${t.map((e,r)=>this.productCard(e,r)).join("")}</div>
           ${t.length===0?'<div class="text-center py-20"><p class="font-cormorant text-2xl text-muted-c">No featured watches yet.</p></div>':""}
         </div>
       </div>
@@ -214,7 +214,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary">${i}</h1>
             <p class="font-montserrat text-muted-c mt-4">${n.length} <span data-i18n="products">timepieces</span></p>
           </div>
-          <div class="product-grid">${n.map(a=>this.productCard(a)).join("")}</div>
+          <div class="product-grid">${n.map((a,l)=>this.productCard(a,l)).join("")}</div>
         </div>
       </div>
     `)},renderAllBrands(){this.render(`
@@ -301,7 +301,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
           </div>
           <div class="similar-grid" id="similar-grid">
             ${a.map((o,c)=>`
-              <div class="${c>=8?"similar-hidden":""}">${this.productCard(o)}</div>
+              <div class="${c>=8?"similar-hidden":""}">${this.productCard(o,c)}</div>
             `).join("")}
           </div>
           ${a.length>8?`
@@ -327,7 +327,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
             <h1 class="font-cormorant text-4xl md:text-5xl text-primary">Mes Favoris</h1>
             <span class="font-montserrat text-sm text-muted-c">${t.length} montre${t.length>1?"s":""}</span>
           </div>
-          <div class="product-grid">${t.map(e=>this.productCard(e)).join("")}</div>
+          <div class="product-grid">${t.map((e,r)=>this.productCard(e,r)).join("")}</div>
         </div>
       </div>
     `)},renderCart(){if(O.items.length===0){this.render(`
@@ -402,7 +402,7 @@ ${g}`}class $ extends Error{constructor({message:e,code:r,cause:s,name:i}){var n
               <div class="border-t border-subtle pt-6 mb-8">
                 <h4 class="text-xs uppercase tracking-wider text-muted-c mb-4 font-montserrat">Status Timeline</h4>
                 <div class="flex items-start gap-0">
-                  ${["pending","confirmed","shipped","delivered"].map(function(i,n){var a=["pending","confirmed","shipped","delivered"].indexOf(s.status),l=a>=n,o=s.status==="cancelled";return'<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold '+(o?"bg-stone-700 text-stone-400":l?"bg-gold text-gold-ink":"bg-stone-800 text-stone-500")+'">'+(l&&!o?"✓":"•")+'</div><div class="text-2xs mt-1 '+(o?"text-stone-500":l?"text-gold":"text-stone-600")+'">'+e[i]+"</div></div>"+(n<3?'<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>':"")}).join("")}
+                  ${["pending","confirmed","shipped","delivered"].map(function(i,n){var a=["pending","confirmed","shipped","delivered"].indexOf(s.status),l=a>=n,o=s.status==="cancelled";return'<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold '+(o?"bg-stone-700 text-stone-400":l?"bg-gold text-gold-ink":"bg-stone-800 text-dim-c")+'">'+(l&&!o?"✓":"•")+'</div><div class="text-2xs mt-1 '+(o?"text-dim-c":l?"text-gold":"text-dim-c")+'">'+e[i]+"</div></div>"+(n<3?'<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>':"")}).join("")}
                 </div>
                 ${s.status==="cancelled"?'<p class="text-center text-2xs text-red-400 mt-3">This order was cancelled.</p>':""}
               </div>
@@ -854,8 +854,8 @@ Adresse : `+t.address+", "+t.commune+", "+t.wilaya;window.open("https://wa.me/"+
             <div class="flex items-start gap-0">
               ${["pending","confirmed","shipped","delivered"].map((a,l)=>{var o=["pending","confirmed","shipped","delivered"].indexOf(r.status),c=o>=l,d=r.status==="cancelled";return`
                 <div class="flex-1 text-center">
-                  <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ${d?"bg-stone-700 text-stone-400":c?"bg-gold text-gold-ink":"bg-stone-800 text-stone-500"}">${c&&!d?"✓":"•"}</div>
-                  <div class="text-2xs mt-1 ${d?"text-stone-500":c?"text-gold":"text-stone-600"}">${s[a]}</div>
+                  <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ${d?"bg-stone-700 text-stone-400":c?"bg-gold text-gold-ink":"bg-stone-800 text-dim-c"}">${c&&!d?"✓":"•"}</div>
+                  <div class="text-2xs mt-1 ${d?"text-dim-c":c?"text-gold":"text-dim-c"}">${s[a]}</div>
                   ${r.status===a?'<div class="text-2xs text-gold mt-0.5">← Current</div>':""}
                 </div>
                 ${l<3?'<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>':""}
@@ -1088,17 +1088,17 @@ Adresse : `+t.address+", "+t.commune+", "+t.wilaya;window.open("https://wa.me/"+
               </div>
             </div>
           </div>`}l+="</div></div>";for(const o of a)l+=`<p class="font-montserrat text-2xs text-red-500 mt-1">${k(o.url)}: ${k(o.error)}</p>`;s.innerHTML=l},async saveBulkImport(){const t=document.getElementById("bi-brand")?.value,e=parseFloat(document.getElementById("bi-price")?.value),r=document.getElementById("bi-name-prefix")?.value?.trim(),s=document.getElementById("bi-desc")?.value?.trim();if(!t||isNaN(e)||!r){this.showToast("Brand, Price, and Name Prefix are required");return}const i=[];document.querySelectorAll(".section-toggle.active").forEach(l=>i.push(l.dataset.section));const n={};["Movement","Case","Glass","Dial","Strap","Quality"].forEach(function(l){var o=document.getElementById("bi-spec-"+l.toLowerCase());o&&o.value.trim()&&(n[l]=o.value.trim())});const a=this._wechatResults;if(!a||!a.length){const l=document.getElementById("bi-urls")?.value?.trim();if(!l){this.showToast("Provide image URLs manually or fetch from WeChat");return}const o=l.split(`
-`).map(c=>c.trim()).filter(c=>c.startsWith("http"));if(!o.length){this.showToast("No valid image URLs found");return}await this._doBulkImport(t,e,r,s,i,n,o.map(c=>({images:[c]})))}else await this._doBulkImport(t,e,r,s,i,n,a),this._wechatResults=null},async _doBulkImport(t,e,r,s,i,n,a){this.showToast("Importing "+a.length+" watches...");const l=await ce(),o=new Set(l.map(m=>m.id)),c=[];var d=1;for(const m of a){const f=m.images||[],w=r;var u=ee(r+"-"+d),h=u;if(o.has(h)){for(var p=2;o.has(h+"-"+p);)p++;h=h+"-"+p}o.add(h);const g={id:h,name:w,brand:t,price:e,description:s||"",img:f[0]||"",images:f.length?f:[""],specs:n,sections:i,in_stock:!0,visible:!0,new:i.includes("New Models"),originalPrice:null};await _r(g)&&c.push(w),d++}this._cachedAdminProducts=await ce(),await this.syncProducts(),this.showToast(c.length+" / "+a.length+" watches imported successfully"),this.renderAdmin()},galleryNav(t,e){const r=this.watches.find(a=>a.id===t)?.images;if(!r||r.length<2)return;const s=document.getElementById("detail-main-img"),i=s.getAttribute("src");let n=r.indexOf(i);n===-1&&(n=0),n=(n+e+r.length)%r.length,s.setAttribute("src",r[n]),document.querySelectorAll(".thumb-img").forEach(a=>a.classList.toggle("active",parseInt(a.dataset.index,10)===n)),document.querySelectorAll(".gallery-dot").forEach(a=>a.classList.toggle("active",parseInt(a.dataset.index)===n)),document.getElementById("thumb-gallery")?.querySelector(`.thumb-img[data-index="${n}"]`)?.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"})},gallerySelect(t){const e=document.getElementById("detail-main-img"),r=document.querySelectorAll(".thumb-img");if(!e||!r.length)return;const s=r[t]?.getAttribute("src");s&&e.setAttribute("src",s),r.forEach(i=>i.classList.toggle("active",parseInt(i.dataset.index,10)===t)),document.querySelectorAll(".gallery-dot").forEach(i=>i.classList.toggle("active",parseInt(i.dataset.index)===t))},bc(t){var e='<div class="flex items-center gap-2 text-xs font-montserrat text-muted-c mb-8 flex-wrap">';t[0]!=="Home"&&(e+='<a href="#home" class="hover-text-gold transition-colors">Home</a><span class="text-gold">/</span>');for(var r=0;r<t.length;r++){var s=t[r],i=r<t.length-1;if(r===0&&s==="Home")e+='<a href="#home" class="hover-text-gold transition-colors">Home</a><span class="text-gold mx-1">/</span>';else if(i){var n=s==="Watches"?"#products":s==="Featured"?"#featured":s==="Brands"?"#brands":"";n?e+='<a href="'+n+'" class="hover-text-gold transition-colors">'+s+'</a><span class="text-gold mx-1">/</span>':e+='<span class="text-primary">'+s+'</span><span class="text-gold mx-1">/</span>'}else e+='<span class="text-primary">'+s+"</span>"}return e+="</div>",e},productCard(t){const e=he.has(t.id);return`
+`).map(c=>c.trim()).filter(c=>c.startsWith("http"));if(!o.length){this.showToast("No valid image URLs found");return}await this._doBulkImport(t,e,r,s,i,n,o.map(c=>({images:[c]})))}else await this._doBulkImport(t,e,r,s,i,n,a),this._wechatResults=null},async _doBulkImport(t,e,r,s,i,n,a){this.showToast("Importing "+a.length+" watches...");const l=await ce(),o=new Set(l.map(m=>m.id)),c=[];var d=1;for(const m of a){const f=m.images||[],w=r;var u=ee(r+"-"+d),h=u;if(o.has(h)){for(var p=2;o.has(h+"-"+p);)p++;h=h+"-"+p}o.add(h);const g={id:h,name:w,brand:t,price:e,description:s||"",img:f[0]||"",images:f.length?f:[""],specs:n,sections:i,in_stock:!0,visible:!0,new:i.includes("New Models"),originalPrice:null};await _r(g)&&c.push(w),d++}this._cachedAdminProducts=await ce(),await this.syncProducts(),this.showToast(c.length+" / "+a.length+" watches imported successfully"),this.renderAdmin()},galleryNav(t,e){const r=this.watches.find(a=>a.id===t)?.images;if(!r||r.length<2)return;const s=document.getElementById("detail-main-img"),i=s.getAttribute("src");let n=r.indexOf(i);n===-1&&(n=0),n=(n+e+r.length)%r.length,s.setAttribute("src",r[n]),document.querySelectorAll(".thumb-img").forEach(a=>a.classList.toggle("active",parseInt(a.dataset.index,10)===n)),document.querySelectorAll(".gallery-dot").forEach(a=>a.classList.toggle("active",parseInt(a.dataset.index)===n)),document.getElementById("thumb-gallery")?.querySelector(`.thumb-img[data-index="${n}"]`)?.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"})},gallerySelect(t){const e=document.getElementById("detail-main-img"),r=document.querySelectorAll(".thumb-img");if(!e||!r.length)return;const s=r[t]?.getAttribute("src");s&&e.setAttribute("src",s),r.forEach(i=>i.classList.toggle("active",parseInt(i.dataset.index,10)===t)),document.querySelectorAll(".gallery-dot").forEach(i=>i.classList.toggle("active",parseInt(i.dataset.index)===t))},bc(t){var e='<div class="flex items-center gap-2 text-xs font-montserrat text-muted-c mb-8 flex-wrap">';t[0]!=="Home"&&(e+='<a href="#home" class="hover-text-gold transition-colors">Home</a><span class="text-gold">/</span>');for(var r=0;r<t.length;r++){var s=t[r],i=r<t.length-1;if(r===0&&s==="Home")e+='<a href="#home" class="hover-text-gold transition-colors">Home</a><span class="text-gold mx-1">/</span>';else if(i){var n=s==="Watches"?"#products":s==="Featured"?"#featured":s==="Brands"?"#brands":"";n?e+='<a href="'+n+'" class="hover-text-gold transition-colors">'+s+'</a><span class="text-gold mx-1">/</span>':e+='<span class="text-primary">'+s+'</span><span class="text-gold mx-1">/</span>'}else e+='<span class="text-primary">'+s+"</span>"}return e+="</div>",e},productCard(t,e=99){const r=he.has(t.id),s=e<4;return`
       <a href="#product-${k(t.id)}" class="product-card ${t.in_stock===!1?"opacity-dimmed":""}">
         <div class="relative overflow-hidden product-card-img-wrap">
-          <img src="${k(t.img)}" alt="${k(t.brand)} ${k(t.name)}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent((this.alt || 'Watch').split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
+          <img src="${k(t.img)}" alt="${k(t.brand)} ${k(t.name)}" loading="${s?"eager":"lazy"}" decoding="async" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent((this.alt || 'Watch').split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
           <div class="product-badges">
             ${t.new?'<span class="badge-new" data-i18n="badge-new">New</span>':""}
             ${t.originalPrice?'<span class="badge-sale" data-i18n="badge-sale">Sale</span>':""}
             ${t.in_stock===!1?'<span class="badge-oos" data-i18n="product-oos">Out of Stock</span>':""}
           </div>
-          <button onclick="event.preventDefault();event.stopPropagation();App.toggleWishlist('${k(t.id)}')" class="wishlist-btn" aria-pressed="${e}" aria-label="${k(t.name)}" title="${k(t.name)}">
-            <svg class="w-4 h-4 transition-colors duration-200" fill="${e?"#EF4444":"none"}" stroke="${e?"#EF4444":"white"}" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <button onclick="event.preventDefault();event.stopPropagation();App.toggleWishlist('${k(t.id)}')" class="wishlist-btn" aria-pressed="${r}" aria-label="${k(t.name)}" title="${k(t.name)}">
+            <svg class="w-4 h-4 transition-colors duration-200" fill="${r?"#EF4444":"none"}" stroke="${r?"#EF4444":"white"}" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
           </button>
         </div>
         <div class="product-info">

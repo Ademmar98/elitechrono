@@ -35,6 +35,9 @@
       /* Ink for text sitting ON gold. White on #CA8A04 is 2.81:1 and fails WCAG AA;
          this near-black is ~7.4:1. */
       --gold-ink: #17120B;
+      /* Dimmer than --text-muted and lower-luminance than --gold, so a "not yet reached"
+         state reads as receding next to a completed gold one. 5.2:1 on --bg-page. */
+      --text-dim: #857E78;
       --navbar-bg: rgba(12,10,9,0.85); --hero-from: #000000; --hero-via: #1C1917;
 
       /* Elevation — there were no shadow tokens at all, so every surface read flat. */
@@ -167,6 +170,7 @@
     .text-primary { color: var(--text-primary); }
     .text-secondary { color: var(--text-secondary); }
     .text-muted-c { color: var(--text-muted); }
+    .text-dim-c { color: var(--text-dim); }
     .text-gold { color: var(--gold); }
     .text-inverse { color: var(--text-inverse); }
     .border-subtle { border-color: var(--border-subtle); }
@@ -391,7 +395,7 @@
     fbq('init', '957063077310078');
     fbq('track', 'PageView');
   </script>
-  <script type="module" crossorigin src="/assets/index-5NavJnGl.js"></script>
+  <script type="module" crossorigin src="/assets/index-CMzRYLBE.js"></script>
 </head>
 <body>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=957063077310078&ev=PageView&noscript=1"/></noscript>

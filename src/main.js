@@ -384,7 +384,7 @@ const App = {
             </div>
             <a href="#new-models" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
-          <div class="product-grid" data-reveal>${newModels.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid" data-reveal>${newModels.map((w, i) => this.productCard(w, i)).join('')}</div>
           <div class="mt-8 text-center md:hidden">
             <a href="#new-models" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
           </div>
@@ -400,7 +400,7 @@ const App = {
             </div>
             <a href="#featured" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
-          <div class="product-grid" data-reveal>${featured.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid" data-reveal>${featured.map((w, i) => this.productCard(w, i)).join('')}</div>
           <div class="mt-8 text-center md:hidden">
             <a href="#featured" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
           </div>
@@ -417,7 +417,7 @@ const App = {
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-recent">Recently Viewed</p>
             <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-recent-title">Continue <span class="text-gold">Browsing</span></h2>
           </div>
-          <div class="product-grid" data-reveal>${recent.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid" data-reveal>${recent.map((w, i) => this.productCard(w, i)).join('')}</div>
         </div>
       </section>` : ''}
 
@@ -475,7 +475,7 @@ const App = {
     const grid = document.getElementById('product-grid');
     const count = document.getElementById('product-count');
     const noRes = document.getElementById('product-no-results');
-    if (grid) grid.innerHTML = filtered.map(w => this.productCard(w)).join('');
+    if (grid) grid.innerHTML = filtered.map((w, i) => this.productCard(w, i)).join('');
     if (count) count.textContent = `${filtered.length} watch${filtered.length !== 1 ? 'es' : ''}`;
     if (noRes) noRes.classList.toggle('hidden', filtered.length > 0);
   },
@@ -524,7 +524,7 @@ const App = {
           <div class="flex items-center justify-between mb-8">
             <p class="font-montserrat text-muted-c text-sm" id="product-count">${this.watches.length} watches</p>
           </div>
-          <div class="product-grid" id="product-grid">${this.watches.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid" id="product-grid">${this.watches.map((w, i) => this.productCard(w, i)).join('')}</div>
           <div id="product-no-results" class="text-center py-20 hidden">
             <p class="font-cormorant text-2xl text-muted-c">No watches found matching your criteria.</p>
           </div>
@@ -542,7 +542,7 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="nav-new-models">New Models</h1>
             <p class="font-montserrat text-muted-c mt-4" data-i18n="section-new-arrivals-desc">The latest additions to our collection</p>
           </div>
-          <div class="product-grid">${this.watches.filter(w => w.sections && w.sections.includes('New Models')).map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${this.watches.filter(w => w.sections && w.sections.includes('New Models')).map((w, i) => this.productCard(w, i)).join('')}</div>
         </div>
       </div>
     `);
@@ -559,7 +559,7 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n-html="section-featured-title">Featured <span class="text-gold">Timepieces</span></h1>
             <p class="font-montserrat text-muted-c mt-4" data-i18n="section-featured-desc">A hand-picked selection of exceptional watches.</p>
           </div>
-          <div class="product-grid">${watches.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${watches.map((w, i) => this.productCard(w, i)).join('')}</div>
           ${watches.length === 0 ? '<div class="text-center py-20"><p class="font-cormorant text-2xl text-muted-c">No featured watches yet.</p></div>' : ''}
         </div>
       </div>
@@ -583,7 +583,7 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary">${actualBrand}</h1>
             <p class="font-montserrat text-muted-c mt-4">${filtered.length} <span data-i18n="products">timepieces</span></p>
           </div>
-          <div class="product-grid">${filtered.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${filtered.map((w, i) => this.productCard(w, i)).join('')}</div>
         </div>
       </div>
     `);
@@ -738,7 +738,7 @@ this.render(`
           </div>
           <div class="similar-grid" id="similar-grid">
             ${similar.map((w, i) => `
-              <div class="${i >= 8 ? 'similar-hidden' : ''}">${this.productCard(w)}</div>
+              <div class="${i >= 8 ? 'similar-hidden' : ''}">${this.productCard(w, i)}</div>
             `).join('')}
           </div>
           ${similar.length > 8 ? `
@@ -828,7 +828,7 @@ this.render(`
             <h1 class="font-cormorant text-4xl md:text-5xl text-primary">Mes Favoris</h1>
             <span class="font-montserrat text-sm text-muted-c">${items.length} montre${items.length > 1 ? 's' : ''}</span>
           </div>
-          <div class="product-grid">${items.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid">${items.map((w, i) => this.productCard(w, i)).join('')}</div>
         </div>
       </div>
     `);
@@ -945,7 +945,10 @@ this.render(`
                     var idx = ['pending','confirmed','shipped','delivered'].indexOf(o.status);
                     var done = idx >= i;
                     var cancelled = o.status === 'cancelled';
-                    return '<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ' + (cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-stone-500') + '">' + (done && !cancelled ? '\u2713' : '\u2022') + '</div><div class="text-2xs mt-1 ' + (cancelled ? 'text-stone-500' : done ? 'text-gold' : 'text-stone-600') + '">' + statusLabels[s] + '</div></div>' + (i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : '');
+                    // Reached steps are gold; not-yet-reached steps must recede. This used
+                    // text-stone-600, which our override maps to #D6D3D1 \u2014 brighter than the
+                    // gold \u2014 so the timeline was emphasising what had NOT happened.
+                    return '<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ' + (cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-dim-c') + '">' + (done && !cancelled ? '\u2713' : '\u2022') + '</div><div class="text-2xs mt-1 ' + (cancelled ? 'text-dim-c' : done ? 'text-gold' : 'text-dim-c') + '">' + statusLabels[s] + '</div></div>' + (i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : '');
                   }).join('')}
                 </div>
                 ${o.status === 'cancelled' ? '<p class="text-center text-2xs text-red-400 mt-3">This order was cancelled.</p>' : ''}
@@ -1784,8 +1787,8 @@ this.render(`
                 var cancelled = o.status === 'cancelled';
                 return `
                 <div class="flex-1 text-center">
-                  <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ${cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-stone-500'}">${done && !cancelled ? '✓' : '•'}</div>
-                  <div class="text-2xs mt-1 ${cancelled ? 'text-stone-500' : done ? 'text-gold' : 'text-stone-600'}">${statusLabels[s]}</div>
+                  <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ${cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-dim-c'}">${done && !cancelled ? '✓' : '•'}</div>
+                  <div class="text-2xs mt-1 ${cancelled ? 'text-dim-c' : done ? 'text-gold' : 'text-dim-c'}">${statusLabels[s]}</div>
                   ${o.status === s ? '<div class="text-2xs text-gold mt-0.5">← Current</div>' : ''}
                 </div>
                 ${i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : ''}
@@ -2376,12 +2379,15 @@ this.render(`
     return html;
   },
 
-  productCard(w) {
+  // i is the position in its grid: the first row is above the fold on every page that
+  // renders one, and lazy-loading it delays LCP for no benefit.
+  productCard(w, i = 99) {
     const wishlisted = Wishlist.has(w.id);
+    const eager = i < 4;
     return `
       <a href="#product-${esc(w.id)}" class="product-card ${w.in_stock === false ? 'opacity-dimmed' : ''}">
         <div class="relative overflow-hidden product-card-img-wrap">
-          <img src="${esc(w.img)}" alt="${esc(w.brand)} ${esc(w.name)}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent((this.alt || 'Watch').split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
+          <img src="${esc(w.img)}" alt="${esc(w.brand)} ${esc(w.name)}" loading="${eager ? 'eager' : 'lazy'}" decoding="async" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent((this.alt || 'Watch').split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
           <div class="product-badges">
             ${w.new ? '<span class="badge-new" data-i18n="badge-new">New</span>' : ''}
             ${w.originalPrice ? '<span class="badge-sale" data-i18n="badge-sale">Sale</span>' : ''}
