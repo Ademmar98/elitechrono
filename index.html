@@ -21,26 +21,59 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Montserrat:wght@300;400;500;600;700&family=Noto+Kufi+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script type="module" src="/src/main.js"></script>
-  <script>function toggleMenu(){var l=document.getElementById('navLinks');if(l){var o=l.classList.toggle('open');var b=document.getElementById('menuToggle');if(b)b.textContent=o?typeof window.__==='function'?window.__('nav-close'):'Fermer':typeof window.__==='function'?window.__('nav-menu'):'Menu';}}</script>
+  <script>function toggleMenu(){var l=document.getElementById('navLinks');if(!l)return;var o=l.classList.toggle('open');document.body.classList.toggle('menu-open',o);var b=document.getElementById('menuToggle');if(b)b.textContent=o?(typeof window.__==='function'?window.__('nav-close'):'Fermer'):(typeof window.__==='function'?window.__('nav-menu'):'Menu');}</script>
   <style>
     :root {
-      --bg-page: #0C0A09; --bg-card: #1C1917; --bg-elevated: #292524;
+      /* Surfaces: page -> card -> elevated is now a real 3-step ramp.
+         --bg-elevated used to duplicate --bg-inverse, so nothing could sit "above" a card. */
+      --bg-page: #0C0A09; --bg-card: #1A1614; --bg-elevated: #292320;
       --bg-inverse: #292524; --bg-overlay: #000000; --bg-hover: rgba(255,255,255,0.06);
       --text-primary: #FAFAF9; --text-secondary: #D6D3D1; --text-muted: #A8A29E; --text-inverse: #FAFAF9;
-      --border-subtle: #292524; --border-medium: #44403C; --border-gold: #CA8A04; --border-inverse: #FAFAF9;
-      --gold: #CA8A04; --gold-hover: #D97706; --gold-bg: rgba(202,138,4,0.15);
-      --navbar-bg: rgba(12,10,9,0.95); --hero-from: #000000; --hero-via: #1C1917;
+      --border-subtle: #2A2422; --border-medium: #44403C; --border-gold: #CA8A04; --border-inverse: #FAFAF9;
+      --gold: #CA8A04; --gold-hover: #E0A420; --gold-bright: #EBB93E; --gold-bg: rgba(202,138,4,0.12);
+      /* Ink for text sitting ON gold. White on #CA8A04 is 2.81:1 and fails WCAG AA;
+         this near-black is ~7.4:1. */
+      --gold-ink: #17120B;
+      --navbar-bg: rgba(12,10,9,0.85); --hero-from: #000000; --hero-via: #1C1917;
+
+      /* Elevation — there were no shadow tokens at all, so every surface read flat. */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+      --shadow-md: 0 4px 16px -2px rgba(0,0,0,.5);
+      --shadow-lg: 0 18px 48px -12px rgba(0,0,0,.7);
+      --shadow-gold: 0 12px 36px -10px rgba(202,138,4,.28);
+
+      /* Motion — one vocabulary instead of ad-hoc durations and ease-in-out everywhere. */
+      --ease-out: cubic-bezier(.22,1,.36,1);
+      --ease-in-out: cubic-bezier(.65,0,.35,1);
+      --dur-fast: .18s; --dur-base: .32s; --dur-slow: .6s;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Montserrat', sans-serif; background: var(--bg-page); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
-    .font-cormorant { font-family: 'Cormorant', serif; }
-    .font-montserrat { font-family: 'Montserrat', sans-serif; }
+    /* Noto Kufi Arabic sits behind Montserrat rather than replacing it: fallback is
+       per-glyph, so latin keeps Montserrat and Arabic (absent from it) picks up a real
+       webfont instead of whatever the OS happened to choose. */
+    body { font-family: 'Montserrat', 'Noto Kufi Arabic', sans-serif; background: var(--bg-page); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+    .font-cormorant { font-family: 'Cormorant', Georgia, serif; }
+    .font-montserrat { font-family: 'Montserrat', 'Noto Kufi Arabic', sans-serif; }
+    html[dir="rtl"] .font-cormorant { font-family: 'Noto Kufi Arabic', 'Cormorant', serif; }
+    /* Locks the page behind the full-screen mobile menu. */
+    body.menu-open { overflow: hidden; }
     a { text-decoration: none; color: inherit; }
     .toast-notification { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-primary); color: var(--bg-page); padding: 14px 28px; font-family: 'Montserrat', sans-serif; font-size: 14px; z-index: 9999; opacity: 0; transition: all 0.3s ease; pointer-events: none; }
     .toast-notification.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+    /* Collapse motion to a single instant frame. animation-iteration-count is the load-bearing
+       part: without it, "0.01ms + infinite" loops ~100k times a second and strobes, which is
+       the opposite of what someone asking for reduced motion needs. */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        animation-delay: 0ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
     ::selection { background: var(--gold); color: var(--text-primary); }
     .nav-link { position: relative; }
     .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px; background: var(--gold); transition: width 0.3s ease; }
@@ -50,10 +83,18 @@
     .desktop-nav { display: flex; align-items: center; position: relative; }
     @media (min-width: 768px) { .md-hidden { display: none !important; } }
       .nav-links { display: flex; align-items: center; gap: 2rem; }
+    /* "Prestige Boutique" is ~36% wider than the old wordmark, so between the md
+       breakpoint and ~1140px the logo, six nav links and the controls exactly fill the
+       row and the gap collapses to 0. Tighten the nav rather than shrink the wordmark. */
+    @media (min-width: 768px) and (max-width: 1139px) {
+      .nav-links { gap: 1.1rem; }
+      .nav-links a { font-size: 10px; letter-spacing: 0.1em; }
+    }
+    @media (min-width: 768px) { header .max-w-7xl > div { gap: 1.5rem; } }
     .mobile-menu-close { display: none; }
     .menu-btn { display: none; }
     @media (max-width: 767px) {
-      .nav-links { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(12,10,9,0.98); flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem; z-index: 9999; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease, visibility 0.25s ease; }
+      .nav-links { position: fixed; top: 0; left: 0; width: 100%; height: 100svh; background: rgba(12,10,9,0.98); flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem; z-index: 9999; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease, visibility 0.25s ease; }
       .nav-links.open { opacity: 1; visibility: visible; pointer-events: all; }
       .nav-links a { font-size: 14px; letter-spacing: 0.25em; min-height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-primary); }
       .nav-links a:hover { color: var(--gold); }
@@ -63,19 +104,38 @@
       .menu-btn:hover { background: rgba(202,138,4,0.1); }
     }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
-    .product-card { background: var(--bg-card); border: 1px solid var(--border-subtle); overflow: hidden; transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column; }
-    .product-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 8px 30px rgba(202,138,4,0.1); }
-    .product-card-img-wrap { background: var(--bg-card); }
-    .product-card img { width: 100%; height: 280px; object-fit: cover; border-bottom: 1px solid var(--border-subtle); transition: transform 0.7s; display: block; }
-    .product-card:hover img { transform: scale(1.05); }
+    .product-card { background: var(--bg-card); border: 1px solid var(--border-subtle); overflow: hidden; transition: border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); cursor: pointer; display: flex; flex-direction: column; }
+    @media (hover: hover) {
+      .product-card:hover { border-color: var(--gold); transform: translateY(-6px); box-shadow: var(--shadow-lg), var(--shadow-gold); }
+      .product-card:hover img { transform: scale(1.06); }
+    }
+    .product-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+    .product-card-img-wrap { background: var(--bg-elevated); }
+    /* Ratio, not a fixed height: a pinned 180px went 2:1 on a 353px column and sliced
+       the dial off the watch. The crop is now identical at every column width. */
+    .product-card img { width: 100%; aspect-ratio: 4 / 5; height: auto; object-fit: cover; border-bottom: 1px solid var(--border-subtle); transition: transform .8s var(--ease-out); display: block; }
+    /* Badges stack in one column so they can never land under the wishlist button. */
+    .product-badges { position: absolute; top: 12px; left: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; pointer-events: none; }
+    html[dir="rtl"] .product-badges { left: auto; right: 12px; align-items: flex-end; }
+    /* 44px target; the visual puck stays 28px via the ::before. It previously sat at
+       top-3/right-3 — the exact coordinates of .badge-sale — and covered it. */
+    .wishlist-btn { position: absolute; top: 2px; right: 2px; z-index: 3; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; padding: 0; cursor: pointer; line-height: 0; }
+    html[dir="rtl"] .wishlist-btn { right: auto; left: 2px; }
+    .wishlist-btn::before { content: ''; position: absolute; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,.45); backdrop-filter: blur(3px); transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
+    .wishlist-btn svg { position: relative; }
+    @media (hover: hover) { .wishlist-btn:hover::before { background: rgba(0,0,0,.7); transform: scale(1.12); } }
+    .wishlist-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; border-radius: 50%; }
     .product-card .product-info { padding: 20px; display: flex; flex-direction: column; flex: 1; }
     .product-card .brand-tag { font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
     .product-card h3 { font-family: 'Cormorant', serif; font-size: 18px; color: var(--text-primary); margin-bottom: 8px; font-weight: 500; }
     .product-card .price { font-family: 'Cormorant', serif; font-size: 20px; font-weight: 600; color: var(--gold); }
     .product-card .original-price { font-family: 'Montserrat', sans-serif; font-size: 12px; color: var(--text-muted); text-decoration: line-through; margin-left: 8px; }
-    .product-card .badge-new { position: absolute; top: 12px; left: 12px; background: var(--gold); color: #1C1917; padding: 4px 12px; font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
-    .product-card .badge-sale { position: absolute; top: 12px; right: 12px; background: #DC2626; color: white; padding: 4px 12px; font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
-    .product-card .badge-oos { position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.75); color: #A8A29E; padding: 4px 12px; font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; border: 1px solid #44403C; }
+    .product-card .badge-new,
+    .product-card .badge-sale,
+    .product-card .badge-oos { padding: 4px 10px; font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; line-height: 1.5; }
+    .product-card .badge-new { background: var(--gold); color: var(--gold-ink); }
+    .product-card .badge-sale { background: #DC2626; color: #fff; }
+    .product-card .badge-oos { background: rgba(0,0,0,0.8); color: #E7E5E4; border: 1px solid #57534E; backdrop-filter: blur(3px); }
     .opacity-dimmed { opacity: 0.6; }
     .opacity-dimmed:hover { opacity: 0.8; }
     .opacity-dimmed .price { color: var(--text-muted) !important; }
@@ -96,12 +156,15 @@
     .brand-showcase-cta { font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; border: 1px solid var(--gold); padding: 12px 28px; transition: all 0.3s ease; }
     .brand-showcase-card:hover .brand-showcase-cta { background: var(--gold); color: var(--text-primary); }
     @media (max-width: 767px) { .brands-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .brand-showcase-logo { height: 120px; padding: 24px; } .brand-showcase-logo svg { max-height: 56px; } .brand-showcase-info { padding: 14px; } .brand-showcase-name { font-size: 16px; } .brand-showcase-hover { display: none; } .brand-showcase-card:hover { transform: none; } }
-    @media (max-width: 767px) { .similar-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .product-card img { height: 180px; } .product-card .product-info { padding: 12px; } .product-card h3 { font-size: 14px; } .product-card .price { font-size: 16px; } .product-card .brand-tag { font-size: 9px; } }
+    @media (max-width: 767px) { .similar-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .product-card .product-info { padding: 12px; } .product-card h3 { font-size: 14px; } .product-card .price { font-size: 16px; } .product-card .brand-tag { font-size: 9px; } }
     .bg-page { background: var(--bg-page); }
     .bg-card { background: var(--bg-card); }
     .bg-elevated { background: var(--bg-elevated); }
     .bg-inverse { background: var(--bg-inverse); }
     .bg-gold { background: var(--gold); }
+    /* Ink for text on a gold fill. --text-primary (#FAFAF9) on gold is 2.81:1 and fails AA. */
+    .text-gold-ink { color: var(--gold-ink); }
+    .hover-text-gold-ink:hover { color: var(--gold-ink); }
     .text-primary { color: var(--text-primary); }
     .text-secondary { color: var(--text-secondary); }
     .text-muted-c { color: var(--text-muted); }
@@ -123,29 +186,66 @@
     .hover-border-gold-hover:hover { border-color: var(--gold); }
     .bg-overlay { background: var(--bg-overlay); }
     .navbar-blur { background: var(--navbar-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-    .text-stone-300 { color: #A8A29E; }
-    .text-stone-400 { color: #A8A29E; }
-    .text-stone-500 { color: #78716C; }
-    .text-stone-600 { color: #D6D3D1; }
-    .text-stone-700 { color: #E7E5E4; }
-    .bg-stone-100 { background-color: #292524; }
-    .border-stone-200 { border-color: #292524; }
-    .border-stone-300 { border-color: #44403C; }
-    .hover\:bg-stone-100:hover { background-color: #292524; }
-    .bg-green-100 { background-color: #065F46; }
-    .text-green-600 { color: #6EE7B7; }
-    .brand-ticker-wrap { overflow: hidden; width: 100%; }
-    .brand-ticker { display: flex; gap: 0; width: max-content; animation: tickerScroll 40s linear infinite; }
-    .brand-ticker:hover { animation-play-state: paused; }
-    @keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-    .brand-card { flex-shrink: 0; width: 200px; height: 100px; display: flex; align-items: center; justify-content: center; margin: 0 12px; perspective: 800px; cursor: pointer; position: relative; }
-    .brand-card-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-subtle); background: var(--bg-card); transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); transform-style: preserve-3d; position: relative; overflow: hidden; }
-    .brand-card-inner svg { transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-    .brand-card:hover .brand-card-inner { transform: translateZ(20px) rotateX(-4deg) rotateY(4deg); border-color: var(--gold); box-shadow: 0 20px 40px -12px rgba(0,0,0,0.3), 0 0 0 1px rgba(202,138,4,0.15); }
-    .brand-card:hover .brand-card-inner::after { opacity: 1; }
-    .brand-card:hover .brand-card-inner svg { filter: drop-shadow(0 0 8px rgba(202,138,4,0.2)); }
-    .brand-card-inner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(202,138,4,0.08) 0%, transparent 50%, rgba(202,138,4,0.04) 100%); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
-    @media (max-width: 767px) { .brand-card { perspective: none; width: 320px; height: 160px; } .brand-card-inner { transform-style: flat; transition: none; background: none; border-color: transparent; } .brand-card-inner svg { transition: none; height: 108px; width: auto; color: #E7E5E4 !important; } .brand-card-inner::after { display: none; } }
+    /* These re-map Tailwind's light-theme stone palette for a near-black page.
+       They MUST outrank Tailwind. The CDN build is JIT: it generates a class the first
+       time it appears in the DOM and appends the rule after this <style> block, so at
+       equal specificity Tailwind wins on source order — and only once the relevant page
+       has rendered. That made .text-stone-600 light until you opened About, then flip to
+       #57534E (2.5:1 on the page) for the rest of the session. The `html` prefix takes
+       specificity to (0,1,1) so these win regardless of injection order. */
+    html .text-stone-300 { color: #D6D3D1; }
+    html .text-stone-400 { color: #A8A29E; }
+    /* #78716C is 3.16:1 on the footer's #292524 and fails AA. */
+    html .text-stone-500 { color: #A8A29E; }
+    html .text-stone-600 { color: #D6D3D1; }
+    html .text-stone-700 { color: #E7E5E4; }
+    html .bg-stone-100 { background-color: var(--bg-elevated); }
+    html .bg-stone-800 { background-color: #292524; }
+    /* Had no override at all, so Tailwind's #f5f5f4 drew near-white rules across the
+       product spec table. */
+    html .border-stone-100 { border-color: var(--border-subtle); }
+    html .border-stone-200 { border-color: var(--border-subtle); }
+    html .border-stone-300 { border-color: var(--border-medium); }
+    html .border-stone-700 { border-color: var(--border-medium); }
+    html .hover\:bg-stone-100:hover { background-color: var(--bg-elevated); }
+    html .bg-green-100 { background-color: #065F46; }
+    html .text-green-600 { color: #6EE7B7; }
+    html .text-red-500 { color: #F87171; }
+    /* ── Brand rail ────────────────────────────────────────────────────────
+       A seamless marquee: the tile set is rendered twice and the track travels
+       exactly -50%, so the wrap is invisible. direction:ltr is forced because
+       these are latin wordmarks and an RTL flex row would reverse the track and
+       send it the wrong way under the Arabic locale. */
+    .brand-rail-wrap { position: relative; width: 100%; overflow: hidden; direction: ltr; padding: 6px 0;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%); }
+    .brand-rail { display: flex; width: max-content; animation: railScroll var(--rail-dur, 70s) linear infinite; }
+    @keyframes railScroll { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+    /* Pause for pointers, for keyboard, and for touch (.is-paused is set on touchstart —
+       :hover alone can never be satisfied on a phone). */
+    .brand-rail-wrap:hover .brand-rail,
+    .brand-rail-wrap:focus-within .brand-rail,
+    .brand-rail.is-paused { animation-play-state: paused; }
+    .brand-tile { flex: 0 0 auto; width: 176px; height: 92px; margin: 0 7px; display: flex; align-items: center; justify-content: center; padding: 18px 22px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-secondary);
+      transition: color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+    .brand-tile svg { width: 100%; height: auto; max-height: 46px; display: block; }
+    @media (hover: hover) { .brand-tile:hover { color: var(--gold); border-color: var(--gold); background: var(--bg-elevated); } }
+    .brand-tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; color: var(--gold); border-color: var(--gold); }
+    .brand-tile-name { font-family: 'Cormorant', Georgia, serif; font-size: 18px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+    @media (max-width: 767px) {
+      /* Was 320x160 with a 270px logo — one brand filled the whole phone screen. */
+      .brand-tile { width: 132px; height: 72px; margin: 0 5px; padding: 12px 14px; }
+      .brand-tile svg { max-height: 32px; }
+      .brand-tile-name { font-size: 13px; }
+    }
+    /* Reduced motion: stop the track AND reflow to a static centred wall, otherwise
+       everything past the second tile stays clipped and unreachable. */
+    @media (prefers-reduced-motion: reduce) {
+      .brand-rail-wrap { -webkit-mask-image: none; mask-image: none; }
+      .brand-rail { width: 100%; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      .brand-tile { margin: 0; }
+      .brand-rail [data-rail-clone] { display: none; }
+    }
     .lang-switcher { position: relative; z-index: 100; }
     .lang-current-btn { display: flex; align-items: center; gap: 3px; background: none; border: 1px solid var(--gold); color: var(--gold); padding: 4px 10px; font-size: 11px; letter-spacing: 0.02em; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all .3s ease; }
     .lang-current-btn:hover { background: rgba(202,138,4,0.1); }
@@ -160,7 +260,10 @@
     html[dir="rtl"] .lang-option { text-align: right; }
     @media (max-width: 767px) {
       .lang-dropdown { right: auto; left: 0; }
-      .lang-current-btn { font-size: 10px; padding: 3px 8px; }
+      /* Height from min-height so the h-16 header row is unaffected. This is the control an
+         Arabic-speaking customer has to hit first; it was ~20px tall. */
+      .lang-current-btn { font-size: 11px; padding: 0 12px; min-height: 44px; }
+      .lang-option { padding: 12px 14px; font-size: 12px; min-height: 44px; }
     }
     .admin-sidebar { min-width: 240px; }
     .admin-tab { transition: all 0.2s ease; }
@@ -187,9 +290,10 @@
     .section-toggle.active { background: var(--gold-bg); border-color: var(--gold); color: var(--gold); }
     .admin-img-remove { background: none; border: 1px solid var(--border-medium); color: #EF4444; font-size: 18px; line-height: 1; padding: 0 12px; cursor: pointer; transition: all 0.2s; }
     .admin-img-remove:hover { background: rgba(239,68,68,0.1); border-color: #EF4444; }
-    .admin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10010; display: flex; align-items: center; justify-content: center; padding: 24px; }
-    .product-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10010; display: flex; align-items: center; justify-content: center; padding: 24px; }
-    .admin-modal { background: var(--bg-card); border: 1px solid var(--border-subtle); max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 32px; }
+    .admin-overlay, .product-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); z-index: 10010; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    /* Elevated surface + a real shadow: on --bg-card the modal was 1.17:1 against its own
+       backdrop and read as part of the page rather than above it. */
+    .admin-modal { background: var(--bg-elevated); border: 1px solid var(--border-medium); box-shadow: var(--shadow-lg); max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 32px; }
     .admin-badge { display: inline-block; padding: 2px 10px; font-size: 10px; font-family: 'Montserrat',sans-serif; letter-spacing: 0.05em; font-weight: 600; }
     .admin-badge-pending { background: #78350F; color: #FDE68A; }
     .admin-badge-confirmed { background: #1E3A5F; color: #93C5FD; }
@@ -206,27 +310,37 @@
 
     .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; z-index: 500; background: var(--bg-card); border: 1px solid var(--border-medium); border-top: none; max-height: 320px; overflow-y: auto; margin-top: -1px; }
     .search-suggestions.hidden { display: none; }
-    @keyframes fadeUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { 0% { opacity: 0; transform: translateY(24px); } 100% { opacity: 1; transform: translateY(0); } }
     @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    .hero { position: relative; height: 100vh; min-height: 700px; display: flex; align-items: center; overflow: hidden; background: var(--bg-page); padding-top: 80px; }
+    .hero { position: relative; height: 100svh; min-height: 640px; display: flex; align-items: center; overflow: hidden; background: var(--bg-page); padding-top: 80px; }
     .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.35; transform: scale(1.05); object-fit: cover; }
     .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(11,11,11,0.88) 0%, rgba(11,11,11,0.35) 50%, rgba(11,11,11,0.88) 100%); }
     .hero-content { position: relative; z-index: 2; max-width: 900px; padding: 0 2rem; }
-    .hero-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 2rem; opacity: 0; transform: translateY(20px); animation: fadeUp 1s cubic-bezier(0.86,0,0.07,1) 0.5s forwards; }
+    .hero-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 2rem; opacity: 0; transform: translateY(16px); animation: fadeUp .8s var(--ease-out) .15s forwards; }
     .hero-badge::before { content: ''; width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }
-    .hero-title { font-size: clamp(2.5rem, 6vw, 5.5rem); color: var(--text-primary); line-height: 1.05; margin-bottom: 1.5rem; opacity: 0; transform: translateY(30px); animation: fadeUp 1s cubic-bezier(0.86,0,0.07,1) 0.8s forwards; text-wrap: balance; }
-    .hero-title span.text-gold { display: block; font-style: italic; }
-    .hero-desc { font-size: 1.1rem; color: var(--text-secondary); max-width: 550px; font-weight: 300; line-height: 1.8; margin-bottom: 2.5rem; opacity: 0; transform: translateY(30px); animation: fadeUp 1s cubic-bezier(0.86,0,0.07,1) 1.1s forwards; }
-    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; opacity: 0; transform: translateY(30px); animation: fadeUp 1s cubic-bezier(0.86,0,0.07,1) 1.4s forwards; }
+    /* font-family was missing entirely, so the largest type on the site fell back to
+       Montserrat and the italic below was synthesised by shearing it. */
+    .hero-title { font-family: 'Cormorant', Georgia, serif; font-weight: 500; font-size: clamp(2.75rem, 6.5vw, 6rem); color: var(--text-primary); line-height: 1.02; letter-spacing: -0.015em; margin-bottom: 1.5rem; opacity: 0; transform: translateY(24px); animation: fadeUp .9s var(--ease-out) .35s forwards; text-wrap: balance; }
+    .hero-title span.text-gold { display: block; font-style: italic; font-weight: 400; }
+    .hero-desc { font-size: 1.05rem; color: var(--text-secondary); max-width: 52ch; font-weight: 300; line-height: 1.75; margin-bottom: 2.5rem; opacity: 0; transform: translateY(24px); animation: fadeUp .9s var(--ease-out) .5s forwards; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; opacity: 0; transform: translateY(24px); animation: fadeUp .9s var(--ease-out) .65s forwards; }
     .hero-cta { display: inline-flex; align-items: center; gap: 0.75rem; background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 1rem 2.5rem; font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; transition: all 0.5s cubic-bezier(0.25,0.46,0.45,0.94); font-weight: 500; position: relative; overflow: hidden; cursor: pointer; }
     .hero-cta::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--gold); transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94); z-index: -1; }
     .hero-cta:hover { color: var(--bg-page); }
     .hero-cta:hover::before { transform: translateX(100%); }
-    .hero-scroll { position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%); z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 1s cubic-bezier(0.86,0,0.07,1) 2s forwards; }
+    /* Centred with margin, not transform: fadeUp animates transform and would otherwise
+       overwrite translateX(-50%), leaving this stuck half its width off-centre forever. */
+    .hero-scroll { position: absolute; bottom: 2.5rem; left: 0; right: 0; margin-inline: auto; width: max-content; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp .9s var(--ease-out) 1.1s forwards; }
     .hero-scroll span { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-secondary); }
     .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease-in-out infinite; }
     @media (max-width: 767px) { .hero { min-height: 600px; } .hero-content { padding: 0 1.25rem; } .hero-title { font-size: clamp(2rem, 8vw, 3rem); } .hero-desc { font-size: 0.95rem; } }
-    @media (prefers-reduced-motion: reduce) { .hero-badge, .hero-title, .hero-desc, .hero-actions, .hero-scroll, .toast-notification { opacity: 1; transform: none; animation: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-badge, .hero-title, .hero-desc, .hero-actions, .hero-scroll, .toast-notification { opacity: 1; animation: none; }
+      .hero-badge, .hero-title, .hero-desc, .hero-actions { transform: none; }
+      .scroll-line { animation: none; opacity: .6; }
+      .brand-rail { animation: none; }
+      .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
     .thumb-gallery { scrollbar-width: thin; scrollbar-color: var(--gold) var(--bg-card); }
     .thumb-gallery::-webkit-scrollbar { height: 3px; }
     .thumb-gallery::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
@@ -240,9 +354,16 @@
     .gallery-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
     .gallery-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: background 0.2s; cursor: pointer; }
     .gallery-dot.active { background: var(--gold); }
-    @media (max-width: 767px) { .thumb-img { width: 56px; height: 56px; } .gallery-arrow { font-size: 22px; padding: 4px 8px; } }
+    @media (max-width: 767px) { .thumb-img { width: 56px; height: 56px; } .gallery-arrow { font-size: 22px; padding: 0; min-width: 44px; min-height: 44px; } }
     @keyframes spin { to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
+
+    /* ── Scroll reveal ─────────────────────────────────────────────────────
+       .reveal is applied by JS immediately before observing, never in the
+       template — so if the script fails or IntersectionObserver is missing,
+       content is simply visible rather than stuck at opacity 0. */
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); transition-delay: calc(min(var(--i, 0), 8) * 65ms); }
+    .reveal.is-in { opacity: 1; transform: none; }
 
     /* Delivery method selector */
     .delivery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
@@ -296,11 +417,11 @@
         <div class="flex items-center gap-2 md:gap-3">
           <div class="lang-switcher" id="langSwitcher"></div>
           <button id="menuToggle" class="md-hidden menu-btn font-montserrat text-[11px] text-secondary tracking-[0.15em] uppercase cursor-pointer" onclick="toggleMenu()">Menu</button>
-          <a href="#wishlist" class="relative cursor-pointer">
+          <a href="#wishlist" class="relative cursor-pointer flex items-center justify-center p-3 -m-3" aria-label="Wishlist">
             <svg class="w-5 h-5 text-secondary hover-text-gold transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
             <span id="wishlist-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-montserrat font-bold w-4 h-4 flex items-center justify-center hidden">0</span>
           </a>
-          <a href="#cart" class="relative cursor-pointer">
+          <a href="#cart" class="relative cursor-pointer flex items-center justify-center p-3 -m-3" aria-label="Cart">
             <svg class="w-5 h-5 text-secondary hover-text-gold transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-gold text-primary text-[9px] font-montserrat font-bold w-4 h-4 flex items-center justify-center hidden">0</span>
           </a>

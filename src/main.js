@@ -1,4 +1,5 @@
 import { WATCHES, BRANDS, WILAYAS, DELIVERY_PRICES, FREE_SHIPPING_THRESHOLD, slug } from './data.js';
+import { brandLogo } from './lib/brand-logos.js';
 import { Cart } from './cart.js';
 import { Wishlist } from './services/wishlist.js';
 import { seedIfEmpty, getOrders, saveOrder, getOrderById, updateOrderStatus, getProducts, saveProduct, deleteProduct, bootstrapSupabaseTables, subscribeOrders, getSiteContent, saveSiteContent, getCMSDefaults } from './services/db.js';
@@ -10,6 +11,8 @@ function toggleMenu() {
   var l = document.getElementById('navLinks');
   if (l) {
     var open = l.classList.toggle('open');
+    // Without this the page scrolls behind the full-screen overlay.
+    document.body.classList.toggle('menu-open', open);
     var btn = document.getElementById('menuToggle');
     if (btn) {
       if (window.__) {
@@ -26,6 +29,50 @@ function esc(s) {
   var d = document.createElement('div');
   d.appendChild(document.createTextNode(s || ''));
   return d.innerHTML;
+}
+
+function prefersReducedMotion() {
+  return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+var _revealObserver = null;
+
+// Reveal-on-scroll. The .reveal class (which sets opacity:0) is only ever added here,
+// immediately before observing — so if this never runs, content stays visible instead of
+// being permanently invisible.
+function setupReveal() {
+  if (_revealObserver) { _revealObserver.disconnect(); _revealObserver = null; }
+  var nodes = document.querySelectorAll('[data-reveal]');
+  if (!nodes.length) return;
+  if (prefersReducedMotion() || !('IntersectionObserver' in window)) return;
+
+  nodes.forEach(function (n, i) {
+    n.classList.add('reveal');
+    if (!n.style.getPropertyValue('--i')) n.style.setProperty('--i', String(i % 9));
+  });
+
+  _revealObserver = new IntersectionObserver(function (entries, obs) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('is-in');
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+
+  nodes.forEach(function (n) { _revealObserver.observe(n); });
+}
+
+// The rail pauses on hover and focus via CSS. Touch can satisfy neither, so a tap
+// toggles the pause — otherwise a phone user has to hit a link moving at ~86px/s.
+function setupBrandRail() {
+  var rail = document.getElementById('brandRail');
+  if (!rail) return;
+  rail.addEventListener('touchstart', function () {
+    rail.classList.add('is-paused');
+  }, { passive: true });
+  document.addEventListener('touchstart', function (e) {
+    if (!rail.contains(e.target)) rail.classList.remove('is-paused');
+  }, { passive: true });
 }
 
 function isValidDzPhone(p) {
@@ -212,7 +259,9 @@ const App = {
     updateMeta(metaTitle, metaDesc, metaImg);
 
     if (this.routes[route]) {
-      this[this.routes[route]]();
+      // param carries the order id for #track/<id>; renderers that take no
+      // argument simply ignore it.
+      this[this.routes[route]](param);
     } else if (route === 'brand') {
       this.renderBrand(param);
     } else if (route === 'product') {
@@ -243,6 +292,10 @@ const App = {
     document.querySelectorAll('.admin-overlay').forEach(el => el.remove());
     document.getElementById('main-content').innerHTML = html;
     if (window.applyTranslations) window.applyTranslations();
+    // Synchronous: render() and setupReveal() run in the same task, so no paint lands
+    // between innerHTML and .reveal being applied and there is no flash of content.
+    setupReveal();
+    setupBrandRail();
   },
 
   showLoading(msg = 'Loading...') {
@@ -276,7 +329,12 @@ const App = {
 
     this.render(`
       <section class="hero" id="hero">
-        <img class="hero-bg" src="https://upload.wikimedia.org/wikipedia/commons/2/25/Patek-Philippe_MG_2583.jpg" alt="" aria-hidden="true">
+        <!-- Hotlinked full-resolution original from Wikimedia (~880KB) and it is the LCP
+             image. Their thumbnailer rejects this file (400), so the size cannot be trimmed
+             from here — it needs a self-hosted, optimised asset in /public. fetchpriority
+             tells the browser it is the LCP; onerror leaves the gradient rather than a
+             broken image if the hotlink ever stops resolving. -->
+        <img class="hero-bg" src="https://upload.wikimedia.org/wikipedia/commons/2/25/Patek-Philippe_MG_2583.jpg" alt="" aria-hidden="true" fetchpriority="high" decoding="async" onerror="this.style.display='none'">
         <div class="hero-overlay"></div>
         <div class="hero-content">
           <p class="hero-badge">${esc(cms.hero_badge)}</p>
@@ -290,53 +348,43 @@ const App = {
             </div>
         </div>
         <div class="hero-scroll">
-          <span>Défiler</span>
+          <span data-i18n="hero-scroll">Défiler</span>
           <div class="scroll-line"></div>
         </div>
       </section>
 
-      <section class="py-24 bg-page overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 mb-16 text-center">
+      <section class="py-24 bg-page">
+        <div class="max-w-7xl mx-auto px-6 mb-14 text-center" data-reveal>
           <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="footer-brands">Maisons</p>
           <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-brands">Our <span class="text-gold">Brands</span></h2>
         </div>
-        <div class="brand-ticker-wrap">
-          <div class="brand-ticker" id="brandTicker">
+        <div class="brand-rail-wrap" data-reveal>
+          <div class="brand-rail" id="brandRail">
             ${(() => {
-              const svgs = {
-                'Rolex': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="28" font-weight="700" letter-spacing="4" fill="currentColor">ROLEX</text><path d="M85 28a15 15 0 1 0 0 24" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.4"/><path d="M115 28a15 15 0 1 1 0 24" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.4"/></svg>',
-                'Omega': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="24" font-weight="700" letter-spacing="3" fill="currentColor">OMEGA</text><ellipse cx="100" cy="28" rx="18" ry="8" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.35"/></svg>',
-                'Cartier': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="26" font-weight="600" letter-spacing="5" fill="currentColor">CARTIER</text><rect x="70" y="24" width="60" height="1" fill="currentColor" opacity="0.3"/></svg>',
-                'Hublot': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="47%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="6" fill="currentColor">HUBLOT</text><text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="9" font-weight="300" letter-spacing="4" fill="currentColor" opacity="0.5">SWISS MADE</text></svg>',
-                'Audemars Piguet': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="22" font-weight="700" letter-spacing="3" fill="currentColor">AUDEMARS</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">PIGUET</text></svg>',
-                'Patek Philippe': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="3" fill="currentColor">PATEK</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="17" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">PHILIPPE</text></svg>',
-                'Richard Mille': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="32" font-weight="800" letter-spacing="2" fill="currentColor">RM</text><text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="10" font-weight="400" letter-spacing="3" fill="currentColor" opacity="0.5">RICHARD MILLE</text></svg>',
-                'Hugo Boss': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="47%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6" fill="currentColor">BOSS</text><text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="8" font-weight="300" letter-spacing="3" fill="currentColor" opacity="0.4">HUGO BOSS</text></svg>',
-                'Emporio Armani': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="4" fill="currentColor">EMPORIO</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">ARMANI</text></svg>',
-                'Jacob & Co.': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="3" fill="currentColor">JACOB</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="3" fill="currentColor" opacity="0.65">&amp; CO.</text></svg>',
-              };
-              const items = BRANDS.map(b =>
-                `<a href="#brand-${slug(b)}" class="brand-card"><div class="brand-card-inner text-white/30 hover:text-gold">${svgs[b] || b}</div></a>`
-              ).join('');
-              return items + items;
+              const tile = (b, clone) =>
+                `<a href="#brand-${slug(b)}" class="brand-tile" aria-label="${esc(b)}"${clone ? ' data-rail-clone tabindex="-1" aria-hidden="true"' : ''}>${brandLogo(b)}</a>`;
+              // Rendered twice so the -50% wrap is seamless. The clone is hidden from
+              // assistive tech and taken out of the tab order so every maison is
+              // announced and focusable exactly once.
+              return BRANDS.map(b => tile(b, false)).join('') + BRANDS.map(b => tile(b, true)).join('');
             })()}
           </div>
-          <div class="text-center mt-12">
-            <a href="#brands" class="inline-flex items-center gap-2 border border-gold text-gold px-8 py-3 font-montserrat text-xs tracking-widest uppercase hover-bg-gold hover:text-primary transition-all duration-300 cursor-pointer" data-i18n="brands-view-all">View All Brands</a>
-          </div>
+        </div>
+        <div class="text-center mt-12" data-reveal>
+          <a href="#brands" class="inline-flex items-center gap-2 border border-gold text-gold px-8 py-3 font-montserrat text-xs tracking-widest uppercase hover-bg-gold hover-text-gold-ink transition-all duration-300 cursor-pointer" data-i18n="brands-view-all">View All Brands</a>
         </div>
       </section>
 
       <section id="new-arrivals-section" class="py-24 bg-page">
         <div class="max-w-7xl mx-auto px-6">
-          <div class="flex items-end justify-between mb-16">
+          <div class="flex items-end justify-between mb-16" data-reveal>
             <div>
               <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-new-arrivals">New Arrivals</p>
               <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-new-arrivals-title">Latest <span class="text-gold">Models</span></h2>
             </div>
             <a href="#new-models" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
-          <div class="product-grid">${newModels.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid" data-reveal>${newModels.map(w => this.productCard(w)).join('')}</div>
           <div class="mt-8 text-center md:hidden">
             <a href="#new-models" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
           </div>
@@ -345,14 +393,14 @@ const App = {
 
       <section class="py-24 bg-card">
         <div class="max-w-7xl mx-auto px-6">
-          <div class="flex items-end justify-between mb-16">
+          <div class="flex items-end justify-between mb-16" data-reveal>
             <div>
               <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-featured">Featured</p>
               <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-featured-title">Featured <span class="text-gold">Timepieces</span></h2>
             </div>
             <a href="#featured" class="hidden md:flex items-center gap-2 font-montserrat text-sm text-primary hover-text-gold transition-colors duration-300 cursor-pointer border-b border-inverse hover-border-gold pb-0.5" data-i18n="view-all">View All</a>
           </div>
-          <div class="product-grid">${featured.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid" data-reveal>${featured.map(w => this.productCard(w)).join('')}</div>
           <div class="mt-8 text-center md:hidden">
             <a href="#featured" class="inline-flex items-center gap-2 font-montserrat text-sm text-primary cursor-pointer border-b border-inverse pb-0.5" data-i18n="view-all">View All</a>
           </div>
@@ -369,18 +417,18 @@ const App = {
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-recent">Recently Viewed</p>
             <h2 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n-html="section-recent-title">Continue <span class="text-gold">Browsing</span></h2>
           </div>
-          <div class="product-grid">${recent.map(w => this.productCard(w)).join('')}</div>
+          <div class="product-grid" data-reveal>${recent.map(w => this.productCard(w)).join('')}</div>
         </div>
       </section>` : ''}
 
       <section class="relative py-32 overflow-hidden">
         <div class="absolute inset-0" style="background: linear-gradient(to right, var(--hero-from), var(--hero-via));"></div>
         <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 75% 50%, var(--gold) 2px, transparent 2px); background-size: 30px 30px;"></div>
-        <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+        <div class="relative z-10 max-w-4xl mx-auto px-6 text-center" data-reveal>
           <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-6">${esc(cms.journal_badge)}</p>
           <h2 class="font-cormorant text-4xl md:text-6xl text-white mb-8">${cms.journal_title}</h2>
           <p class="font-montserrat text-stone-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">${esc(cms.journal_desc)}</p>
-          <a href="#about" class="inline-flex items-center gap-2 border border-white/20 text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover:bg-white/10 transition-colors duration-300 cursor-pointer">Lire Plus</a>
+          <a href="#about" class="inline-flex items-center gap-2 border border-white/20 text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover:bg-white/10 transition-colors duration-300 cursor-pointer" data-i18n="read-more">Lire Plus</a>
         </div>
       </section>
     `);
@@ -542,19 +590,7 @@ const App = {
   },
 
   renderAllBrands() {
-    const svgs = {
-      'Rolex': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="28" font-weight="700" letter-spacing="4" fill="currentColor">ROLEX</text><path d="M85 28a15 15 0 1 0 0 24" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.4"/><path d="M115 28a15 15 0 1 1 0 24" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.4"/></svg>',
-      'Omega': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="24" font-weight="700" letter-spacing="3" fill="currentColor">OMEGA</text><ellipse cx="100" cy="28" rx="18" ry="8" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.35"/></svg>',
-      'Cartier': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="26" font-weight="600" letter-spacing="5" fill="currentColor">CARTIER</text><rect x="70" y="24" width="60" height="1" fill="currentColor" opacity="0.3"/></svg>',
-      'Hublot': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="47%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="6" fill="currentColor">HUBLOT</text><text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="9" font-weight="300" letter-spacing="4" fill="currentColor" opacity="0.5">SWISS MADE</text></svg>',
-      'Audemars Piguet': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="22" font-weight="700" letter-spacing="3" fill="currentColor">AUDEMARS</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">PIGUET</text></svg>',
-      'Patek Philippe': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="3" fill="currentColor">PATEK</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="17" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">PHILIPPE</text></svg>',
-      'Richard Mille': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="32" font-weight="800" letter-spacing="2" fill="currentColor">RM</text><text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="10" font-weight="400" letter-spacing="3" fill="currentColor" opacity="0.5">RICHARD MILLE</text></svg>',
-      'Hugo Boss': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="47%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6" fill="currentColor">BOSS</text><text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle" font-family="\'Montserrat\',Arial,sans-serif" font-size="8" font-weight="300" letter-spacing="3" fill="currentColor" opacity="0.4">HUGO BOSS</text></svg>',
-      'Emporio Armani': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="4" fill="currentColor">EMPORIO</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="4" fill="currentColor" opacity="0.65">ARMANI</text></svg>',
-      'Jacob & Co.': '<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="20" font-weight="700" letter-spacing="3" fill="currentColor">JACOB</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,serif" font-size="16" font-weight="400" letter-spacing="3" fill="currentColor" opacity="0.65">&amp; CO.</text></svg>',
-    };
-    this.render(`
+this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
           <div class="text-center mb-16">
@@ -570,7 +606,7 @@ const App = {
               const count = this.watches.filter(w => w.brand === b).length;
               return `
               <a href="#brand-${slug(b)}" class="brand-showcase-card" data-brand="${b.toLowerCase()}">
-                <div class="brand-showcase-logo">${svgs[b] || `<span class="font-cormorant text-2xl text-primary">${b}</span>`}</div>
+                <div class="brand-showcase-logo">${brandLogo(b)}</div>
                 <div class="brand-showcase-info">
                   <span class="brand-showcase-name">${b}</span>
                   <span class="brand-showcase-count">${count} timepiece${count !== 1 ? 's' : ''}</span>
@@ -614,7 +650,7 @@ const App = {
     }
     if (!watch) { this.showError('Watch not found'); return; }
     this.trackRecentlyViewed(watch.id);
-    updateMeta(watch.name + ' \u2014 Prestige Boutique', watch.brand + ' luxury watch. ' + (watch.description || ''), watch.image);
+    updateMeta(watch.name + ' \u2014 Prestige Boutique', watch.brand + ' luxury watch. ' + (watch.description || ''), watch.img || (watch.images && watch.images[0]));
     track('ViewContent', { content_name: watch.name, content_category: watch.brand, content_ids: [watch.id], content_type: 'product', currency: 'DZD', value: watch.price });
     const watchId = watch.id;
     const similar = this.watches.filter(w => w.brand === watch.brand && w.id !== watch.id);
@@ -660,7 +696,7 @@ const App = {
                 <div class="gallery-dots">${watch.images.map((_, i) => `<span class="gallery-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`).join('')}</div>
                 ` : ''}
               </div>
-              ${watch.new ? '<span class="absolute top-4 left-4 bg-gold text-primary px-4 py-1.5 font-montserrat text-xs tracking-wider uppercase font-semibold">New</span>' : ''}
+              ${watch.new ? '<span class="absolute top-4 left-4 bg-gold text-gold-ink px-4 py-1.5 font-montserrat text-xs tracking-wider uppercase font-semibold">New</span>' : ''}
               ${(watch.images && watch.images.length > 1) ? `
               <div class="flex gap-2 mt-3 overflow-x-auto pb-1 thumb-gallery" id="thumb-gallery">
                 ${watch.images.map((url, i) => `
@@ -677,7 +713,7 @@ const App = {
               </div>
               <p class="font-montserrat text-stone-600 leading-relaxed mb-8">${esc(watch.description)}</p>
               <div class="flex gap-3 mb-6">
-                ${watch.in_stock === false ? '<div class="flex-1 text-center py-4 border border-stone-700 font-montserrat text-sm text-stone-500 tracking-wider uppercase" data-i18n="product-oos">Out of Stock</div>' : '<button onclick="App.addToCartAndGo(\'' + watchId + '\')" class="flex-[7] bg-gold text-primary py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer" data-i18n="product-order">Order Now</button>\n                <button onclick="App.addToCart(\'' + watchId + '\')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-add-cart">+ Cart</button>'}
+                ${watch.in_stock === false ? '<div class="flex-1 text-center py-4 border border-stone-700 font-montserrat text-sm text-stone-500 tracking-wider uppercase" data-i18n="product-oos">Out of Stock</div>' : '<button onclick="App.addToCartAndGo(\'' + watchId + '\')" class="flex-[7] bg-gold text-gold-ink py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-all duration-300 cursor-pointer" data-i18n="product-order">Order Now</button>\n                <button onclick="App.addToCart(\'' + watchId + '\')" class="flex-[3] border border-inverse text-primary py-4 font-montserrat text-xs tracking-wider uppercase hover-bg-inverse hover:text-white transition-all duration-300 cursor-pointer" data-i18n="product-add-cart">+ Cart</button>'}
               </div>
               ${watch.in_stock !== false ? '<button onclick="App.whatsappOrder([{id:\'' + watchId + '\',qty:1}])" class="w-full border border-[#25D366]/40 text-[#25D366] py-3 font-montserrat text-xs tracking-wider uppercase hover-bg-[#25D366] hover:text-white transition-all duration-300 cursor-pointer mb-2 flex items-center justify-center gap-2"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Order via WhatsApp</button>' : ''}
               <div class="border-t border-subtle pt-8">
@@ -707,7 +743,7 @@ const App = {
           </div>
           ${similar.length > 8 ? `
           <div class="text-center mt-10">
-            <button onclick="App.loadMoreSimilar()" id="load-more-similar" class="border border-gold text-gold px-10 py-3 font-montserrat text-xs tracking-widest uppercase hover-bg-gold hover:text-primary transition-all duration-300 cursor-pointer">Load More</button>
+            <button onclick="App.loadMoreSimilar()" id="load-more-similar" class="border border-gold text-gold px-10 py-3 font-montserrat text-xs tracking-widest uppercase hover-bg-gold hover-text-gold-ink transition-all duration-300 cursor-pointer">Load More</button>
           </div>` : ''}
         </div>` : ''}
       </div>
@@ -778,7 +814,7 @@ const App = {
             <div class="mb-8"><svg class="w-24 h-24 mx-auto text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
             <h1 class="font-cormorant text-4xl text-primary mb-4">Votre liste de souhaits est vide</h1>
             <p class="font-montserrat text-muted-c mb-8">Ajoutez vos montres préférées à vos favoris.</p>
-            <a href="#products" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer">Parcourir la Collection</a>
+            <a href="#products" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-gold-ink transition-all duration-300 cursor-pointer">Parcourir la Collection</a>
           </div>
         </div>
       `);
@@ -808,7 +844,7 @@ const App = {
             <div class="mb-8"><svg class="w-24 h-24 mx-auto text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></div>
             <h1 class="font-cormorant text-4xl text-primary mb-4" data-i18n="cart-empty-title">Your Cart is Empty</h1>
             <p class="font-montserrat text-muted-c mb-8" data-i18n="cart-empty-desc">Discover our collection of exceptional timepieces.</p>
-            <a href="#products" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer" data-i18n="cart-browse">Browse Collection</a>
+            <a href="#products" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-gold-ink transition-all duration-300 cursor-pointer" data-i18n="cart-browse">Browse Collection</a>
           </div>
         </div>
       `);
@@ -832,16 +868,16 @@ const App = {
               if (!w) return '';
               return `
                 <div class="bg-card border border-subtle p-6 flex flex-col sm:flex-row gap-6 items-start">
-                  <div class="w-full sm:w-24 h-24 bg-stone-100 flex-shrink-0 overflow-hidden"><img src="${w.img}" alt="${w.name}" class="w-full h-full object-cover"></div>
+                  <div class="w-24 h-24 bg-elevated flex-shrink-0 overflow-hidden"><img src="${w.img}" alt="${esc(w.name)}" class="w-full h-full object-cover"></div>
                   <div class="flex-1 min-w-0">
                     <p class="font-montserrat text-xs text-gold tracking-wider uppercase mb-1">${w.brand}</p>
                     <h3 class="font-cormorant text-xl text-primary">${w.name}</h3>
                     <p class="font-montserrat text-sm text-muted-c mt-1">DA${w.price.toLocaleString()} each</p>
                   </div>
                   <div class="flex items-center gap-3">
-                    <button onclick="App.updateCartQty('${w.id}', ${item.qty - 1})" class="w-8 h-8 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat">&minus;</button>
+                    <button onclick="App.updateCartQty('${w.id}', ${item.qty - 1})" class="w-11 h-11 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat" aria-label="&minus;">&minus;</button>
                     <span class="w-8 text-center font-montserrat">${item.qty}</span>
-                    <button onclick="App.updateCartQty('${w.id}', ${item.qty + 1})" class="w-8 h-8 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat">+</button>
+                    <button onclick="App.updateCartQty('${w.id}', ${item.qty + 1})" class="w-11 h-11 border border-medium flex items-center justify-center hover-bg-hover transition-colors duration-200 cursor-pointer font-montserrat" aria-label="+">+</button>
                   </div>
                     <div class="text-right">
                     <p class="font-cormorant text-xl text-primary">DA${(w.price * item.qty).toLocaleString()}</p>
@@ -865,7 +901,7 @@ const App = {
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-subtotal">Subtotal</span><span>DA${total.toLocaleString()}</span></div>
             <div class="flex justify-between font-montserrat text-muted-c mb-2"><span data-i18n="cart-shipping">Shipping</span>${this.freeShippingThreshold() > 0 && total >= this.freeShippingThreshold() ? '<span class="text-green-600" data-i18n="cart-free">Free</span>' : '<span class="text-muted-c">Calculated at checkout</span>'}</div>
             <div class="border-t border-subtle mt-4 pt-4 flex justify-between font-cormorant text-2xl text-primary"><span data-i18n="cart-total">Total</span><span>DA${total.toLocaleString()}</span></div>
-            <a href="#checkout" class="block w-full bg-gold text-primary text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="cart-proceed">Proceed to Checkout</a>
+            <a href="#checkout" class="block w-full bg-gold text-gold-ink text-center py-4 mt-6 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="cart-proceed">Proceed to Checkout</a>
             <a href="#products" class="block w-full text-center py-3 font-montserrat text-sm text-muted-c hover-text-primary transition-colors duration-300 cursor-pointer mt-2" data-i18n="checkout-continue">Continue Shopping</a>
             <button onclick="App.clearCart()" class="block w-full text-center py-2 font-montserrat text-xs text-stone-500 hover:text-red-500 transition-colors duration-200 cursor-pointer mt-1" data-i18n="cart-clear">Clear Cart</button>
           </div>
@@ -884,7 +920,7 @@ const App = {
               <svg class="w-16 h-16 text-stone-500 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               <h1 class="font-cormorant text-3xl text-primary mb-4">Order Not Found</h1>
               <p class="font-montserrat text-muted-c mb-8">No order found with ID "${esc(param)}".</p>
-              <a href="#track" class="inline-flex items-center gap-2 bg-gold text-primary px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase cursor-pointer">Try Again</a>
+              <a href="#track" class="inline-flex items-center gap-2 bg-gold text-gold-ink px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase cursor-pointer">Try Again</a>
             </div>
           </div>
         `);
@@ -909,7 +945,7 @@ const App = {
                     var idx = ['pending','confirmed','shipped','delivered'].indexOf(o.status);
                     var done = idx >= i;
                     var cancelled = o.status === 'cancelled';
-                    return '<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ' + (cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-primary' : 'bg-stone-800 text-stone-500') + '">' + (done && !cancelled ? '\u2713' : '\u2022') + '</div><div class="text-2xs mt-1 ' + (cancelled ? 'text-stone-500' : done ? 'text-gold' : 'text-stone-600') + '">' + statusLabels[s] + '</div></div>' + (i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : '');
+                    return '<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ' + (cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-stone-500') + '">' + (done && !cancelled ? '\u2713' : '\u2022') + '</div><div class="text-2xs mt-1 ' + (cancelled ? 'text-stone-500' : done ? 'text-gold' : 'text-stone-600') + '">' + statusLabels[s] + '</div></div>' + (i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : '');
                   }).join('')}
                 </div>
                 ${o.status === 'cancelled' ? '<p class="text-center text-2xs text-red-400 mt-3">This order was cancelled.</p>' : ''}
@@ -926,7 +962,7 @@ const App = {
                 ${o.items.map(function(item) {
                   var p = this.watches.find(function(w) { return w.id === item.id; });
                   return '<div class="flex justify-between py-1"><span class="font-montserrat text-sm text-primary">' + (p ? esc(p.name) : item.id) + ' x' + item.qty + '</span><span class="font-cormorant">DA' + ((p ? p.price : 0) * item.qty).toLocaleString() + '</span></div>';
-                }.call(this)).join('')}
+                }.bind(this)).join('')}
                 ${o.deliveryCompany ? '<div class="flex justify-between py-1"><span class="font-montserrat text-sm text-muted-c">' + esc(o.deliveryCompany) + '</span><span class="font-cormorant">DA' + (o.deliveryPrice || 0).toLocaleString() + '</span></div>' : ''}
                 <div class="flex justify-between border-t border-subtle pt-3 mt-3 font-cormorant text-xl text-primary"><span>Total</span><span>DA${o.total.toLocaleString()}</span></div>
               </div>
@@ -1234,7 +1270,7 @@ const App = {
                   </div>
                 </div>
               </div>
-              <button id="checkout-confirm-btn" onclick="App.placeOrder()" class="w-full bg-gold text-primary py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; DA${total.toLocaleString()}</button>
+              <button id="checkout-confirm-btn" onclick="App.placeOrder()" class="w-full bg-gold text-gold-ink py-5 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-place-order">Confirm Order &mdash; DA${total.toLocaleString()}</button>
             </div>
             <div class="md:col-span-2">
               <div class="bg-card border border-subtle p-8 sticky top-32">
@@ -1393,7 +1429,7 @@ const App = {
             </div>
           </div>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="#track/${orderId}" class="flex items-center justify-center gap-2 bg-gold text-primary px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-track">Track Order</a>
+            <a href="#track/${orderId}" class="flex items-center justify-center gap-2 bg-gold text-gold-ink px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold-hover transition-colors duration-300 cursor-pointer" data-i18n="checkout-track">Track Order</a>
             <button onclick="App.whatsappConfirmOrder()" class="flex items-center justify-center gap-2 border border-[#25D366]/40 text-[#25D366] px-8 py-4 font-montserrat text-sm tracking-wider uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300 cursor-pointer"><svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span data-i18n="checkout-whatsapp">Confirm via WhatsApp</span></button>
             <a href="#home" class="flex items-center justify-center gap-2 border border-inverse text-primary px-8 py-4 font-montserrat text-sm tracking-wider uppercase hover-bg-inverse transition-colors duration-300 cursor-pointer" data-i18n="checkout-continue">Return Home</a>
           </div>
@@ -1543,7 +1579,7 @@ const App = {
                 <input type="text" placeholder="Phone Number" class="w-full border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200">
                 <input type="text" placeholder="Subject" class="w-full border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200">
                 <textarea rows="5" placeholder="Message" class="w-full border border-medium px-4 py-3 font-montserrat text-sm bg-transparent focus:outline-none focus:border-gold transition-colors duration-200 resize-none"></textarea>
-                <button onclick="App.showToast('Message sent — we will respond within 24 hours.')" class="w-full bg-inverse text-white py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-primary transition-all duration-300 cursor-pointer">Send Message</button>
+                <button onclick="App.showToast('Message sent — we will respond within 24 hours.')" class="w-full bg-inverse text-white py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-gold-ink transition-all duration-300 cursor-pointer">Send Message</button>
               </div>
             </div>
           </div>
@@ -1748,7 +1784,7 @@ const App = {
                 var cancelled = o.status === 'cancelled';
                 return `
                 <div class="flex-1 text-center">
-                  <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ${cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-primary' : 'bg-stone-800 text-stone-500'}">${done && !cancelled ? '✓' : '•'}</div>
+                  <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ${cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-stone-500'}">${done && !cancelled ? '✓' : '•'}</div>
                   <div class="text-2xs mt-1 ${cancelled ? 'text-stone-500' : done ? 'text-gold' : 'text-stone-600'}">${statusLabels[s]}</div>
                   ${o.status === s ? '<div class="text-2xs text-gold mt-0.5">← Current</div>' : ''}
                 </div>
@@ -2346,11 +2382,13 @@ const App = {
       <a href="#product-${esc(w.id)}" class="product-card ${w.in_stock === false ? 'opacity-dimmed' : ''}">
         <div class="relative overflow-hidden product-card-img-wrap">
           <img src="${esc(w.img)}" alt="${esc(w.brand)} ${esc(w.name)}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 500%22%3E%3Crect fill=%22%231C1917%22 width=%22400%22 height=%22500%22/%3E%3Ctext x=%22200%22 y=%22250%22 text-anchor=%22middle%22 fill=%22%23CA8A04%22 font-family=%22serif%22 font-size=%2222%22%3E' + encodeURIComponent((this.alt || 'Watch').split(' ').slice(0,2).join(' ')) + '%3C/text%3E%3C/svg%3E'">
-          ${w.new ? '<span class="badge-new">New</span>' : ''}
-          ${w.originalPrice ? '<span class="badge-sale">Sale</span>' : ''}
-          ${w.in_stock === false ? '<span class="badge-oos">Out of Stock</span>' : ''}
-          <button onclick="event.preventDefault();event.stopPropagation();App.toggleWishlist('${esc(w.id)}')" class="absolute top-3 right-3 z-10 p-1.5 cursor-pointer transition-all duration-200" style="background:rgba(0,0,0,0.4);border-radius:50%;border:none;line-height:0">
-            <svg class="w-4 h-4 transition-colors duration-200" fill="${wishlisted ? '#EF4444' : 'none'}" stroke="${wishlisted ? '#EF4444' : 'white'}" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <div class="product-badges">
+            ${w.new ? '<span class="badge-new" data-i18n="badge-new">New</span>' : ''}
+            ${w.originalPrice ? '<span class="badge-sale" data-i18n="badge-sale">Sale</span>' : ''}
+            ${w.in_stock === false ? '<span class="badge-oos" data-i18n="product-oos">Out of Stock</span>' : ''}
+          </div>
+          <button onclick="event.preventDefault();event.stopPropagation();App.toggleWishlist('${esc(w.id)}')" class="wishlist-btn" aria-pressed="${wishlisted}" aria-label="${esc(w.name)}" title="${esc(w.name)}">
+            <svg class="w-4 h-4 transition-colors duration-200" fill="${wishlisted ? '#EF4444' : 'none'}" stroke="${wishlisted ? '#EF4444' : 'white'}" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
           </button>
         </div>
         <div class="product-info">
