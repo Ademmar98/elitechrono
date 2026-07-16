@@ -54,7 +54,7 @@ function track(eventName, params) {
 
 function updateMeta(title, desc, image) {
   var base = 'https://elitechrono.runsite.app';
-  var t = title || 'Elite Chrono \u2014 Luxury Timepieces';
+  var t = title || 'Prestige Boutique \u2014 Luxury Timepieces';
   var d = desc || 'Discover extraordinary timepieces from the world\u2019s finest watch maisons.';
   var img = image || base + '/og-image.png';
   document.title = t;
@@ -182,31 +182,31 @@ const App = {
     var metaTitle, metaDesc, metaImg;
     var base = 'https://elitechrono.runsite.app';
     if (route === 'home') {
-      metaTitle = 'Elite Chrono \u2014 Luxury Timepieces';
+      metaTitle = 'Prestige Boutique \u2014 Luxury Timepieces';
       metaDesc = 'Discover extraordinary timepieces from the world\u2019s finest watch maisons. Rolex, Patek Philippe, Audemars Piguet and more.';
     } else if (route === 'watches') {
-      metaTitle = 'All Watches \u2014 Elite Chrono';
+      metaTitle = 'All Watches \u2014 Prestige Boutique';
       metaDesc = 'Browse our curated collection of luxury timepieces from the world\u2019s finest brands.';
     } else if (route === 'brands') {
-      metaTitle = 'All Brands \u2014 Elite Chrono';
+      metaTitle = 'All Brands \u2014 Prestige Boutique';
       metaDesc = 'Explore the world\u2019s finest watch maisons. Rolex, Patek Philippe, Audemars Piguet, Cartier and more.';
     } else if (route === 'checkout') {
-      metaTitle = 'Checkout \u2014 Elite Chrono';
+      metaTitle = 'Checkout \u2014 Prestige Boutique';
       metaDesc = 'Complete your order for luxury timepieces.';
     } else if (route === 'contact') {
-      metaTitle = 'Contact Us \u2014 Elite Chrono';
-      metaDesc = 'Get in touch with Elite Chrono. We are here to help.';
+      metaTitle = 'Contact Us \u2014 Prestige Boutique';
+      metaDesc = 'Get in touch with Prestige Boutique. We are here to help.';
     } else if (route === 'featured') {
-      metaTitle = 'Featured Timepieces \u2014 Elite Chrono';
+      metaTitle = 'Featured Timepieces \u2014 Prestige Boutique';
       metaDesc = 'Our curated selection of the most exceptional luxury watches.';
     } else if (route === 'elite-zone') {
-      metaTitle = 'Admin Panel \u2014 Elite Chrono';
-      metaDesc = 'Elite Chrono administration dashboard.';
+      metaTitle = 'Admin Panel \u2014 Prestige Boutique';
+      metaDesc = 'Prestige Boutique administration dashboard.';
     } else if (route === 'track') {
-      metaTitle = 'Order Tracking \u2014 Elite Chrono';
-      metaDesc = 'Track the status of your Elite Chrono order.';
+      metaTitle = 'Order Tracking \u2014 Prestige Boutique';
+      metaDesc = 'Track the status of your Prestige Boutique order.';
     } else if (route === 'wishlist') {
-      metaTitle = 'Wishlist \u2014 Elite Chrono';
+      metaTitle = 'Wishlist \u2014 Prestige Boutique';
       metaDesc = 'Your saved favorite timepieces.';
     }
     updateMeta(metaTitle, metaDesc, metaImg);
@@ -267,7 +267,7 @@ const App = {
     injectJSONLD({
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      name: 'Elite Chrono',
+      name: 'Prestige Boutique',
       url: 'https://elitechrono.runsite.app',
       logo: 'https://elitechrono.runsite.app/favicon.svg',
       description: 'Un atelier d\'exception dédié aux plus belles montres depuis 2024.',
@@ -520,7 +520,7 @@ const App = {
 
   renderBrand(brandSlug) {
     var brandName = brandSlug.replace(/-/g, ' ').replace(/\b\w/g, function(c){return c.toUpperCase();});
-    updateMeta(brandName + ' Watches \u2014 Elite Chrono', 'Explore the collection of ' + brandName + ' luxury timepieces at Elite Chrono.');
+    updateMeta(brandName + ' Watches \u2014 Prestige Boutique', 'Explore the collection of ' + brandName + ' luxury timepieces at Prestige Boutique.');
     const brand = BRANDS.find(b => slug(b) === brandSlug) || brandSlug;
     const watches = this.watches.filter(w => slug(w.brand) === slug(brand));
     const actualBrand = watches.length > 0 ? watches[0].brand : brand;
@@ -614,7 +614,7 @@ const App = {
     }
     if (!watch) { this.showError('Watch not found'); return; }
     this.trackRecentlyViewed(watch.id);
-    updateMeta(watch.name + ' \u2014 Elite Chrono', watch.brand + ' luxury watch. ' + (watch.description || ''), watch.image);
+    updateMeta(watch.name + ' \u2014 Prestige Boutique', watch.brand + ' luxury watch. ' + (watch.description || ''), watch.image);
     track('ViewContent', { content_name: watch.name, content_category: watch.brand, content_ids: [watch.id], content_type: 'product', currency: 'DZD', value: watch.price });
     const watchId = watch.id;
     const similar = this.watches.filter(w => w.brand === watch.brand && w.id !== watch.id);
@@ -974,7 +974,7 @@ const App = {
         total += w.price * item.qty;
       }
     }.bind(this));
-    var msg = 'Bonjour Elite Chrono ! Je souhaite commander :%0A%0A';
+    var msg = 'Bonjour Prestige Boutique ! Je souhaite commander :%0A%0A';
     msg += lines.join('%0A');
     msg += '%0A%0ATotal : DA' + total.toLocaleString();
     msg += '%0A%0AVeuillez me contacter pour confirmer les détails de livraison.';
@@ -989,7 +989,7 @@ const App = {
       return '- ' + (w ? w.name : item.id) + ' x' + item.qty;
     });
     var deliveryLabel = o.deliveryType === 'desk' ? 'Stop Desk' : 'À domicile';
-    var msg = 'Bonjour Elite Chrono ! Je viens de passer la commande ' + o.id + ' :\n\n'
+    var msg = 'Bonjour Prestige Boutique ! Je viens de passer la commande ' + o.id + ' :\n\n'
       + lines.join('\n')
       + '\n\nLivraison : ' + o.deliveryCompany + ' (' + deliveryLabel + ') — ' + (o.deliveryPrice ? 'DA' + o.deliveryPrice.toLocaleString() : 'Offerte')
       + '\nTotal : DA' + o.total.toLocaleString()
@@ -1321,7 +1321,7 @@ const App = {
         <div class="max-w-4xl mx-auto px-6">
           <div class="mb-16 text-center">
             <p class="font-montserrat text-gold text-sm tracking-[0.3em] uppercase mb-3" data-i18n="section-journal">Our Story</p>
-            <h1 class="font-cormorant text-5xl md:text-7xl text-primary" data-i18n-html="about-title">About Elite Chrono</h1>
+            <h1 class="font-cormorant text-5xl md:text-7xl text-primary" data-i18n-html="about-title">About Prestige Boutique</h1>
           </div>
           <div class="prose max-w-none">
             <div class="aspect-[21/9] mb-16 flex items-center justify-center" style="background: linear-gradient(135deg, #000, var(--hero-via));">
@@ -1365,26 +1365,31 @@ const App = {
                     <line x1="40" y1="18" x2="35" y2="12"/>
                   </g>
                 </g>
-                <!-- EC Monogram -->
-                <text x="80" y="94" font-family="'Cormorant',Georgia,serif" font-size="58" font-weight="600" fill="url(#logoGold)" text-anchor="middle" letter-spacing="2">EC</text>
+                <!-- PB Monogram: B overlaps P by 9u and is knocked out with a bg hairline, so the
+                     P bowl reads as passing behind the B. textLength pins the geometry so the
+                     fallback serif renders identical proportions to Cormorant before the webfont swaps in. -->
+                <g font-family="'Cormorant',Georgia,serif" font-size="58" font-weight="600" fill="url(#logoGold)">
+                  <text x="67.62" y="94" text-anchor="middle" textLength="31.84" lengthAdjust="spacingAndGlyphs">P</text>
+                  <text x="91.42" y="94" text-anchor="middle" textLength="33.76" lengthAdjust="spacingAndGlyphs" stroke="#0C0A09" stroke-width="2.4" paint-order="stroke">B</text>
+                </g>
                 <!-- Decorative line -->
-                <rect x="155" y="78" width="90" height="0.5" fill="url(#logoGold)" opacity="0.3"/>
-                <!-- Brand name -->
-                <text x="290" y="78" font-family="'Cormorant',Georgia,serif" font-size="26" font-weight="500" fill="#FAFAF9" text-anchor="middle" letter-spacing="4">ELITE</text>
-                <text x="290" y="102" font-family="'Cormorant',Georgia,serif" font-size="26" font-weight="500" fill="url(#logoGold)" text-anchor="middle" letter-spacing="4">CHRONO</text>
+                <rect x="158" y="74" width="56" height="0.5" fill="url(#logoGold)" opacity="0.3"/>
+                <!-- Brand name — both words are 8 letters, pinned to one 135u column so they align exactly -->
+                <text x="296" y="76" font-family="'Cormorant',Georgia,serif" font-size="23" font-weight="500" fill="#FAFAF9" text-anchor="middle" letter-spacing="3.2" textLength="135" lengthAdjust="spacing">PRESTIGE</text>
+                <text x="296" y="98" font-family="'Cormorant',Georgia,serif" font-size="23" font-weight="500" fill="url(#logoGold)" text-anchor="middle" letter-spacing="3.2" textLength="135" lengthAdjust="spacing">BOUTIQUE</text>
                 <!-- Decorative line -->
-                <rect x="155" y="98" width="90" height="0.5" fill="url(#logoGold)" opacity="0.3"/>
+                <rect x="158" y="96" width="56" height="0.5" fill="url(#logoGold)" opacity="0.3"/>
                 <!-- Tagline -->
-                <text x="290" y="120" font-family="'Montserrat',sans-serif" font-size="7" font-weight="300" fill="#A8A29E" text-anchor="middle" letter-spacing="3">LUXURY TIMEPIECES</text>
+                <text x="296" y="116" font-family="'Montserrat',sans-serif" font-size="7" font-weight="300" fill="#A8A29E" text-anchor="middle" letter-spacing="3" textLength="135" lengthAdjust="spacing">LUXURY TIMEPIECES</text>
                 <!-- Right gear -->
-                <g opacity="0.08">
-                  <circle cx="320" cy="80" r="40" stroke="url(#logoGold)" stroke-width="0.4"/>
-                  <circle cx="320" cy="80" r="10" stroke="url(#logoGold)" stroke-width="0.3"/>
-                  <g stroke="url(#logoGold)" stroke-width="0.4">
-                    <line x1="320" y1="40" x2="320" y2="120"/>
-                    <line x1="280" y1="80" x2="360" y2="80"/>
-                    <line x1="292" y1="52" x2="348" y2="108"/>
-                    <line x1="348" y1="52" x2="292" y2="108"/>
+                <g opacity="0.6">
+                  <circle cx="322" cy="80" r="40" stroke="url(#logoGoldDim)" stroke-width="0.4"/>
+                  <circle cx="322" cy="80" r="10" stroke="url(#logoGoldDim)" stroke-width="0.3"/>
+                  <g stroke="url(#logoGoldDim)" stroke-width="0.4">
+                    <line x1="322" y1="40" x2="322" y2="120"/>
+                    <line x1="282" y1="80" x2="362" y2="80"/>
+                    <line x1="294" y1="52" x2="350" y2="108"/>
+                    <line x1="350" y1="52" x2="294" y2="108"/>
                   </g>
                 </g>
               </svg>
@@ -1392,7 +1397,7 @@ const App = {
             <div class="grid md:grid-cols-2 gap-12 mb-16">
               <div>
                 <h2 class="font-cormorant text-3xl text-primary mb-6">Founded in Passion</h2>
-                <p class="font-montserrat text-stone-600 leading-relaxed mb-4">Elite Chrono was born from a singular vision: to curate the world's finest timepieces for discerning collectors and enthusiasts. What began as a private collection has grown into a destination for horological excellence.</p>
+                <p class="font-montserrat text-stone-600 leading-relaxed mb-4">Prestige Boutique was born from a singular vision: to curate the world's finest timepieces for discerning collectors and enthusiasts. What began as a private collection has grown into a destination for horological excellence.</p>
                 <p class="font-montserrat text-stone-600 leading-relaxed">We collaborate directly with the most prestigious maisons — Rolex, Patek Philippe, Audemars Piguet, and more — to bring you an unparalleled selection of new and iconic watches.</p>
               </div>
               <div>
@@ -1409,7 +1414,7 @@ const App = {
             </div>
             <div class="mt-16 p-10 bg-card border border-subtle">
               <h2 class="font-cormorant text-3xl text-primary mb-4">Our Commitment</h2>
-              <p class="font-montserrat text-stone-600 leading-relaxed">Every timepiece purchased from Elite Chrono includes a comprehensive authenticity certificate, international warranty, and complimentary insured shipping. Our concierge team is available 24/7 to assist with any inquiry.</p>
+              <p class="font-montserrat text-stone-600 leading-relaxed">Every timepiece purchased from Prestige Boutique includes a comprehensive authenticity certificate, international warranty, and complimentary insured shipping. Our concierge team is available 24/7 to assist with any inquiry.</p>
             </div>
           </div>
         </div>
@@ -1953,7 +1958,7 @@ const App = {
     var csv = rows.map(function(r) { return r.join(','); }).join('\n');
     var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     var url = URL.createObjectURL(blob);
-    var a = document.createElement('a'); a.href = url; a.download = 'elitechrono-orders-' + new Date().toISOString().slice(0,10) + '.csv';
+    var a = document.createElement('a'); a.href = url; a.download = 'prestigeboutique-orders-' + new Date().toISOString().slice(0,10) + '.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   },
 

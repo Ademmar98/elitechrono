@@ -29,7 +29,7 @@ const trans = {
     'section-featured-desc': 'Une sélection exclusive de garde-temps d\'exception.',
     'section-brands': 'Nos <span class="text-gold">Marques</span>',
     'section-all-watches': 'Toutes les Montres',
-    'section-journal': 'Le Journal Elite Chrono',
+    'section-journal': 'Le Journal Prestige Boutique',
     'section-journal-title': "L'Art de l'<span class=\"text-gold\">Horlogerie Fine</span>",
     'section-journal-desc': 'Explorez nos articles sur les chefs-d\'œuvre horlogers, le savoir-faire et les histoires derrière les montres les plus convoitées.',
     'read-more': 'Lire Plus',
@@ -54,7 +54,7 @@ const trans = {
     'footer-terms': "Conditions d'Utilisation",
     'footer-shipping': 'Livraison & Retours',
     'footer-faq': 'FAQ',
-    'footer-copyright': '&copy; 2026 Elite Chrono. Tous droits réservés.',
+    'footer-copyright': '&copy; 2026 Prestige Boutique. Tous droits réservés.',
 
     'cart-empty-title': 'Votre Panier est Vide',
     'cart-empty-desc': 'Découvrez notre collection de garde-temps d\'exception.',
@@ -147,7 +147,7 @@ const trans = {
 
     'search-placeholder': 'Rechercher une montre...',
 
-    'about-title': 'À Propos d\'<span class="text-gold">Elite Chrono</span>',
+    'about-title': 'À Propos de <span class="text-gold">Prestige Boutique</span>',
     'about-desc': 'Une passion centenaire pour la précision et la perfection horlogère.',
     'contact-title': 'Contactez-Nous',
     'contact-desc': 'Nous sommes à votre disposition pour toute question.',
@@ -183,7 +183,7 @@ const trans = {
     'section-featured-desc': 'A hand-picked selection of exceptional watches.',
     'section-brands': 'Our <span class="text-gold">Brands</span>',
     'section-all-watches': 'All Watches',
-    'section-journal': 'The Elite Chrono Journal',
+    'section-journal': 'The Prestige Boutique Journal',
     'section-journal-title': 'The Art of Fine<br><span class="text-gold">Watchmaking</span>',
     'section-journal-desc': 'Explore our curated stories on horological masterpieces, craftsmanship, and the stories behind the world\'s most coveted timepieces.',
     'read-more': 'Read More',
@@ -208,7 +208,7 @@ const trans = {
     'footer-terms': 'Terms of Service',
     'footer-shipping': 'Shipping & Returns',
     'footer-faq': 'FAQ',
-    'footer-copyright': '&copy; 2026 Elite Chrono. All rights reserved.',
+    'footer-copyright': '&copy; 2026 Prestige Boutique. All rights reserved.',
 
     'cart-empty-title': 'Your Cart is Empty',
     'cart-empty-desc': 'Discover our collection of exceptional timepieces.',
@@ -301,7 +301,7 @@ const trans = {
 
     'search-placeholder': 'Search watches...',
 
-    'about-title': 'About <span class="text-gold">Elite Chrono</span>',
+    'about-title': 'About <span class="text-gold">Prestige Boutique</span>',
     'about-desc': 'A century of passion, precision, and the pursuit of horological perfection.',
     'contact-title': 'Contact Us',
     'contact-desc': 'We\'re at your service for any inquiry.',
@@ -337,7 +337,7 @@ const trans = {
     'section-featured-desc': 'تشكيلة منتقاة بعناية من الساعات الاستثنائية.',
     'section-brands': '<span class="text-gold">ماركاتنا</span>',
     'section-all-watches': 'جميع الساعات',
-    'section-journal': 'مجلة Elite Chrono',
+    'section-journal': 'مجلة Prestige Boutique',
     'section-journal-title': 'فن صناعة <span class="text-gold">الساعات الفاخرة</span>',
     'section-journal-desc': 'استكشف قصصنا عن روائع صناعة الساعات والحرفية والحكايات وراء أشهر الساعات في العالم.',
     'read-more': 'اقرأ المزيد',
@@ -362,7 +362,7 @@ const trans = {
     'footer-terms': 'شروط الخدمة',
     'footer-shipping': 'الشحن والإرجاع',
     'footer-faq': 'الأسئلة الشائعة',
-    'footer-copyright': '&copy; 2026 Elite Chrono. جميع الحقوق محفوظة.',
+    'footer-copyright': '&copy; 2026 Prestige Boutique. جميع الحقوق محفوظة.',
 
     'cart-empty-title': 'سلتك فارغة',
     'cart-empty-desc': 'اكتشف مجموعتنا من الساعات الاستثنائية.',
@@ -455,7 +455,7 @@ const trans = {
 
     'search-placeholder': 'ابحث عن ساعة...',
 
-    'about-title': 'عن <span class="text-gold">Elite Chrono</span>',
+    'about-title': 'عن <span class="text-gold">Prestige Boutique</span>',
     'about-desc': 'شغف يمتد لعقود بالدقة والسعي للكمال في قياس الزمن.',
     'contact-title': 'اتصل بنا',
     'contact-desc': 'نحن في خدمتك لأي استفسار.',

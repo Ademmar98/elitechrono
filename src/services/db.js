@@ -242,7 +242,7 @@ const CMS_DEFAULTS = {
   hero_title: 'L\'Instant<br><span class="text-gold">Devient Éternité</span>',
   hero_desc: 'Un atelier d\'exception dédié aux plus belles montres du monde. Chaque mouvement raconte une histoire d\'héritage, d\'innovation et d\'un savoir-faire inégalé.',
   hero_cta: 'Explorer la Collection',
-  journal_badge: 'Le Journal Elite Chrono',
+  journal_badge: 'Le Journal Prestige Boutique',
   journal_title: 'L\'Art de l\'<span class="text-gold">Horlogerie Fine</span>',
   journal_desc: 'Explorez nos articles sur les chefs-d\'œuvre horlogers, le savoir-faire et les histoires derrière les montres les plus convoitées.',
   free_shipping_threshold: 30000,
