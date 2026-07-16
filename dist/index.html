@@ -242,6 +242,27 @@
     @media (max-width: 767px) { .thumb-img { width: 56px; height: 56px; } .gallery-arrow { font-size: 22px; padding: 4px 8px; } }
     @keyframes spin { to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
+
+    /* Delivery method selector */
+    .delivery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .delivery-option { position: relative; display: block; cursor: pointer; border: 1px solid var(--border-medium); background: var(--bg-page); padding: 16px 14px; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+    .delivery-option:hover:not(.is-unavailable) { border-color: rgba(202,138,4,0.55); transform: translateY(-2px); }
+    .delivery-option input { position: absolute; width: 1px; height: 1px; opacity: 0; margin: 0; pointer-events: none; }
+    .delivery-option:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .delivery-option.is-selected { border-color: var(--gold); background: var(--gold-bg); }
+    .delivery-check { position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%; background: var(--gold); color: #1C1917; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(.5); transition: opacity .2s ease, transform .2s ease; }
+    .delivery-option.is-selected .delivery-check { opacity: 1; transform: scale(1); }
+    .delivery-icon { color: var(--text-muted); transition: color .2s ease; }
+    .delivery-option.is-selected .delivery-icon { color: var(--gold); }
+    .delivery-title { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .delivery-desc { font-family: 'Montserrat', sans-serif; font-size: 11px; line-height: 1.45; color: var(--text-muted); margin-top: 2px; }
+    .delivery-price { font-family: 'Cormorant', serif; font-size: 20px; font-weight: 600; color: var(--gold); margin-top: 10px; }
+    .delivery-price.is-muted { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 400; color: var(--text-muted); }
+    .delivery-price.is-free { color: #6EE7B7; }
+    .delivery-option.is-unavailable { opacity: .45; cursor: not-allowed; border-style: dashed; }
+    .delivery-note { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 10px 12px; border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); font-family: 'Montserrat', sans-serif; font-size: 11px; line-height: 1.5; color: #FCA5A5; }
+    .delivery-note.hidden { display: none; }
+    html[dir="rtl"] .delivery-check { right: auto; left: 10px; }
   </style>
   <!-- Facebook Pixel -->
   <script>
@@ -249,7 +270,7 @@
     fbq('init', '957063077310078');
     fbq('track', 'PageView');
   </script>
-  <script type="module" crossorigin src="/assets/index-CtDJPQCI.js"></script>
+  <script type="module" crossorigin src="/assets/index-Cnpbx6J0.js"></script>
 </head>
 <body>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=957063077310078&ev=PageView&noscript=1"/></noscript>

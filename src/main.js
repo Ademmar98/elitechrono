@@ -1049,34 +1049,94 @@ const App = {
     return price > 0 ? price : null;
   },
 
+  _selectedCarrier() {
+    const el = document.querySelector('input[name="delivery-company"]:checked');
+    return el ? el.value : Object.keys(DELIVERY_PRICES)[0];
+  },
+
+  _selectedDeliveryType() {
+    const el = document.querySelector('input[name="delivery-method"]:checked');
+    return el ? el.value : 'domicile';
+  },
+
   updateDeliveryPrice() {
-    const wilayaCode = parseInt(document.getElementById('checkout-wilaya')?.value, 10);
-    const methodEl = document.querySelector('input[name="delivery-method"]:checked');
-    const method = methodEl ? methodEl.value : 'domicile';
-    const companyKey = document.getElementById('delivery-company')?.value || 'DHD';
+    const t = k => (window.__ ? window.__(k) : k);
+    const wilayaCode = parseInt(document.getElementById('checkout-wilaya')?.value, 10) || 0;
+    const companyKey = this._selectedCarrier();
     const subtotal = Cart.getTotal(this.watches);
     const threshold = this.freeShippingThreshold();
     const freeShipping = threshold > 0 && subtotal >= threshold;
-    const price = freeShipping ? 0 : (wilayaCode ? this._getDeliveryPrice(wilayaCode, companyKey, method) : null);
+
+    // Price and availability per option. A carrier that does not serve a wilaya
+    // has a 0 in the price table, which _getDeliveryPrice reports as null.
+    const available = [];
+    document.querySelectorAll('.delivery-option[data-method]').forEach(card => {
+      const m = card.dataset.method;
+      const raw = wilayaCode ? this._getDeliveryPrice(wilayaCode, companyKey, m) : null;
+      const unavailable = wilayaCode > 0 && raw == null;
+      if (!unavailable && wilayaCode) available.push(m);
+      card.classList.toggle('is-unavailable', unavailable);
+      const input = card.querySelector('input');
+      if (input) input.disabled = unavailable;
+      const priceEl = card.querySelector('.delivery-price');
+      if (!priceEl) return;
+      if (!wilayaCode) { priceEl.textContent = t('delivery-select-wilaya'); priceEl.className = 'delivery-price is-muted'; }
+      else if (unavailable) { priceEl.textContent = t('delivery-unavailable'); priceEl.className = 'delivery-price is-muted'; }
+      else if (freeShipping) { priceEl.textContent = t('cart-free'); priceEl.className = 'delivery-price is-free'; }
+      else { priceEl.textContent = 'DA' + raw.toLocaleString(); priceEl.className = 'delivery-price'; }
+    });
+
+    // Never leave an unavailable option selected \u2014 move to one that actually ships.
+    let method = this._selectedDeliveryType();
+    if (wilayaCode && available.length && available.indexOf(method) === -1) {
+      method = available[0];
+      const next = document.querySelector('input[name="delivery-method"][value="' + method + '"]');
+      if (next) next.checked = true;
+    }
+
+    document.querySelectorAll('.delivery-option[data-method]').forEach(c =>
+      c.classList.toggle('is-selected', c.dataset.method === method && !c.classList.contains('is-unavailable')));
+    document.querySelectorAll('.delivery-option[data-carrier]').forEach(c =>
+      c.classList.toggle('is-selected', c.dataset.carrier === companyKey));
+
+    const raw = wilayaCode ? this._getDeliveryPrice(wilayaCode, companyKey, method) : null;
+    const price = raw == null ? null : (freeShipping ? 0 : raw);
+    const noneAvailable = wilayaCode > 0 && available.length === 0;
+
+    const note = document.getElementById('delivery-note');
+    const noteText = document.getElementById('delivery-note-text');
+    if (note && noteText) {
+      note.classList.toggle('hidden', !noneAvailable);
+      if (noneAvailable) noteText.textContent = t('delivery-none-available');
+    }
 
     const shippingEl = document.getElementById('checkout-shipping-display');
-    const totalEl = document.getElementById('checkout-total-display');
-    const grandTotalEl = document.getElementById('checkout-grand-total');
-    const confirmBtn = document.getElementById('checkout-confirm-btn');
-
     if (shippingEl) {
-      if (freeShipping) {
-        shippingEl.textContent = window.__ ? window.__('cart-free') : 'Free';
+      if (price == null) {
+        shippingEl.textContent = '\u2014';
+        shippingEl.className = 'font-montserrat text-sm text-muted-c';
+      } else if (freeShipping) {
+        shippingEl.textContent = t('cart-free');
         shippingEl.className = 'font-montserrat text-sm text-green-600';
       } else {
-        shippingEl.textContent = price != null ? 'DA' + price.toLocaleString() : '\u2014';
-        shippingEl.className = price != null ? 'font-montserrat text-sm text-primary' : 'font-montserrat text-sm text-muted-c';
+        shippingEl.textContent = 'DA' + price.toLocaleString();
+        shippingEl.className = 'font-montserrat text-sm text-primary';
       }
     }
+
     const grandTotal = subtotal + (price || 0);
+    const totalEl = document.getElementById('checkout-total-display');
+    const grandTotalEl = document.getElementById('checkout-grand-total');
     if (totalEl) totalEl.textContent = 'DA' + grandTotal.toLocaleString();
     if (grandTotalEl) grandTotalEl.textContent = 'DA' + grandTotal.toLocaleString();
-    if (confirmBtn) confirmBtn.innerHTML = 'Confirm Order &mdash; DA' + grandTotal.toLocaleString();
+
+    const confirmBtn = document.getElementById('checkout-confirm-btn');
+    if (confirmBtn) {
+      confirmBtn.innerHTML = 'Confirm Order &mdash; DA' + grandTotal.toLocaleString();
+      confirmBtn.disabled = noneAvailable;
+      confirmBtn.style.opacity = noneAvailable ? '0.5' : '';
+      confirmBtn.style.cursor = noneAvailable ? 'not-allowed' : 'pointer';
+    }
   },
 
   renderCheckout() {
@@ -1084,9 +1144,6 @@ const App = {
 
     const total = Cart.getTotal(this.watches);
     const wilayaOptions = WILAYAS.map(w => `<option value="${w.code}">${w.name}</option>`).join('');
-    const companyOptions = Object.keys(DELIVERY_PRICES).map(k =>
-      `<option value="${k}">${DELIVERY_PRICES[k].name}</option>`
-    ).join('');
 
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
@@ -1120,25 +1177,49 @@ const App = {
                 </div>
               </div>
               <div class="bg-card border border-subtle p-8">
-                <h2 class="font-cormorant text-2xl text-primary mb-6">Delivery Method</h2>
-                <div class="space-y-4">
+                <h2 class="font-cormorant text-2xl text-primary mb-6" data-i18n="delivery-method">Delivery Method</h2>
+                <div class="space-y-6">
                   <div>
-                    <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Carrier</label>
-                    <select id="delivery-company" onchange="App.updateDeliveryPrice()" class="w-full border border-medium px-4 py-3 font-montserrat text-sm bg-card focus:outline-none focus:border-gold transition-colors duration-200">
-                      ${companyOptions}
-                    </select>
+                    <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-3 block" data-i18n="delivery-carrier">Carrier</label>
+                    <div class="delivery-grid">
+                      ${Object.keys(DELIVERY_PRICES).map((k, i) => `
+                        <label class="delivery-option" data-carrier="${k}">
+                          <input type="radio" name="delivery-company" value="${k}" ${i === 0 ? 'checked' : ''} onchange="App.updateDeliveryPrice()">
+                          <span class="delivery-check" aria-hidden="true"><svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+                          <div class="flex items-center gap-3">
+                            <svg class="delivery-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1"/></svg>
+                            <div class="min-w-0">
+                              <div class="delivery-title">${esc(DELIVERY_PRICES[k].name)}</div>
+                              ${DELIVERY_PRICES[k].nameAr ? `<div class="delivery-desc">${esc(DELIVERY_PRICES[k].nameAr)}</div>` : ''}
+                            </div>
+                          </div>
+                        </label>
+                      `).join('')}
+                    </div>
                   </div>
                   <div>
-                    <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-2 block">Delivery Type</label>
-                    <div class="flex gap-4">
-                      <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="delivery-method" value="domicile" checked onchange="App.updateDeliveryPrice()" class="accent-gold">
-                        <span class="font-montserrat text-sm text-primary">Home Delivery</span>
+                    <label class="font-montserrat text-xs text-muted-c tracking-wider uppercase mb-3 block" data-i18n="delivery-type">Delivery Type</label>
+                    <div class="delivery-grid">
+                      <label class="delivery-option" data-method="domicile">
+                        <input type="radio" name="delivery-method" value="domicile" checked onchange="App.updateDeliveryPrice()">
+                        <span class="delivery-check" aria-hidden="true"><svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+                        <svg class="delivery-icon w-6 h-6 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <div class="delivery-title" data-i18n="delivery-home">Home Delivery</div>
+                        <div class="delivery-desc" data-i18n="delivery-home-desc">Delivered to your address</div>
+                        <div class="delivery-price is-muted">&mdash;</div>
                       </label>
-                      <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="delivery-method" value="desk" onchange="App.updateDeliveryPrice()" class="accent-gold">
-                        <span class="font-montserrat text-sm text-primary">Stop Desk</span>
+                      <label class="delivery-option" data-method="desk">
+                        <input type="radio" name="delivery-method" value="desk" onchange="App.updateDeliveryPrice()">
+                        <span class="delivery-check" aria-hidden="true"><svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+                        <svg class="delivery-icon w-6 h-6 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        <div class="delivery-title" data-i18n="delivery-desk">Stop Desk</div>
+                        <div class="delivery-desc" data-i18n="delivery-desk-desc">Collect from the carrier office</div>
+                        <div class="delivery-price is-muted">&mdash;</div>
                       </label>
+                    </div>
+                    <div id="delivery-note" class="delivery-note hidden">
+                      <svg class="w-4 h-4 flex-shrink-0 mt-px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      <span id="delivery-note-text"></span>
                     </div>
                   </div>
                 </div>
@@ -1226,16 +1307,24 @@ const App = {
       return;
     }
 
-    const companyKey = document.getElementById('delivery-company')?.value || 'DHD';
-    const methodEl = document.querySelector('input[name="delivery-method"]:checked');
-    const deliveryType = methodEl ? methodEl.value : 'domicile';
+    const companyKey = this._selectedCarrier();
+    const deliveryType = this._selectedDeliveryType();
     const deliveryCompany = DELIVERY_PRICES[companyKey] ? DELIVERY_PRICES[companyKey].name : companyKey;
+
+    // The carrier does not serve every wilaya with every method. Without this the
+    // missing price falls through as 0 and the order ships for free by accident.
+    const quoted = this._getDeliveryPrice(wilayaCode, companyKey, deliveryType);
+    if (quoted == null) {
+      this.showToast(window.__ ? window.__('delivery-unavailable-toast') : 'This delivery method is not available in your wilaya');
+      this.updateDeliveryPrice();
+      return;
+    }
 
     const wilaya = WILAYAS.find(w => w.code === wilayaCode);
     const subtotal = Cart.getTotal(this.watches);
     const threshold = this.freeShippingThreshold();
     const freeShipping = threshold > 0 && subtotal >= threshold;
-    const deliveryPrice = freeShipping ? 0 : this._getDeliveryPrice(wilayaCode, companyKey, deliveryType);
+    const deliveryPrice = freeShipping ? 0 : quoted;
     const orderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
     const total = subtotal + (deliveryPrice || 0);
     const order = {
