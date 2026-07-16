@@ -828,9 +828,9 @@ this.render(`
     const added = Wishlist.toggle(id);
     const w = this.watches.find(w => w.id === id);
     if (added) {
-      this.showToast((w ? w.name + ' ' : '') + 'ajouté aux favoris');
+      this.showToast((w ? w.name + ' — ' : '') + (window.__ ? window.__('toast-wishlist-added') : 'Added to wishlist'));
     } else {
-      this.showToast((w ? w.name + ' ' : '') + 'retiré des favoris');
+      this.showToast((w ? w.name + ' — ' : '') + (window.__ ? window.__('toast-wishlist-removed') : 'Removed from wishlist'));
     }
     wishlistUpdateUI();
   },
@@ -842,8 +842,8 @@ this.render(`
         <div class="bg-page min-h-screen pt-32 pb-24">
           <div class="max-w-3xl mx-auto px-6 text-center">
             <div class="mb-8"><svg class="w-24 h-24 mx-auto text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
-            <h1 class="font-cormorant text-4xl text-primary mb-4">Votre liste de souhaits est vide</h1>
-            <p class="font-montserrat text-muted-c mb-8">Ajoutez vos montres préférées à vos favoris.</p>
+            <h1 class="font-cormorant text-4xl text-primary mb-4" data-i18n="wishlist-empty-title">Votre liste de souhaits est vide</h1>
+            <p class="font-montserrat text-muted-c mb-8" data-i18n="wishlist-empty-desc">Ajoutez vos montres préférées à vos favoris.</p>
             <a href="#products" class="inline-flex items-center gap-2 bg-inverse text-white px-8 py-4 font-montserrat font-semibold text-sm tracking-wider uppercase hover-bg-gold hover-text-gold-ink transition-all duration-300 cursor-pointer">Parcourir la Collection</a>
           </div>
         </div>
@@ -855,8 +855,8 @@ this.render(`
         <div class="max-w-7xl mx-auto px-6">
           ${this.bc(['Home', 'Wishlist'])}
           <div class="flex items-center justify-between mb-10">
-            <h1 class="font-cormorant text-4xl md:text-5xl text-primary">Mes Favoris</h1>
-            <span class="font-montserrat text-sm text-muted-c">${items.length} montre${items.length > 1 ? 's' : ''}</span>
+            <h1 class="font-cormorant text-4xl md:text-5xl text-primary" data-i18n="wishlist-title">Mes Favoris</h1>
+            <span class="font-montserrat text-sm text-muted-c">${items.length} <span data-i18n="products">montres</span></span>
           </div>
           <div class="product-grid">${items.map((w, i) => this.productCard(w, i)).join('')}</div>
         </div>
@@ -1084,14 +1084,14 @@ this.render(`
   },
 
   removeCartItem(id) {
-    if (confirm('Retirer cet article du panier ?')) {
+    if (confirm(window.__ ? window.__('confirm-remove-item') : 'Remove this item from your cart?')) {
       Cart.remove(id);
       this.renderCart();
     }
   },
 
   clearCart() {
-    if (confirm('Clear your entire cart?')) {
+    if (confirm(window.__ ? window.__('confirm-clear-cart') : 'Clear your entire cart?')) {
       Cart.clear();
       this.renderCart();
     }

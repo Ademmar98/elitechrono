@@ -115,6 +115,14 @@ const trans = {
     'brand-collection': 'Collection',
 
     'toast-added-cart': 'Ajouté au panier',
+    'toast-wishlist-added': 'Ajouté aux favoris',
+    'toast-wishlist-removed': 'Retiré des favoris',
+    'confirm-remove-item': 'Retirer cet article du panier ?',
+    'confirm-clear-cart': 'Vider tout le panier ?',
+
+    'wishlist-title': 'Mes Favoris',
+    'wishlist-empty-title': 'Votre liste de souhaits est vide',
+    'wishlist-empty-desc': 'Ajoutez vos montres préférées à vos favoris.',
 
     'about-title': 'À Propos de <span class="text-gold">Prestige Boutique</span>',
     'contact-title': 'Contactez-Nous',
@@ -235,6 +243,14 @@ const trans = {
     'brand-collection': 'Collection',
 
     'toast-added-cart': 'Added to cart',
+    'toast-wishlist-added': 'Added to wishlist',
+    'toast-wishlist-removed': 'Removed from wishlist',
+    'confirm-remove-item': 'Remove this item from your cart?',
+    'confirm-clear-cart': 'Clear your entire cart?',
+
+    'wishlist-title': 'My Wishlist',
+    'wishlist-empty-title': 'Your Wishlist is Empty',
+    'wishlist-empty-desc': 'Save your favourite timepieces here.',
 
     'about-title': 'About <span class="text-gold">Prestige Boutique</span>',
     'contact-title': 'Contact Us',
@@ -355,6 +371,14 @@ const trans = {
     'brand-collection': 'المجموعة',
 
     'toast-added-cart': 'تمت الإضافة إلى السلة',
+    'toast-wishlist-added': 'تمت الإضافة إلى المفضلة',
+    'toast-wishlist-removed': 'تمت الإزالة من المفضلة',
+    'confirm-remove-item': 'إزالة هذا المنتج من السلة؟',
+    'confirm-clear-cart': 'تفريغ السلة بالكامل؟',
+
+    'wishlist-title': 'قائمتي المفضلة',
+    'wishlist-empty-title': 'قائمة أمنياتك فارغة',
+    'wishlist-empty-desc': 'أضف ساعاتك المفضلة إلى قائمتك.',
 
     'about-title': 'عن <span class="text-gold">Prestige Boutique</span>',
     'contact-title': 'اتصل بنا',
