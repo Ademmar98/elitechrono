@@ -231,9 +231,20 @@ const App = {
     if (route === 'home') {
       metaTitle = 'Prestige Boutique \u2014 Luxury Timepieces';
       metaDesc = 'Discover extraordinary timepieces from the world\u2019s finest watch maisons. Rolex, Patek Philippe, Audemars Piguet and more.';
-    } else if (route === 'watches') {
+    } else if (route === 'products') {
+      // This branch checked route === 'watches', a route that does not exist, so the
+      // main catalog page shipped with the generic homepage title and description.
       metaTitle = 'All Watches \u2014 Prestige Boutique';
       metaDesc = 'Browse our curated collection of luxury timepieces from the world\u2019s finest brands.';
+    } else if (route === 'new-models') {
+      metaTitle = 'New Models \u2014 Prestige Boutique';
+      metaDesc = 'The latest additions to our collection of luxury timepieces.';
+    } else if (route === 'about') {
+      metaTitle = 'About Us \u2014 Prestige Boutique';
+      metaDesc = 'Prestige Boutique curates the world\u2019s finest timepieces for discerning collectors.';
+    } else if (route === 'cart') {
+      metaTitle = 'Shopping Bag \u2014 Prestige Boutique';
+      metaDesc = 'Review your selected timepieces.';
     } else if (route === 'brands') {
       metaTitle = 'All Brands \u2014 Prestige Boutique';
       metaDesc = 'Explore the world\u2019s finest watch maisons. Rolex, Patek Philippe, Audemars Piguet, Cartier and more.';
@@ -533,7 +544,17 @@ const App = {
     `);
   },
 
+  // Shared empty state for listing pages that used to render a bare heading over nothing.
+  emptyState() {
+    return `
+      <div class="text-center py-20">
+        <p class="font-cormorant text-2xl text-muted-c mb-8" data-i18n="no-products">No products available yet.</p>
+        <a href="#products" class="inline-flex items-center gap-2 border border-gold text-gold px-8 py-3 font-montserrat text-xs tracking-widest uppercase hover-bg-gold hover-text-gold-ink transition-all duration-300 cursor-pointer" data-i18n="cart-browse">Browse Collection</a>
+      </div>`;
+  },
+
   renderNewModels() {
+    const newModels = this.watches.filter(w => w.sections && w.sections.includes('New Models'));
     this.render(`
       <div class="bg-page min-h-screen pt-32 pb-24">
         <div class="max-w-7xl mx-auto px-6">
@@ -542,7 +563,8 @@ const App = {
             <h1 class="font-cormorant text-5xl md:text-6xl text-primary" data-i18n="nav-new-models">New Models</h1>
             <p class="font-montserrat text-muted-c mt-4" data-i18n="section-new-arrivals-desc">The latest additions to our collection</p>
           </div>
-          <div class="product-grid">${this.watches.filter(w => w.sections && w.sections.includes('New Models')).map((w, i) => this.productCard(w, i)).join('')}</div>
+          <div class="product-grid">${newModels.map((w, i) => this.productCard(w, i)).join('')}</div>
+          ${newModels.length === 0 ? this.emptyState() : ''}
         </div>
       </div>
     `);
@@ -560,7 +582,7 @@ const App = {
             <p class="font-montserrat text-muted-c mt-4" data-i18n="section-featured-desc">A hand-picked selection of exceptional watches.</p>
           </div>
           <div class="product-grid">${watches.map((w, i) => this.productCard(w, i)).join('')}</div>
-          ${watches.length === 0 ? '<div class="text-center py-20"><p class="font-cormorant text-2xl text-muted-c">No featured watches yet.</p></div>' : ''}
+          ${watches.length === 0 ? this.emptyState() : ''}
         </div>
       </div>
     `);
@@ -584,6 +606,7 @@ const App = {
             <p class="font-montserrat text-muted-c mt-4">${filtered.length} <span data-i18n="products">timepieces</span></p>
           </div>
           <div class="product-grid">${filtered.map((w, i) => this.productCard(w, i)).join('')}</div>
+          ${filtered.length === 0 ? this.emptyState() : ''}
         </div>
       </div>
     `);
