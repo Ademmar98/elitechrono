@@ -35,6 +35,13 @@ function prefersReducedMotion() {
   return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 }
 
+// Order status vocabulary. This was declared verbatim in three renderers (track page,
+// admin table, admin order modal) and the copies had already drifted once.
+var ORDER_STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+var ORDER_FLOW = ORDER_STATUSES.slice(0, 4);
+var STATUS_LABELS = { pending: 'Pending', confirmed: 'Confirmed', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
+var STATUS_BADGE = { pending: 'admin-badge-pending', confirmed: 'admin-badge-confirmed', shipped: 'admin-badge-shipped', delivered: 'admin-badge-delivered', cancelled: 'admin-badge-cancelled' };
+
 var _revealObserver = null;
 
 // Reveal-on-scroll. The .reveal class (which sets opacity:0) is only ever added here,
@@ -949,8 +956,6 @@ this.render(`
         `);
         return;
       }
-      var statusLabels = { pending: 'Pending', confirmed: 'Confirmed', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
-      var statusBadge = { pending: 'admin-badge-pending', confirmed: 'admin-badge-confirmed', shipped: 'admin-badge-shipped', delivered: 'admin-badge-delivered', cancelled: 'admin-badge-cancelled' };
       this.render(`
         <div class="bg-page min-h-screen pt-32 pb-24">
           <div class="max-w-2xl mx-auto px-6">
@@ -958,20 +963,20 @@ this.render(`
             <div class="bg-card border border-subtle p-8 md:p-10">
               <div class="flex items-center justify-between mb-6">
                 <h1 class="font-cormorant text-3xl text-primary">Order ${o.id}</h1>
-                <span class="admin-badge ${statusBadge[o.status] || 'admin-badge-pending'}">${statusLabels[o.status] || o.status}</span>
+                <span class="admin-badge ${STATUS_BADGE[o.status] || 'admin-badge-pending'}">${STATUS_LABELS[o.status] || o.status}</span>
               </div>
               <p class="font-montserrat text-sm text-muted-c mb-8">Placed on ${new Date(o.date).toLocaleString()}</p>
               <div class="border-t border-subtle pt-6 mb-8">
                 <h4 class="text-xs uppercase tracking-wider text-muted-c mb-4 font-montserrat">Status Timeline</h4>
                 <div class="flex items-start gap-0">
-                  ${['pending','confirmed','shipped','delivered'].map(function(s, i) {
-                    var idx = ['pending','confirmed','shipped','delivered'].indexOf(o.status);
+                  ${ORDER_FLOW.map(function(s, i) {
+                    var idx = ORDER_FLOW.indexOf(o.status);
                     var done = idx >= i;
                     var cancelled = o.status === 'cancelled';
                     // Reached steps are gold; not-yet-reached steps must recede. This used
                     // text-stone-600, which our override maps to #D6D3D1 \u2014 brighter than the
                     // gold \u2014 so the timeline was emphasising what had NOT happened.
-                    return '<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ' + (cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-dim-c') + '">' + (done && !cancelled ? '\u2713' : '\u2022') + '</div><div class="text-2xs mt-1 ' + (cancelled ? 'text-dim-c' : done ? 'text-gold' : 'text-dim-c') + '">' + statusLabels[s] + '</div></div>' + (i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : '');
+                    return '<div class="flex-1 text-center"><div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ' + (cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-dim-c') + '">' + (done && !cancelled ? '\u2713' : '\u2022') + '</div><div class="text-2xs mt-1 ' + (cancelled ? 'text-dim-c' : done ? 'text-gold' : 'text-dim-c') + '">' + STATUS_LABELS[s] + '</div></div>' + (i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : '');
                   }).join('')}
                 </div>
                 ${o.status === 'cancelled' ? '<p class="text-center text-2xs text-red-400 mt-3">This order was cancelled.</p>' : ''}
@@ -1721,9 +1726,6 @@ this.render(`
     const orders = this._cachedOrders || [];
     const statusFilter = new URLSearchParams(location.hash.slice(location.hash.indexOf('?'))).get('status') || '';
     const filtered = statusFilter ? orders.filter(o => o.status === statusFilter) : orders;
-    const statuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
-    const statusLabels = { pending: 'Pending', confirmed: 'Confirmed', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
-    const statusBadge = { pending: 'admin-badge-pending', confirmed: 'admin-badge-confirmed', shipped: 'admin-badge-shipped', delivered: 'admin-badge-delivered', cancelled: 'admin-badge-cancelled' };
 
     return `
       <div>
@@ -1732,7 +1734,7 @@ this.render(`
             <div class="flex flex-wrap items-center gap-2">
               <button onclick="App.exportOrdersCSV()" class="admin-btn admin-btn-ghost text-xs flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> CSV</button>
               <a href="#elite-zone" class="admin-btn admin-btn-ghost text-xs ${!statusFilter ? 'border-gold' : ''}">All</a>
-            ${statuses.map(s => `<a href="#elite-zone?status=${s}" class="admin-btn admin-btn-ghost text-xs ${statusFilter === s ? 'border-gold' : ''}">${statusLabels[s]}</a>`).join('')}
+            ${ORDER_STATUSES.map(s => `<a href="#elite-zone?status=${s}" class="admin-btn admin-btn-ghost text-xs ${statusFilter === s ? 'border-gold' : ''}">${STATUS_LABELS[s]}</a>`).join('')}
           </div>
         </div>
         <div class="overflow-x-auto border border-subtle">
@@ -1758,7 +1760,7 @@ this.render(`
                     <td><div class="font-montserrat text-sm">${o.firstName || ''} ${o.lastName || ''}</div><div class="font-montserrat text-xs text-muted-c">${o.phone}</div></td>
                     <td class="font-montserrat text-xs text-muted-c max-w-[200px] truncate">${items}</td>
                     <td class="font-cormorant text-sm">DA${total.toLocaleString()}</td>
-                    <td><select onchange="event.stopPropagation(); App.updateOrderStatus('${o.id}', this.value)" class="admin-select text-xs py-1 px-2 w-auto">${statuses.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${statusLabels[s]}</option>`).join('')}</select></td>
+                    <td><select onchange="event.stopPropagation(); App.updateOrderStatus('${o.id}', this.value)" class="admin-select text-xs py-1 px-2 w-auto">${ORDER_STATUSES.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${STATUS_LABELS[s]}</option>`).join('')}</select></td>
                   </tr>
                 `;
               }).join('')}
@@ -1786,8 +1788,6 @@ this.render(`
       o = await getOrderById(orderId);
     }
     if (!o) return;
-    const statusLabels = { pending: 'Pending', confirmed: 'Confirmed', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
-    const statusBadge = { pending: 'admin-badge-pending', confirmed: 'admin-badge-confirmed', shipped: 'admin-badge-shipped', delivered: 'admin-badge-delivered', cancelled: 'admin-badge-cancelled' };
     const overlay = document.createElement('div');
     overlay.className = 'admin-overlay';
     overlay.innerHTML = `
@@ -1799,19 +1799,19 @@ this.render(`
         <div class="space-y-5 text-sm font-montserrat">
           <div class="flex items-center justify-between">
             <div><span class="text-muted-c text-xs uppercase tracking-wider">Date</span><p class="text-primary">${new Date(o.date).toLocaleString()}</p></div>
-            <div><span class="text-muted-c text-xs uppercase tracking-wider">Status</span><p><span class="admin-badge ${statusBadge[o.status] || 'admin-badge-pending'}">${statusLabels[o.status] || o.status}</span></p></div>
+            <div><span class="text-muted-c text-xs uppercase tracking-wider">Status</span><p><span class="admin-badge ${STATUS_BADGE[o.status] || 'admin-badge-pending'}">${STATUS_LABELS[o.status] || o.status}</span></p></div>
           </div>
           <div class="border-t border-subtle pt-4">
             <h4 class="text-xs uppercase tracking-wider text-muted-c mb-3">Order Timeline</h4>
             <div class="flex items-start gap-0">
-              ${['pending','confirmed','shipped','delivered'].map((s, i) => {
-                var idx = ['pending','confirmed','shipped','delivered'].indexOf(o.status);
+              ${ORDER_FLOW.map((s, i) => {
+                var idx = ORDER_FLOW.indexOf(o.status);
                 var done = idx >= i;
                 var cancelled = o.status === 'cancelled';
                 return `
                 <div class="flex-1 text-center">
                   <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-semibold ${cancelled ? 'bg-stone-700 text-stone-400' : done ? 'bg-gold text-gold-ink' : 'bg-stone-800 text-dim-c'}">${done && !cancelled ? '✓' : '•'}</div>
-                  <div class="text-2xs mt-1 ${cancelled ? 'text-dim-c' : done ? 'text-gold' : 'text-dim-c'}">${statusLabels[s]}</div>
+                  <div class="text-2xs mt-1 ${cancelled ? 'text-dim-c' : done ? 'text-gold' : 'text-dim-c'}">${STATUS_LABELS[s]}</div>
                   ${o.status === s ? '<div class="text-2xs text-gold mt-0.5">← Current</div>' : ''}
                 </div>
                 ${i < 3 ? '<div class="flex-1 h-px bg-stone-700 self-center mt-3"></div>' : ''}

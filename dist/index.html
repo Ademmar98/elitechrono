@@ -28,8 +28,8 @@
       /* Surfaces: page -> card -> elevated is now a real 3-step ramp.
          --bg-elevated used to duplicate --bg-inverse, so nothing could sit "above" a card. */
       --bg-page: #0C0A09; --bg-card: #1A1614; --bg-elevated: #292320;
-      --bg-inverse: #292524; --bg-overlay: #000000; --bg-hover: rgba(255,255,255,0.06);
-      --text-primary: #FAFAF9; --text-secondary: #D6D3D1; --text-muted: #A8A29E; --text-inverse: #FAFAF9;
+      --bg-inverse: #292524; --bg-hover: rgba(255,255,255,0.06);
+      --text-primary: #FAFAF9; --text-secondary: #D6D3D1; --text-muted: #A8A29E;
       --border-subtle: #2A2422; --border-medium: #44403C; --border-gold: #CA8A04; --border-inverse: #FAFAF9;
       --gold: #CA8A04; --gold-hover: #E0A420; --gold-bright: #EBB93E; --gold-bg: rgba(202,138,4,0.12);
       /* Ink for text sitting ON gold. White on #CA8A04 is 2.81:1 and fails WCAG AA;
@@ -52,11 +52,22 @@
       --dur-fast: .18s; --dur-base: .32s; --dur-slow: .6s;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Metric-matched fallback: Georgia sized to occupy the same space Cormorant will,
+       so the swap on cold load stops shifting layout. 87.92% and the ascent/descent
+       were measured in-browser against the loaded webfont, not guessed. */
+    @font-face {
+      font-family: 'Cormorant Fallback';
+      src: local('Georgia');
+      size-adjust: 87.92%;
+      ascent-override: 92%;
+      descent-override: 29%;
+      line-gap-override: 0%;
+    }
     /* Noto Kufi Arabic sits behind Montserrat rather than replacing it: fallback is
        per-glyph, so latin keeps Montserrat and Arabic (absent from it) picks up a real
        webfont instead of whatever the OS happened to choose. */
     body { font-family: 'Montserrat', 'Noto Kufi Arabic', sans-serif; background: var(--bg-page); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
-    .font-cormorant { font-family: 'Cormorant', Georgia, serif; }
+    .font-cormorant { font-family: 'Cormorant', 'Cormorant Fallback', Georgia, serif; }
     .font-montserrat { font-family: 'Montserrat', 'Noto Kufi Arabic', sans-serif; }
     html[dir="rtl"] .font-cormorant { font-family: 'Noto Kufi Arabic', 'Cormorant', serif; }
     /* Locks the page behind the full-screen mobile menu. */
@@ -143,6 +154,13 @@
     .opacity-dimmed .price { color: var(--text-muted) !important; }
     .similar-hidden { display: none; }
     .similar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+    /* The wrapper div (needed for load-more hiding) swallowed the grid row's stretch, so
+       cards in a row ended at different heights and prices sat ragged. Flex passes the
+       stretch through. The .similar-hidden override below must outrank it or load-more
+       hiding silently breaks — hence the doubled selector. */
+    .similar-grid > div { display: flex; }
+    .similar-grid > div > .product-card { width: 100%; }
+    .similar-grid > div.similar-hidden { display: none; }
     .brands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
     .brand-showcase-card { background: var(--bg-card); border: 1px solid var(--border-subtle); overflow: hidden; cursor: pointer; display: flex; flex-direction: column; position: relative; transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94); }
     .brand-showcase-card:hover { border-color: var(--gold); transform: translateY(-6px); box-shadow: 0 12px 40px -8px rgba(202,138,4,0.12); }
@@ -172,7 +190,6 @@
     .text-muted-c { color: var(--text-muted); }
     .text-dim-c { color: var(--text-dim); }
     .text-gold { color: var(--gold); }
-    .text-inverse { color: var(--text-inverse); }
     .border-subtle { border-color: var(--border-subtle); }
     .border-medium { border-color: var(--border-medium); }
     .border-gold { border-color: var(--gold); }
@@ -181,13 +198,10 @@
     .hover-text-gold:hover { color: var(--gold); }
     .hover-text-primary:hover { color: var(--text-primary); }
     .hover-border-gold:hover { border-color: var(--gold); }
-    .hover-bg-page:hover { background: var(--bg-page); }
     .hover-bg-hover:hover { background: var(--bg-hover); }
     .hover-bg-gold-hover:hover { background: var(--gold-hover); }
     .hover-bg-inverse:hover { background: var(--bg-inverse); }
     .hover-border-inverse:hover { border-color: var(--border-inverse); }
-    .hover-border-gold-hover:hover { border-color: var(--gold); }
-    .bg-overlay { background: var(--bg-overlay); }
     .navbar-blur { background: var(--navbar-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
     /* These re-map Tailwind's light-theme stone palette for a near-black page.
        They MUST outrank Tailwind. The CDN build is JIT: it generates a class the first
@@ -201,17 +215,13 @@
     /* #78716C is 3.16:1 on the footer's #292524 and fails AA. */
     html .text-stone-500 { color: #A8A29E; }
     html .text-stone-600 { color: #D6D3D1; }
-    html .text-stone-700 { color: #E7E5E4; }
     html .bg-stone-100 { background-color: var(--bg-elevated); }
     html .bg-stone-800 { background-color: #292524; }
     /* Had no override at all, so Tailwind's #f5f5f4 drew near-white rules across the
        product spec table. */
     html .border-stone-100 { border-color: var(--border-subtle); }
-    html .border-stone-200 { border-color: var(--border-subtle); }
-    html .border-stone-300 { border-color: var(--border-medium); }
     html .border-stone-700 { border-color: var(--border-medium); }
     html .hover\:bg-stone-100:hover { background-color: var(--bg-elevated); }
-    html .bg-green-100 { background-color: #065F46; }
     html .text-green-600 { color: #6EE7B7; }
     html .text-red-500 { color: #F87171; }
     /* ── Brand rail ────────────────────────────────────────────────────────
@@ -234,7 +244,7 @@
     .brand-tile svg { width: 100%; height: auto; max-height: 46px; display: block; }
     @media (hover: hover) { .brand-tile:hover { color: var(--gold); border-color: var(--gold); background: var(--bg-elevated); } }
     .brand-tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; color: var(--gold); border-color: var(--gold); }
-    .brand-tile-name { font-family: 'Cormorant', Georgia, serif; font-size: 18px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+    .brand-tile-name { font-family: 'Cormorant', 'Cormorant Fallback', Georgia, serif; font-size: 18px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-align: center; }
     @media (max-width: 767px) {
       /* Was 320x160 with a 270px logo — one brand filled the whole phone screen. */
       .brand-tile { width: 132px; height: 72px; margin: 0 5px; padding: 12px 14px; }
@@ -287,8 +297,6 @@
     .admin-btn-ghost { background: transparent; border: 1px solid var(--border-medium); color: var(--text-primary); }
     .admin-btn-ghost:hover { border-color: var(--gold); }
     .admin-section-tag { display: inline-block; padding: 2px 10px; font-size: 10px; font-family: 'Montserrat',sans-serif; letter-spacing: 0.05em; background: var(--gold-bg); color: var(--gold); border: 1px solid rgba(202,138,4,0.2); }
-    .admin-checkbox-group label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-family: 'Montserrat',sans-serif; cursor: pointer; }
-    .admin-checkbox-group input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; }
     .section-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; font-family: 'Montserrat',sans-serif; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; border: 1px solid var(--border-medium); background: transparent; color: var(--text-muted); transition: all 0.2s; user-select: none; }
     .section-toggle.active { background: var(--gold-bg); border-color: var(--gold); color: var(--gold); }
     .admin-img-remove { background: none; border: 1px solid var(--border-medium); color: #EF4444; font-size: 18px; line-height: 1; padding: 0 12px; cursor: pointer; transition: all 0.2s; }
@@ -325,7 +333,7 @@
     .hero-badge::before { content: ''; width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }
     /* font-family was missing entirely, so the largest type on the site fell back to
        Montserrat and the italic below was synthesised by shearing it. */
-    .hero-title { font-family: 'Cormorant', Georgia, serif; font-weight: 500; font-size: clamp(2.75rem, 6.5vw, 6rem); color: var(--text-primary); line-height: 1.02; letter-spacing: -0.015em; margin-bottom: 1.5rem; opacity: 0; transform: translateY(24px); animation: fadeUp .9s var(--ease-out) .35s forwards; text-wrap: balance; }
+    .hero-title { font-family: 'Cormorant', 'Cormorant Fallback', Georgia, serif; font-weight: 500; font-size: clamp(2.75rem, 6.5vw, 6rem); color: var(--text-primary); line-height: 1.02; letter-spacing: -0.015em; margin-bottom: 1.5rem; opacity: 0; transform: translateY(24px); animation: fadeUp .9s var(--ease-out) .35s forwards; text-wrap: balance; }
     .hero-title span.text-gold { display: block; font-style: italic; font-weight: 400; }
     .hero-desc { font-size: 1.05rem; color: var(--text-secondary); max-width: 52ch; font-weight: 300; line-height: 1.75; margin-bottom: 2.5rem; opacity: 0; transform: translateY(24px); animation: fadeUp .9s var(--ease-out) .5s forwards; }
     .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; opacity: 0; transform: translateY(24px); animation: fadeUp .9s var(--ease-out) .65s forwards; }
@@ -397,7 +405,7 @@
     fbq('init', '957063077310078');
     fbq('track', 'PageView');
   </script>
-  <script type="module" crossorigin src="/assets/index-Cyxb0fvj.js"></script>
+  <script type="module" crossorigin src="/assets/index-D0zP_1kp.js"></script>
 </head>
 <body>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=957063077310078&ev=PageView&noscript=1"/></noscript>
@@ -422,7 +430,7 @@
 
         <div class="flex items-center gap-2 md:gap-3">
           <div class="lang-switcher" id="langSwitcher"></div>
-          <button id="menuToggle" class="md-hidden menu-btn font-montserrat text-[11px] text-secondary tracking-[0.15em] uppercase cursor-pointer" onclick="toggleMenu()">Menu</button>
+          <button id="menuToggle" class="md-hidden menu-btn font-montserrat text-[11px] tracking-[0.15em] uppercase cursor-pointer" onclick="toggleMenu()">Menu</button>
           <a href="#wishlist" class="relative cursor-pointer flex items-center justify-center p-3 -m-3" aria-label="Wishlist">
             <svg class="w-5 h-5 text-secondary hover-text-gold transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
             <span id="wishlist-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-montserrat font-bold w-4 h-4 flex items-center justify-center hidden">0</span>
